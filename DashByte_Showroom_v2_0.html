@@ -96,17 +96,39 @@
 
   function patchDashByte(doc){
     if(!doc||!doc.querySelector('.topbar'))return;
-    const nav=currentSiteY;
-    const css=`/* Telegram showroom only: center the mobile liquid-glass menu */
-      #topbar,.topbar{top:${nav}px!important;left:50%!important;right:auto!important;
+    // Fixed beneath Telegram's native top row; never slide through native controls.
+    const nav=currentSiteY+20;
+    const css=`/* Telegram showroom: pure opacity reveal. No vertical movement into Telegram controls. */
+      #topbar,.topbar{
+        position:fixed!important;top:${nav}px!important;left:50%!important;right:auto!important;
         width:calc(100% - 32px)!important;max-width:1120px!important;
-        margin-left:0!important;margin-right:0!important;
-        box-sizing:border-box!important}
-      #menu-sheet,.menu-sheet{top:${nav+109}px!important;max-height:calc(100dvh - ${nav+123}px)!important;overflow-y:auto!important}
-      html{scroll-padding-top:${nav+120}px!important}
+        margin-left:0!important;margin-right:0!important;box-sizing:border-box!important;
+        transform:translate3d(-50%,0,0)!important;
+        -webkit-transform:translate3d(-50%,0,0)!important;
+        animation:none!important;-webkit-animation:none!important;
+        transition:opacity .38s cubic-bezier(.22,.8,.24,1),visibility .38s!important;
+        -webkit-transition:opacity .38s cubic-bezier(.22,.8,.24,1),visibility .38s!important;
+        will-change:opacity;
+      }
+      body:not(.db-tg-menu-visible) #topbar,body:not(.db-tg-menu-visible) .topbar{
+        opacity:0!important;visibility:hidden!important;pointer-events:none!important;
+      }
+      body.db-tg-menu-visible #topbar,body.db-tg-menu-visible .topbar{
+        opacity:1!important;visibility:visible!important;pointer-events:auto!important;
+      }
+      #menu-sheet,.menu-sheet{
+        top:var(--db-tg-menu-sheet-top,${nav+155}px)!important;
+        max-height:calc(100dvh - var(--db-tg-menu-sheet-top,${nav+155}px) - 12px)!important;
+        overflow-y:auto!important;
+      }
+      html{scroll-padding-top:${nav+125}px!important}
       .lightbox-close{top:${currentSafe+12}px!important}
       @media(max-width:650px){
-        #topbar,.topbar{top:${nav}px!important;left:50%!important;right:auto!important;width:calc(100% - 28px)!important}
+        #topbar,.topbar{top:${nav}px!important;left:50%!important;right:auto!important;
+          width:calc(100% - 28px)!important}
+      }
+      @media(prefers-reduced-motion:reduce){
+        #topbar,.topbar{transition:none!important;-webkit-transition:none!important}
       }
       .db-showroom-return{position:relative;isolation:isolate;display:block;overflow:hidden;
         margin:clamp(38px,7vw,90px) auto 28px;padding:clamp(26px,5vw,54px);
@@ -132,6 +154,29 @@
         .db-showroom-return button{width:100%}}
     `;
     safeStyle(doc,'dashbyte-tg-studio-safe',css);
+    // The original site still manages the menu's content and expand/collapse behavior.
+    // We own only opacity visibility while it's embedded in the Telegram showroom.
+    const bar=doc.querySelector('#topbar,.topbar');
+    const height=bar?Math.max(85,Math.round(bar.getBoundingClientRect().height)||0):125;
+    doc.documentElement.style.setProperty('--db-tg-menu-sheet-top',(nav+height+10)+'px');
+    if(!doc.documentElement.dataset.dbTelegramFadeBound){
+      doc.documentElement.dataset.dbTelegramFadeBound='1';
+      const updateMenuVisibility=function(){
+        const win=doc.defaultView;
+        const scrollPos=Math.max(
+          win?win.scrollY||0:0,
+          doc.scrollingElement?doc.scrollingElement.scrollTop||0:0,
+          doc.documentElement.scrollTop||0,
+          doc.body?doc.body.scrollTop||0:0
+        );
+        // At the top, stay hidden; once the visitor scrolls, fade in and remain
+        // visible even while scrolling back up until reaching the very beginning.
+        doc.body.classList.toggle('db-tg-menu-visible',scrollPos>24);
+      };
+      doc.defaultView&&doc.defaultView.addEventListener('scroll',updateMenuVisibility,{passive:true});
+      doc.addEventListener('scroll',updateMenuVisibility,{passive:true,capture:true});
+      updateMenuVisibility();
+    }
     addShowroomReturn(doc);
   }
 
