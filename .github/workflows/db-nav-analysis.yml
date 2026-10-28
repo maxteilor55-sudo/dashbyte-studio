@@ -1,0 +1,30 @@
+name: Inspect embedded headers
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/db-nav-analysis.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect actual markup and scroll controllers
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          for path,keywords in [
+              ('index.html',['id="topbar"','class="topbar"','topbar.classList','db-header-visible','showroom-stage','style.setProperty(\'top\'','function setHeader','class="edge-fog']),
+              ('showcase.html',['class="site-header"','site-header','id="arsenal"','<iframe','safe-area-inset-top'])]:
+              t=Path(path).read_text(encoding='utf-8')
+              print('===',path,'BYTES',len(t),'===')
+              for needle in keywords:
+                  found=list(re.finditer(re.escape(needle),t))
+                  print('TOKEN',repr(needle),'COUNT',len(found))
+                  for m in found[:4]:
+                      s=t[max(0,m.start()-440):m.start()+1050]
+                      s=re.sub(r'data:[^"\']{200,}', '[EMBEDDED-MEDIA-OMITTED]',s)
+                      print('----',s.replace(chr(10),' '))
+          PY
