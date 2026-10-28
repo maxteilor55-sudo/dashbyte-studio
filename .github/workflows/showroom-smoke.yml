@@ -1,0 +1,101 @@
+name: Mobile smoke test — DashByte and Arsenal showroom
+on:
+  push:
+    branches: [main]
+    paths:
+      - index.html
+      - showroom.html
+      - dashbyte.html
+      - arsenal.html
+      - .github/workflows/showroom-smoke.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright@1.56.1
+      - name: Exercise fullscreen chooser and both direct project routes
+        shell: bash
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/db-server.log 2>&1 &
+          node <<'JS'
+          const {chromium}=require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true,executablePath:'/usr/bin/google-chrome',args:['--no-sandbox','--disable-dev-shm-usage']});
+            const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:2,isMobile:true,hasTouch:true});
+            const base='http://127.0.0.1:8765/';
+            const tgFragment='#tgWebAppVersion=8.0&tgWebAppPlatform=android&tgWebAppData=demo';
+            await page.addInitScript(()=>{
+              window.__fullscreenCalls=0;
+              const tg={
+                isFullscreen:false,
+                isVersionAtLeast:()=>true,
+                safeAreaInset:{top:24,bottom:0},
+                contentSafeAreaInset:{top:66,bottom:0},
+                ready(){},expand(){},requestFullscreen(){this.isFullscreen=true;window.__fullscreenCalls++},
+                BackButton:{hide(){}},
+                HapticFeedback:{impactOccurred(){}},
+                onEvent(){},setHeaderColor(){},setBackgroundColor(){}
+              };
+              Object.defineProperty(window,'Telegram',{value:{WebApp:tg},configurable:true});
+            });
+            await page.route('**/*',route=>{
+              const u=route.request().url();
+              if(!u.startsWith(base))return route.abort();
+              if(/\.mp4(?:\?|$)/.test(u))return route.abort();
+              return route.continue();
+            });
+            const goto=async(url)=>page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});
+            await goto(base+tgFragment);
+            const home=await page.evaluate(()=>({
+              title:document.title,
+              count:document.querySelectorAll('.project[data-project]').length,
+              noIframe:!document.querySelector('iframe'),
+              fullscreenCalls:window.__fullscreenCalls,
+              arsenal:!!document.querySelector('.project[data-project="arsenal"]'),
+              dashbyte:!!document.querySelector('.project[data-project="dashbyte"]')
+            }));
+            console.log('HOME '+JSON.stringify(home));
+            if(home.count!==2||!home.noIframe||!home.arsenal||!home.dashbyte||home.fullscreenCalls<1)throw Error('Chooser unavailable or Telegram fullscreen missing');
+            await page.locator('.project[data-project="arsenal"]').click({timeout:16000});
+            await page.waitForURL(/\/arsenal\.html#tgWebAppVersion/,{timeout:25000});
+            await page.locator('.site-header').waitFor({state:'attached',timeout:25000});
+            const ars=await page.evaluate(()=>({
+              top:getComputedStyle(document.querySelector('.site-header')).top,
+              returnLink:!!document.getElementById('db-arsenal-chooser-link'),
+              fullscreenCalls:window.__fullscreenCalls,
+              title:document.title
+            }));
+            console.log('ARSENAL '+JSON.stringify(ars));
+            if(!ars.returnLink||ars.fullscreenCalls<1||parseFloat(ars.top)<70||parseFloat(ars.top)>116)
+              throw Error('Arsenal glass header or return navigation broken: '+JSON.stringify(ars));
+            await page.locator('#db-arsenal-chooser-link').evaluate(el=>el.click());
+            await page.waitForURL(u=>u.pathname==='/'&&u.hash.includes('tgWebAppVersion'),{timeout:25000});
+            await page.locator('.project[data-project="dashbyte"]').click({timeout:16000});
+            await page.waitForURL(/\/dashbyte\.html#tgWebAppVersion/,{timeout:60000});
+            await page.locator('#topbar').waitFor({state:'attached',timeout:60000});
+            await page.waitForTimeout(350);
+            const db=await page.evaluate(()=>({
+              top:getComputedStyle(document.getElementById('topbar')).top,
+              returnLink:!!document.getElementById('db-chooser-return'),
+              direct:document.documentElement.classList.contains('db-direct-showroom'),
+              fullscreenCalls:window.__fullscreenCalls,
+              video:!!document.getElementById('db-mobile-hero-video'),
+              title:document.title
+            }));
+            console.log('DASHBYTE '+JSON.stringify(db));
+            if(!db.returnLink||!db.direct||!db.video||db.fullscreenCalls<1||parseFloat(db.top)<70||parseFloat(db.top)>116)
+              throw Error('DashByte full release/menu failed: '+JSON.stringify(db));
+            await page.locator('#db-chooser-return').evaluate(el=>el.click());
+            await page.waitForURL(u=>u.pathname==='/'&&u.hash.includes('tgWebAppVersion'),{timeout:30000});
+            console.log('PASS: selection -> Arsenal -> selection -> DashByte -> selection');
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
