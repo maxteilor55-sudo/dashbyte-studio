@@ -1,4 +1,4 @@
-name: One-time Telegram glass navigation position fix
+name: Apply Telegram glass header and cinematic edge polish
 
 on:
   push:
@@ -17,33 +17,106 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: true
-      - name: Raise glass header below native Telegram controls
+      - name: Apply safe-area positioning and seamless edge blur
         shell: bash
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          path = Path("index.html")
-          html = path.read_text(encoding="utf-8")
-          old = "--db-tg-menu-top:max(112px,calc(var(--db-tg-content-safe-top,0px) + 22px));"
-          new = "--db-tg-menu-top:max(76px,calc(var(--db-tg-content-safe-top,0px) + 12px));"
-          if old in html:
-              assert html.count(old) == 1, "Unexpected number of Telegram header styles"
-              path.write_text(html.replace(old, new), encoding="utf-8")
-              print("Raised Telegram glass header by 36 CSS px, retaining Telegram safe-area")
-          elif new in html:
-              print("Telegram header position is already updated")
-          else:
-              raise SystemExit("Expected Telegram header CSS not found; refusing blind edit")
+          
+          def once(text, old, new, label):
+              n = text.count(old)
+              if n == 1:
+                  return text.replace(old, new)
+              if n == 0 and new in text:
+                  return text
+              raise RuntimeError(f"Unexpected {label}: old={n}, new={text.count(new)}")
+          
+          index = Path("index.html")
+          html = index.read_text(encoding="utf-8")
+          html = once(html,
+              "--db-tg-menu-top:max(76px,calc(var(--db-tg-content-safe-top,0px) + 12px));",
+              "--db-tg-menu-top:max(72px,calc(var(--db-tg-content-safe-top,0px) + 4px));",
+              "direct Telegram header")
+          html = once(html, "Math.max(148,Math.min(320,px))",
+              "Math.max(72,Math.min(320,px))", "showroom clamp")
+          old = "var(--db-showroom-menu-top,164px)"
+          new = "var(--db-showroom-menu-top,84px)"
+          if html.count(old) == 3:
+              html = html.replace(old, new)
+          elif html.count(new) != 3:
+              raise RuntimeError("Unexpected embedded fallback offset")
+          fog_css = """<style id="db-cinematic-edge-fog-v2">
+          /* Feathered top and bottom viewport blur; no hard horizontal border. */
+          .edge-fog{
+            position:fixed!important;left:0!important;right:0!important;z-index:50!important;
+            pointer-events:none!important;opacity:1!important;transform:none!important;
+            background:transparent!important;backdrop-filter:none!important;
+            -webkit-backdrop-filter:none!important;mask-image:none!important;-webkit-mask-image:none!important;
+          }
+          .fog-top{top:0!important;bottom:auto!important;height:clamp(128px,18dvh,208px)!important}
+          .fog-bottom{bottom:0!important;top:auto!important;height:clamp(112px,15dvh,176px)!important}
+          .edge-fog::before{
+            content:"";position:absolute;inset:0;pointer-events:none;
+            backdrop-filter:blur(13px) saturate(118%);
+            -webkit-backdrop-filter:blur(13px) saturate(118%);
+            mask-image:linear-gradient(to bottom,#000 0%,rgba(0,0,0,.90) 16%,rgba(0,0,0,.64) 40%,rgba(0,0,0,.24) 72%,transparent 100%);
+            -webkit-mask-image:linear-gradient(to bottom,#000 0%,rgba(0,0,0,.90) 16%,rgba(0,0,0,.64) 40%,rgba(0,0,0,.24) 72%,transparent 100%);
+          }
+          .fog-bottom::before{
+            mask-image:linear-gradient(to top,#000 0%,rgba(0,0,0,.88) 16%,rgba(0,0,0,.60) 42%,rgba(0,0,0,.21) 74%,transparent 100%);
+            -webkit-mask-image:linear-gradient(to top,#000 0%,rgba(0,0,0,.88) 16%,rgba(0,0,0,.60) 42%,rgba(0,0,0,.21) 74%,transparent 100%);
+          }
+          .edge-fog::after{
+            content:"";position:absolute;inset:0;pointer-events:none;
+            background:linear-gradient(to bottom,rgba(12,9,13,.18) 0%,rgba(12,9,13,.07) 35%,transparent 100%);
+          }
+          .fog-bottom::after{
+            background:linear-gradient(to top,rgba(12,9,13,.20) 0%,rgba(12,9,13,.08) 38%,transparent 100%);
+          }
+          @media(max-width:650px){
+           .fog-top{height:clamp(116px,17dvh,178px)!important}
+           .fog-bottom{height:clamp(105px,15dvh,160px)!important}
+          }
+          </style>"""
+          if 'id="db-cinematic-edge-fog-v2"' not in html:
+              html = once(html, "</head><body>", fog_css + "\n</head><body>", "fog style insertion")
+          if len(html) < 11000000:
+              raise RuntimeError("Unexpected index size; avoiding destructive write")
+          index.write_text(html, encoding="utf-8")
+          
+          show = Path("showroom.html")
+          s = show.read_text(encoding="utf-8")
+          s = once(s,
+              "#overlay:before{background:linear-gradient(to bottom,rgba(9,9,11,.92),rgba(9,9,11,.07))!important}",
+              "#overlay:before{height:calc(var(--db-telegram-top) + 18px)!important;background:linear-gradient(to bottom,rgba(9,9,11,.92) 0%,rgba(9,9,11,.79) 30%,rgba(9,9,11,.44) 57%,rgba(9,9,11,.12) 83%,transparent 100%)!important}",
+              "native chrome fade")
+          s = once(s,
+              "Math.max(100,Number.parseFloat(root.style.getPropertyValue('--db-showroom-menu-top'))||118)",
+              "Math.max(72,Number.parseFloat(root.style.getPropertyValue('--db-showroom-menu-top'))||84)",
+              "nav stabilization")
+          s = once(s,
+              "const headerTop=tg?Math.max(118,currentSafe+24):18;",
+              "const headerTop=tg?Math.max(84,currentSafe-4):18;",
+              "native-safe header position")
+          s = s.replace("var(--db-showroom-menu-top,118px)", "var(--db-showroom-menu-top,84px)")
+          s = s.replace(
+              "    // Screenshot-guided: ~118px on Telegram's CSS viewport keeps the\n    // glass capsule above the hero while clearing the native close controls.\n    // Set it directly on same-origin iframe: its old message handler clamps\n    // all offsets below 148px, causing the menu to remain too low.",
+              "    // Position glass directly beneath native controls, using Telegram safe-area metrics.\n    // No oversized fixed offset; the showroom and iframe now share one position.")
+          if len(s) < 20000:
+              raise RuntimeError("Unexpected showroom size")
+          show.write_text(s, encoding="utf-8")
+          print("Validated and updated both files; preserving all inline media.")
           PY
-      - name: Publish updated site to the default branch
+      - name: Publish both pages atomically
         shell: bash
         run: |
-          if git diff --quiet -- index.html; then
-            echo "No changes needed."
+          git diff --check
+          git add index.html showroom.html
+          if git diff --cached --quiet; then
+            echo "Already up-to-date."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html
-          git commit -m "fix: position glass nav just below Telegram controls"
+          git commit -m "fix: align Telegram glass menu and feather screen edges"
           git push origin HEAD:main
