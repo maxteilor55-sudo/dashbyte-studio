@@ -1,0 +1,78 @@
+name: Sync DashByte glass header with Arsenal
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/db-arsenal-parity.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  apply-parity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply the same embedded header offset in the DB document
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path=Path('index.html')
+          html=path.read_text(encoding='utf-8')
+          marker='id="db-arsenal-header-parity"'
+          if marker not in html:
+              patch='''<style id="db-arsenal-header-parity">
+          /* Embedded studio: share the visual anchor of the Arsenal header.
+             No gradients behind native Telegram controls; use a single glass shell. */
+          html.db-showroom-stage{--db-showroom-menu-top:62px}
+          html.db-showroom-stage #topbar{
+            position:fixed!important;
+            top:var(--db-showroom-menu-top,62px)!important;
+            left:50%!important;right:auto!important;bottom:auto!important;
+            transform:translate3d(-50%,0,0)!important;
+            -webkit-transform:translate3d(-50%,0,0)!important;
+            translate:none!important;
+            width:calc(100% - 28px)!important;
+            border:1px solid rgba(255,255,255,.30)!important;
+            border-radius:32px!important;
+            backdrop-filter:blur(26px) saturate(140%)!important;
+            -webkit-backdrop-filter:blur(26px) saturate(140%)!important;
+          }
+          html.db-showroom-stage #menu-sheet{
+            top:var(--db-showroom-sheet-top,178px)!important;
+            max-height:calc(100dvh - var(--db-showroom-sheet-top,178px) - 14px)!important;
+          }
+          </style>
+          <script id="db-arsenal-header-parity-init">
+          (function(){
+            if(window.name!=='dashbyte-showroom-stage')return;
+            var root=document.documentElement;
+            root.classList.add('db-showroom-stage');
+            if(!root.style.getPropertyValue('--db-showroom-menu-top')){
+              root.style.setProperty('--db-showroom-menu-top','62px');
+            }
+          })();
+          </script>
+          '''
+              needle='</head><body>'
+              if html.count(needle)!=1:
+                  raise RuntimeError('Unexpected HTML structure; no changes applied')
+              html=html.replace(needle,patch+needle)
+          if len(html)<11000000 or html.count(marker)!=1:
+              raise RuntimeError('Media or parity marker missing; no changes applied')
+          path.write_text(html,encoding='utf-8')
+          print('DB parity style verified, preserving inline media, bytes:',len(html))
+          PY
+      - name: Commit studio correction
+        shell: bash
+        run: |
+          git diff --check
+          git add index.html
+          if git diff --cached --quiet; then
+            echo "DashByte header parity is already present"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "fix(db): anchor embedded glass header directly below Telegram chrome"
+          git push origin HEAD:main
