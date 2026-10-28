@@ -42,7 +42,7 @@
 
 /* v2.1: clean seamless Telegram chrome and project navigation */
 #overlay:after{display:none!important}
-#overlay:before{background:linear-gradient(to bottom,rgba(9,9,11,.92),rgba(9,9,11,.07))!important}
+#overlay:before{height:calc(var(--db-telegram-top) + 18px)!important;background:linear-gradient(to bottom,rgba(9,9,11,.92) 0%,rgba(9,9,11,.79) 30%,rgba(9,9,11,.44) 57%,rgba(9,9,11,.12) 83%,transparent 100%)!important}
 #overlay[data-project="dashbyte"] #back{display:none!important}
 #back{transition:top .24s ease,opacity .2s ease}
 </style></head><body><main id="home"><header class="top"><div class="brand">DASH<b>BYTE.</b></div><div class="tag">STUDIO / 2026</div></header><div class="eyebrow">● DIGITAL SHOWROOM</div><h1 class="title">ВЫБЕРИ<br><span>ИСТОРИЮ.</span></h1><p class="sub">Добро пожаловать в пространство проектов DashByte. Выберите проект — и откройте его прямо здесь.</p><section class="grid"><button class="tile ars" data-project="arsenal"><span class="meta">01 / КЛИЕНТСКИЙ ПРОЕКТ</span><span class="orn" aria-hidden="true"><svg viewBox="0 0 400 230" fill="none"><path d="M65 93L189 29L363 74L243 137Z" fill="#77716d" stroke="#c1aaa2" stroke-width="3"/><path d="M65 93V189L243 222V137Z" fill="#9b8070" stroke="#d6bba7" stroke-width="3"/><path d="M243 137L363 74V168L243 222Z" fill="#3b3939" stroke="#bd9c89" stroke-width="3"/><path d="M98 115L207 142V205L98 184Z" fill="#232326" stroke="#ddc5b2" stroke-width="3"/><path d="M110 138L195 158M110 156L195 176M110 174L195 194" stroke="#b29e90" stroke-width="3"/></svg></span><span class="bottom"><span><h2>АРСЕНАЛ</h2><p>Металлоконструкции · Гаражи · Навесы<br>Пермь и Пермский край</p></span><span class="arrow">↗</span></span></button><button class="tile db" data-project="dashbyte"><span class="meta">02 / САЙТ СТУДИИ</span><span class="orn db-mark" aria-hidden="true">DB</span><span class="bottom"><span><h2>DASHBYTE.</h2><p>Веб-разработка · Айдентика · Контент<br>Наш фирменный сайт</p></span><span class="arrow">↗</span></span></button></section><footer><span>● 2 ACTIVE PROJECTS</span><span>DESIGNED BY DASHBYTE © 2026</span></footer></main><section id="overlay"><button id="back" type="button">← Все проекты</button><div id="load">ОТКРЫВАЕМ ПРОЕКТ...</div><iframe id="project" title="Просмотр сайта" allow="fullscreen"></iframe></section><script>
@@ -164,7 +164,7 @@
     if(!bar)return;
     const root=doc.documentElement;
     const win=doc.defaultView;
-    const top=Math.max(100,Number.parseFloat(root.style.getPropertyValue('--db-showroom-menu-top'))||118);
+    const top=Math.max(72,Number.parseFloat(root.style.getPropertyValue('--db-showroom-menu-top'))||84);
     // Compare normalized CSSOM values: browsers rewrite transform units and
     // transition shorthand, which would otherwise retrigger MutationObserver forever.
     const normalized=doc.createElement('div').style;
@@ -217,18 +217,16 @@
   function patchDashByte(doc){
     // The embedded studio now owns its own glass-header animation and safe position.
     // Parent only supplies Telegram's content-safe inset and the showroom return card.
-    // Screenshot-guided: ~118px on Telegram's CSS viewport keeps the
-    // glass capsule above the hero while clearing the native close controls.
-    // Set it directly on same-origin iframe: its old message handler clamps
-    // all offsets below 148px, causing the menu to remain too low.
-    const headerTop=tg?Math.max(118,currentSafe+24):18;
+    // Position glass directly beneath native controls, using Telegram safe-area metrics.
+    // No oversized fixed offset; the showroom and iframe now share one position.
+    const headerTop=tg?Math.max(84,currentSafe-4):18;
     if(!doc||!doc.documentElement)return;
     doc.documentElement.classList.add('db-showroom-stage');
     doc.documentElement.style.setProperty('--db-showroom-menu-top',headerTop+'px');
     const css=/* Showroom-only layout and resilient Telegram-safe header. */`
       html.db-showroom-stage #topbar,html.db-showroom-stage .topbar{
         position:fixed!important;
-        top:var(--db-showroom-menu-top,118px)!important;
+        top:var(--db-showroom-menu-top,84px)!important;
         left:50%!important;right:auto!important;bottom:auto!important;
         width:calc(100% - 28px)!important;max-width:1120px!important;
         margin:0!important;translate:none!important;
@@ -250,7 +248,7 @@
         max-height:max(110px,calc(100dvh - var(--db-showroom-sheet-top,330px) - 12px))!important;
         overflow-y:auto!important;
       }
-      html.db-showroom-stage{scroll-padding-top:calc(var(--db-showroom-menu-top,118px) + 120px)}
+      html.db-showroom-stage{scroll-padding-top:calc(var(--db-showroom-menu-top,84px) + 120px)}
       @media(prefers-reduced-motion:reduce){html.db-showroom-stage #topbar,html.db-showroom-stage .topbar{transition:none!important}}
       /* Portfolio return card styling. */
       .db-showroom-return{position:relative;isolation:isolate;display:block;overflow:hidden;

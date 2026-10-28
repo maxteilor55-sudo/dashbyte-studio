@@ -631,7 +631,7 @@ html.db-header-visible #topbar {
 html.db-telegram-miniapp:not(.db-telegram-fullscreen) #db-tg-expand-action:not([hidden]){display:flex}
 /* Keep glass navigation below the Telegram native header. */
 html.db-telegram-miniapp:not(.db-showroom-stage){
-  --db-tg-menu-top:max(76px,calc(var(--db-tg-content-safe-top,0px) + 12px));
+  --db-tg-menu-top:max(72px,calc(var(--db-tg-content-safe-top,0px) + 4px));
 }
 html.db-telegram-miniapp:not(.db-showroom-stage) #topbar{
   top:var(--db-tg-menu-top)!important;
@@ -646,7 +646,7 @@ html.db-telegram-miniapp:not(.db-showroom-stage) #menu-sheet{
 /* A native, iframe-specific fix; normal DashByte pages retain their original styling. */
 html.db-showroom-stage #topbar {
   position:fixed!important;
-  top:var(--db-showroom-menu-top,164px)!important;
+  top:var(--db-showroom-menu-top,84px)!important;
   left:50%!important;right:auto!important;bottom:auto!important;
   width:calc(100% - 28px)!important;max-width:1120px!important;
   margin:0!important;
@@ -666,8 +666,8 @@ html.db-showroom-stage.db-header-visible #topbar {
   filter:none!important;pointer-events:auto!important;
 }
 html.db-showroom-stage #menu-sheet {
-  top:calc(var(--db-showroom-menu-top,164px) + 118px)!important;
-  max-height:calc(100dvh - var(--db-showroom-menu-top,164px) - 130px)!important;
+  top:calc(var(--db-showroom-menu-top,84px) + 118px)!important;
+  max-height:calc(100dvh - var(--db-showroom-menu-top,84px) - 130px)!important;
 }
 @media(prefers-reduced-motion:reduce) {
   html.db-showroom-stage #topbar{transition:none!important}
@@ -684,11 +684,44 @@ html.db-showroom-stage #menu-sheet {
     if(!data || data.type!=='dashbyte-showroom-safearea')return;
     var px=Number(data.top);
     if(Number.isFinite(px)){
-      root.style.setProperty('--db-showroom-menu-top',Math.max(148,Math.min(320,px))+'px');
+      root.style.setProperty('--db-showroom-menu-top',Math.max(72,Math.min(320,px))+'px');
     }
   });
 })();
 </script>
+<style id="db-cinematic-edge-fog-v2">
+/* Feathered top and bottom viewport blur; no hard horizontal border. */
+.edge-fog{
+  position:fixed!important;left:0!important;right:0!important;z-index:50!important;
+  pointer-events:none!important;opacity:1!important;transform:none!important;
+  background:transparent!important;backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;mask-image:none!important;-webkit-mask-image:none!important;
+}
+.fog-top{top:0!important;bottom:auto!important;height:clamp(128px,18dvh,208px)!important}
+.fog-bottom{bottom:0!important;top:auto!important;height:clamp(112px,15dvh,176px)!important}
+.edge-fog::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  backdrop-filter:blur(13px) saturate(118%);
+  -webkit-backdrop-filter:blur(13px) saturate(118%);
+  mask-image:linear-gradient(to bottom,#000 0%,rgba(0,0,0,.90) 16%,rgba(0,0,0,.64) 40%,rgba(0,0,0,.24) 72%,transparent 100%);
+  -webkit-mask-image:linear-gradient(to bottom,#000 0%,rgba(0,0,0,.90) 16%,rgba(0,0,0,.64) 40%,rgba(0,0,0,.24) 72%,transparent 100%);
+}
+.fog-bottom::before{
+  mask-image:linear-gradient(to top,#000 0%,rgba(0,0,0,.88) 16%,rgba(0,0,0,.60) 42%,rgba(0,0,0,.21) 74%,transparent 100%);
+  -webkit-mask-image:linear-gradient(to top,#000 0%,rgba(0,0,0,.88) 16%,rgba(0,0,0,.60) 42%,rgba(0,0,0,.21) 74%,transparent 100%);
+}
+.edge-fog::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(to bottom,rgba(12,9,13,.18) 0%,rgba(12,9,13,.07) 35%,transparent 100%);
+}
+.fog-bottom::after{
+  background:linear-gradient(to top,rgba(12,9,13,.20) 0%,rgba(12,9,13,.08) 38%,transparent 100%);
+}
+@media(max-width:650px){
+ .fog-top{height:clamp(116px,17dvh,178px)!important}
+ .fog-bottom{height:clamp(105px,15dvh,160px)!important}
+}
+</style>
 </head><body>
 <div aria-label="Загрузка DashByte" aria-live="polite" class="db-preloader" id="db-preloader" role="status">
 <div class="db-load-panel">
