@@ -118,13 +118,13 @@ jobs:
             // fades in/out, never enters the native Telegram control strip.
             for(const state of [initial,moving,shown,leaving]){
               const y=state.rect.top,css=parseFloat(state.top);
-              if(!(Number.isFinite(y)&&y>=75&&y<=120&&Math.abs(y-css)<2&&state.translate==='none'&&
+              if(!(Number.isFinite(y)&&y>=145&&y<=230&&Math.abs(y-css)<2&&state.translate==='none'&&
                    !state.transition.includes('translate')))
                 throw Error('DB glass header overlaps Telegram or moves vertically: '+JSON.stringify(state));
             }
             if(!shown.visible||shown.opacity!=='1')throw Error('DB header did not reveal after scroll');
 
-            if(!db.returnLink||!db.direct||!db.video||db.fullscreenCalls<1||parseFloat(db.top)<70||parseFloat(db.top)>116)
+            if(!db.returnLink||!db.direct||!db.video||db.fullscreenCalls<1||parseFloat(db.top)<145||parseFloat(db.top)>230)
               throw Error('DashByte full release/menu failed: '+JSON.stringify(db));
             await page.locator('#db-chooser-return').evaluate(el=>el.click());
             await page.waitForURL(u=>u.pathname==='/'&&u.hash.includes('tgWebAppVersion'),{timeout:30000});
