@@ -49,7 +49,7 @@ jobs:
             await page.route('**/*',route=>{
               const u=route.request().url();
               if(!u.startsWith(base))return route.abort();
-              if(/\.mp4(?:\?|$)/.test(u))return route.abort();
+              // Allow local videos: loader state and header animation depend on the first video frame.
               return route.continue();
             });
             const goto=async(url)=>page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});
@@ -81,7 +81,7 @@ jobs:
             await page.locator('.project[data-project="dashbyte"]').click({timeout:16000});
             await page.waitForURL(/\/dashbyte\.html#tgWebAppVersion/,{timeout:60000});
             await page.locator('#topbar').waitFor({state:'attached',timeout:60000});
-            await page.waitForTimeout(350);
+            await page.waitForTimeout(3500);
             const db=await page.evaluate(()=>({
               top:getComputedStyle(document.getElementById('topbar')).top,
               returnLink:!!document.getElementById('db-chooser-return'),
