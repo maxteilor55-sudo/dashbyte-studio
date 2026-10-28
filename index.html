@@ -683,7 +683,7 @@ html.db-showroom-stage #menu-sheet {
     var data=event.data;
     if(!data || data.type!=='dashbyte-showroom-safearea')return;
     var px=Number(data.top);
-    if(Number.isFinite(px)){
+    if(Number.isFinite(px) && !root.classList.contains('db-showroom-stage')){
       root.style.setProperty('--db-showroom-menu-top',Math.max(72,Math.min(320,px))+'px');
     }
   });
@@ -720,6 +720,38 @@ html.db-showroom-stage #menu-sheet {
 @media(max-width:650px){
  .fog-top{height:clamp(116px,17dvh,178px)!important}
  .fog-bottom{height:clamp(105px,15dvh,160px)!important}
+}
+</style>
+<style id="db-cinematic-edge-fog-v3">
+/* Soft multistop light falloff; no visible bar, rectangular seam or texture. */
+.edge-fog{
+  background:none!important;overflow:hidden!important;
+  border:0!important;box-shadow:none!important;
+  pointer-events:none!important;
+}
+.fog-top{height:clamp(160px,22dvh,238px)!important}
+.fog-bottom{height:clamp(138px,19dvh,210px)!important}
+.edge-fog::before{
+  inset:0!important;
+  backdrop-filter:blur(17px) saturate(128%)!important;
+  -webkit-backdrop-filter:blur(17px) saturate(128%)!important;
+  background:transparent!important;
+  -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.96) 0%,rgba(0,0,0,.91) 17%,rgba(0,0,0,.68) 39%,rgba(0,0,0,.36) 63%,rgba(0,0,0,.1) 85%,transparent 100%)!important;
+  mask-image:linear-gradient(to bottom,rgba(0,0,0,.96) 0%,rgba(0,0,0,.91) 17%,rgba(0,0,0,.68) 39%,rgba(0,0,0,.36) 63%,rgba(0,0,0,.1) 85%,transparent 100%)!important;
+}
+.fog-bottom::before{
+  -webkit-mask-image:linear-gradient(to top,rgba(0,0,0,.95) 0%,rgba(0,0,0,.87) 17%,rgba(0,0,0,.65) 40%,rgba(0,0,0,.34) 64%,rgba(0,0,0,.09) 84%,transparent 100%)!important;
+  mask-image:linear-gradient(to top,rgba(0,0,0,.95) 0%,rgba(0,0,0,.87) 17%,rgba(0,0,0,.65) 40%,rgba(0,0,0,.34) 64%,rgba(0,0,0,.09) 84%,transparent 100%)!important;
+}
+.edge-fog::after{
+  background:linear-gradient(to bottom,rgba(10,9,13,.14) 0%,rgba(10,9,13,.07) 36%,rgba(10,9,13,.02) 66%,transparent 100%)!important;
+}
+.fog-bottom::after{
+  background:linear-gradient(to top,rgba(10,9,13,.17) 0%,rgba(10,9,13,.07) 33%,rgba(10,9,13,.02) 68%,transparent 100%)!important;
+}
+@media(max-width:650px){
+  .fog-top{height:clamp(142px,20dvh,202px)!important}
+  .fog-bottom{height:clamp(125px,18dvh,183px)!important}
 }
 </style>
 </head><body>
