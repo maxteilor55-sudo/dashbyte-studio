@@ -101,12 +101,28 @@ jobs:
               }
               return {phase,scrollY:scrollY,visible:document.documentElement.classList.contains('db-header-visible'),bodyClass:document.body.className,rootClass:document.documentElement.className,top:cs.top,position:cs.position,transform:cs.transform,translate:cs.translate,animation:cs.animation,transition:cs.transition,opacity:cs.opacity,visibility:cs.visibility,rect:{top:b.top,bottom:b.bottom,height:b.height,left:b.left},inline:{top:el.style.top,transform:el.style.transform},ancestry};
             },phase);
-            console.log('DB_DIAG '+JSON.stringify(await inspect('initial')));
+            const initial=await inspect('initial');
+            console.log('DB_DIAG '+JSON.stringify(initial));
             await page.evaluate(()=>window.scrollTo(0,1200));
-            await page.waitForTimeout(1100);
-            console.log('DB_DIAG '+JSON.stringify(await inspect('scrolled')));
-            await page.waitForTimeout(1500);
-            console.log('DB_DIAG '+JSON.stringify(await inspect('settled')));
+            await page.waitForTimeout(90);
+            const moving=await inspect('during-entry');
+            console.log('DB_DIAG '+JSON.stringify(moving));
+            await page.waitForTimeout(900);
+            const shown=await inspect('shown');
+            console.log('DB_DIAG '+JSON.stringify(shown));
+            await page.evaluate(()=>window.scrollTo(0,0));
+            await page.waitForTimeout(70);
+            const leaving=await inspect('during-exit');
+            console.log('DB_DIAG '+JSON.stringify(leaving));
+            // No vertical shift at any time: the visibility transition only
+            // fades in/out, never enters the native Telegram control strip.
+            for(const state of [initial,moving,shown,leaving]){
+              const y=state.rect.top,css=parseFloat(state.top);
+              if(!(Number.isFinite(y)&&y>=75&&y<=120&&Math.abs(y-css)<2&&state.translate==='none'&&
+                   !state.transition.includes('translate')))
+                throw Error('DB glass header overlaps Telegram or moves vertically: '+JSON.stringify(state));
+            }
+            if(!shown.visible||shown.opacity!=='1')throw Error('DB header did not reveal after scroll');
 
             if(!db.returnLink||!db.direct||!db.video||db.fullscreenCalls<1||parseFloat(db.top)<70||parseFloat(db.top)>116)
               throw Error('DashByte full release/menu failed: '+JSON.stringify(db));
