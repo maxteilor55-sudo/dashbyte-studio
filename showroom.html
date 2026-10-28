@@ -70,7 +70,7 @@
   const frame=document.getElementById('project');
   const loader=document.getElementById('load');
   const back=document.getElementById('back');
-  const urls={arsenal:'./showcase.html#arsenal',dashbyte:'./'};
+  const urls={arsenal:'./showcase.html#arsenal',dashbyte:'./?db-glass-parity=20261029'};
   let active='';
   let needFullScreen=!!tg;
   let currentSafe=0, currentSiteY=62, loadToken=0;
@@ -90,7 +90,7 @@
     currentSafe=full?Math.max(80,insetTop+9):0;
     currentSiteY=currentSafe+58;
     root.style.setProperty('--db-telegram-top',currentSafe+'px');
-    root.style.setProperty('--db-showroom-glass-top',(tg?Math.max(54,Math.min(64,currentSafe-24)):18)+'px');
+    root.style.setProperty('--db-showroom-glass-top',(tg?Math.max(60,Math.min(66,currentSafe-20)):18)+'px');
     root.style.setProperty('--db-telegram-bottom',insetBottom+'px');
     root.style.setProperty('--db-project-header-top',currentSiteY+'px');
     applyToOpenedProject();
@@ -220,7 +220,7 @@
     // Critical: top in the iframe and actual on-screen top are not always equal
     // (composited/transformed ancestors in the studio). Measure and correct,
     // rather than applying another arbitrary CSS offset.
-    const desiredScreenTop=tg?Math.max(54,Math.min(64,currentSafe-24)):18; // Immediately below Telegram controls, not the old fade band.
+    const desiredScreenTop=tg?Math.max(60,Math.min(66,currentSafe-20)):18; // Immediately below Telegram controls, not the old fade band.
     const iframeTop=frame.getBoundingClientRect().top;
     const actualScreenTop=iframeTop+bar.getBoundingClientRect().top;
     const delta=desiredScreenTop-actualScreenTop;
@@ -252,7 +252,7 @@
     // Parent only supplies Telegram's content-safe inset and the showroom return card.
     // Position glass directly beneath native controls, using Telegram safe-area metrics.
     // No oversized fixed offset; the showroom and iframe now share one position.
-    const headerTop=tg?Math.max(54,Math.min(64,currentSafe-24)):18; // align with first clean line below native Telegram chrome
+    const headerTop=tg?Math.max(60,Math.min(66,currentSafe-20)):18; // align with first clean line below native Telegram chrome
     if(!doc||!doc.documentElement)return;
     doc.documentElement.classList.add('db-showroom-stage');
     doc.documentElement.style.setProperty('--db-showroom-menu-top',headerTop+'px');
