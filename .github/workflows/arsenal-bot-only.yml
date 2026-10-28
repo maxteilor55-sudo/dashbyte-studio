@@ -85,7 +85,7 @@ jobs:
               raise RuntimeError('Arsenal HTML has no closing HEAD, aborting')
           # Original source has a couple of whitespace-only lines. Clean only
           # trailing spaces for git diff --check; do not change media or scripts.
-          arsenal=re.sub(r'[ \\t]+(?=\\r?$)', '', arsenal,flags=re.M)
+          arsenal=re.sub(r'[ ]+(?=$)', '', arsenal,flags=re.M)
           digest=hashlib.sha256(arsenal.encode('utf-8')).hexdigest()[:12]
           (base/'arsenal.html').write_text(arsenal,encoding='utf-8')
           url='./arsenal.html?v='+digest
