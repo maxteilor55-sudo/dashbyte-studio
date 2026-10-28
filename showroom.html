@@ -88,22 +88,25 @@
     const header=doc.querySelector('.site-header');
     const measured=Math.max(90,Math.round(header.getBoundingClientRect().height)||0);
     // Back button is now below the glass menu, not above it.
-    back.style.top=(headerTop+measured+12)+'px';
-    back.style.left='17px';
+    // #back declares top with !important. Set an important inline offset too:
+    // otherwise the button stays in the header and covers the Arsenal logo.
+    back.style.setProperty('top',(headerTop+measured+12)+'px','important');
+    back.style.setProperty('left','17px','important');
   }
 
   function patchDashByte(doc){
     if(!doc||!doc.querySelector('.topbar'))return;
     const nav=currentSiteY;
     const css=`/* Telegram showroom only: center the mobile liquid-glass menu */
-      #topbar,.topbar{top:${nav}px!important;left:16px!important;right:16px!important;
-        width:calc(100% - 32px)!important;max-width:1120px!important;margin-inline:auto!important;
+      #topbar,.topbar{top:${nav}px!important;left:50%!important;right:auto!important;
+        width:calc(100% - 32px)!important;max-width:1120px!important;
+        margin-left:0!important;margin-right:0!important;
         box-sizing:border-box!important}
       #menu-sheet,.menu-sheet{top:${nav+109}px!important;max-height:calc(100dvh - ${nav+123}px)!important;overflow-y:auto!important}
       html{scroll-padding-top:${nav+120}px!important}
       .lightbox-close{top:${currentSafe+12}px!important}
       @media(max-width:650px){
-        #topbar,.topbar{top:${nav}px!important;left:14px!important;right:14px!important;width:calc(100% - 28px)!important}
+        #topbar,.topbar{top:${nav}px!important;left:50%!important;right:auto!important;width:calc(100% - 28px)!important}
       }
       .db-showroom-return{position:relative;isolation:isolate;display:block;overflow:hidden;
         margin:clamp(38px,7vw,90px) auto 28px;padding:clamp(26px,5vw,54px);
