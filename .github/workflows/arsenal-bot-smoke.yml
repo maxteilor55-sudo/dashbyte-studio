@@ -33,6 +33,18 @@ jobs:
               const paths=['/','/showroom.html','/DashByte_Showroom_v2_0.html','/showcase.html'];
               for(const path of paths){
                 const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:2,isMobile:true,hasTouch:true});
+                // Telegram SDK is supplied by the native app. Test the exact
+                // requestFullscreen() call without reaching public network.
+                await page.addInitScript(()=>{
+                  window.__tgFullscreenCalls=0;
+                  const app={
+                    isFullscreen:false,isVersionAtLeast:v=>v==='8.0',
+                    safeAreaInset:{top:24},contentSafeAreaInset:{top:66},
+                    ready(){},expand(){},requestFullscreen(){window.__tgFullscreenCalls++;this.isFullscreen=true},
+                    BackButton:{hide(){}},onEvent(){},setHeaderColor(){},setBackgroundColor(){}
+                  };
+                  window.Telegram={WebApp:app};
+                });
                 await page.route('**/*',route=>route.request().url().startsWith('http://127.0.0.1:8765/')?route.continue():route.abort());
                 // Mimic Telegram's native Mini App startup parameters.
                 const fragment='#tgWebAppVersion=8.0&tgWebAppPlatform=android&tgWebAppData=smoke';
@@ -47,12 +59,13 @@ jobs:
                   nav:!!document.querySelector('.lens-dock'),
                   current:location.pathname,
                   launchContext:location.hash.includes('tgWebAppVersion=8.0'),
-                  fullscreenAPI:!!document.querySelector('#arsenal-telegram-direct-init')
+                  fullscreenAPI:!!document.querySelector('#arsenal-telegram-direct-init'),
+                  requestFullscreenCalls:window.__tgFullscreenCalls||0
                 }));
                 console.log('ENTRY_CHECK '+path+' '+JSON.stringify(result));
                 const expected=path==='/'?'/':'/arsenal.html';
                 if(!result.header||result.chooser||result.externalBack||!result.current.endsWith(expected)||
-                   !result.launchContext||!result.fullscreenAPI)
+                   !result.launchContext||!result.fullscreenAPI||result.requestFullscreenCalls<1)
                   throw Error('Invalid Telegram fullscreen Arsenal entry from '+path);
                 await page.close();
               }
