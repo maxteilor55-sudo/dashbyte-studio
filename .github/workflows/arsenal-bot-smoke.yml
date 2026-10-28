@@ -34,8 +34,10 @@ jobs:
               for(const path of paths){
                 const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:2,isMobile:true,hasTouch:true});
                 await page.route('**/*',route=>route.request().url().startsWith('http://127.0.0.1:8765/')?route.continue():route.abort());
-                await page.goto('http://127.0.0.1:8765'+path,{waitUntil:'domcontentloaded',timeout:20000});
-                await page.waitForURL(/\/arsenal\.html\?v=/,{timeout:16000});
+                // Mimic Telegram's native Mini App startup parameters.
+                const fragment='#tgWebAppVersion=8.0&tgWebAppPlatform=android&tgWebAppData=smoke';
+                await page.goto('http://127.0.0.1:8765'+path+fragment,{waitUntil:'domcontentloaded',timeout:20000});
+                if(path!=='/')await page.waitForURL(/\/arsenal\.html\?v=/,{timeout:16000});
                 await page.locator('.site-header').waitFor({state:'attached',timeout:16000});
                 const result=await page.evaluate(()=>({
                   title:document.title,
@@ -43,11 +45,15 @@ jobs:
                   externalBack:!!document.querySelector('#back, .viewer>.back'),
                   header:!!document.querySelector('.site-header'),
                   nav:!!document.querySelector('.lens-dock'),
-                  current:location.pathname
+                  current:location.pathname,
+                  launchContext:location.hash.includes('tgWebAppVersion=8.0'),
+                  fullscreenAPI:!!document.querySelector('#arsenal-telegram-direct-init')
                 }));
                 console.log('ENTRY_CHECK '+path+' '+JSON.stringify(result));
-                if(!result.header||result.chooser||result.externalBack||!result.current.endsWith('/arsenal.html'))
-                  throw Error('Invalid Arsenal entry from '+path);
+                const expected=path==='/'?'/':'/arsenal.html';
+                if(!result.header||result.chooser||result.externalBack||!result.current.endsWith(expected)||
+                   !result.launchContext||!result.fullscreenAPI)
+                  throw Error('Invalid Telegram fullscreen Arsenal entry from '+path);
                 await page.close();
               }
             }finally{await browser.close();}
