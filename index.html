@@ -629,8 +629,17 @@ html.db-header-visible #topbar {
   box-shadow:inset 0 1px 0 rgba(255,255,255,.18);backdrop-filter:blur(12px);
   -webkit-backdrop-filter:blur(12px);}
 html.db-telegram-miniapp:not(.db-telegram-fullscreen) #db-tg-expand-action:not([hidden]){display:flex}
-html.db-telegram-fullscreen #topbar{
-  top:max(15px,calc(var(--db-tg-content-safe-top,0px) + 12px)) !important;
+/* Keep glass navigation below the Telegram native header. */
+html.db-telegram-miniapp:not(.db-showroom-stage){
+  --db-tg-menu-top:max(112px,calc(var(--db-tg-content-safe-top,0px) + 22px));
+}
+html.db-telegram-miniapp:not(.db-showroom-stage) #topbar{
+  top:var(--db-tg-menu-top)!important;
+}
+html.db-telegram-miniapp:not(.db-showroom-stage) #menu-sheet{
+  top:calc(var(--db-tg-menu-top) + 114px)!important;
+  max-height:calc(100dvh - var(--db-tg-menu-top) - 126px);
+  overflow-y:auto;
 }
 </style><!-- DASHBYTE SHOWROOM TELEGRAM HEADER 2.4 -->
 <style id="db-showroom-safe-menu">
