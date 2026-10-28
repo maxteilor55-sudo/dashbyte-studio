@@ -632,7 +632,55 @@ html.db-telegram-miniapp:not(.db-telegram-fullscreen) #db-tg-expand-action:not([
 html.db-telegram-fullscreen #topbar{
   top:max(15px,calc(var(--db-tg-content-safe-top,0px) + 12px)) !important;
 }
-</style></head><body>
+</style><!-- DASHBYTE SHOWROOM TELEGRAM HEADER 2.4 -->
+<style id="db-showroom-safe-menu">
+/* A native, iframe-specific fix; normal DashByte pages retain their original styling. */
+html.db-showroom-stage #topbar {
+  position:fixed!important;
+  top:var(--db-showroom-menu-top,164px)!important;
+  left:50%!important;right:auto!important;bottom:auto!important;
+  width:calc(100% - 28px)!important;max-width:1120px!important;
+  margin:0!important;
+  transform:translateX(-50%)!important;
+  -webkit-transform:translateX(-50%)!important;
+  translate:none!important;
+  animation:none!important;-webkit-animation:none!important;
+  transition:opacity .42s ease,visibility .42s!important;
+  will-change:opacity!important;
+}
+html.db-showroom-stage:not(.db-header-visible) #topbar {
+  translate:none!important;opacity:0!important;visibility:hidden!important;
+  filter:none!important;pointer-events:none!important;
+}
+html.db-showroom-stage.db-header-visible #topbar {
+  translate:none!important;opacity:1!important;visibility:visible!important;
+  filter:none!important;pointer-events:auto!important;
+}
+html.db-showroom-stage #menu-sheet {
+  top:calc(var(--db-showroom-menu-top,164px) + 118px)!important;
+  max-height:calc(100dvh - var(--db-showroom-menu-top,164px) - 130px)!important;
+}
+@media(prefers-reduced-motion:reduce) {
+  html.db-showroom-stage #topbar{transition:none!important}
+}
+</style>
+<script id="db-showroom-safe-menu-init">
+(function(){
+  if(window.name!=='dashbyte-showroom-stage')return;
+  var root=document.documentElement;
+  root.classList.add('db-showroom-stage');
+  window.addEventListener('message',function(event){
+    if(event.source!==window.parent || event.origin!==location.origin)return;
+    var data=event.data;
+    if(!data || data.type!=='dashbyte-showroom-safearea')return;
+    var px=Number(data.top);
+    if(Number.isFinite(px)){
+      root.style.setProperty('--db-showroom-menu-top',Math.max(148,Math.min(320,px))+'px');
+    }
+  });
+})();
+</script>
+</head><body>
 <div aria-label="Загрузка DashByte" aria-live="polite" class="db-preloader" id="db-preloader" role="status">
 <div class="db-load-panel">
 <div class="db-load-head"><svg aria-hidden="true" class="db-load-logo" viewbox="0 0 762 522"><use href="#db-mark"></use></svg><span>DASHBYTE / EST. 2012</span></div>
