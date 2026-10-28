@@ -91,6 +91,23 @@ jobs:
               title:document.title
             }));
             console.log('DASHBYTE '+JSON.stringify(db));
+            const inspect=async(phase)=>page.evaluate(phase=>{
+              const el=document.getElementById('topbar'),cs=getComputedStyle(el),b=el.getBoundingClientRect();
+              const ancestry=[];let p=el.parentElement;
+              while(p&&ancestry.length<8){
+                const v=getComputedStyle(p),q=p.getBoundingClientRect();
+                ancestry.push({tag:p.tagName,id:p.id,cls:String(p.className||'').slice(0,90),transform:v.transform,translate:v.translate,perspective:v.perspective,filter:v.filter,contain:v.contain,rectTop:Math.round(q.top)});
+                p=p.parentElement;
+              }
+              return {phase,scrollY:scrollY,visible:document.documentElement.classList.contains('db-header-visible'),bodyClass:document.body.className,rootClass:document.documentElement.className,top:cs.top,position:cs.position,transform:cs.transform,translate:cs.translate,animation:cs.animation,transition:cs.transition,opacity:cs.opacity,visibility:cs.visibility,rect:{top:b.top,bottom:b.bottom,height:b.height,left:b.left},inline:{top:el.style.top,transform:el.style.transform},ancestry};
+            },phase);
+            console.log('DB_DIAG '+JSON.stringify(await inspect('initial')));
+            await page.evaluate(()=>window.scrollTo(0,1200));
+            await page.waitForTimeout(1100);
+            console.log('DB_DIAG '+JSON.stringify(await inspect('scrolled')));
+            await page.waitForTimeout(1500);
+            console.log('DB_DIAG '+JSON.stringify(await inspect('settled')));
+
             if(!db.returnLink||!db.direct||!db.video||db.fullscreenCalls<1||parseFloat(db.top)<70||parseFloat(db.top)>116)
               throw Error('DashByte full release/menu failed: '+JSON.stringify(db));
             await page.locator('#db-chooser-return').evaluate(el=>el.click());
