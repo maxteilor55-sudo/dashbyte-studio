@@ -1,0 +1,47 @@
+name: Fix Telegram menu offset (one time)
+on:
+  push:
+    paths:
+      - '.github/workflows/telegram-menu-offset-once.yml'
+permissions:
+  contents: write
+jobs:
+  move-menu:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply minimal CSS correction
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("index.html")
+          source = p.read_text(encoding="utf-8")
+          before = """html.db-telegram-fullscreen #topbar{
+            top:max(15px,calc(var(--db-tg-content-safe-top,0px) + 12px)) !important;
+          }"""
+          after = """/* Keep glass navigation below the Telegram native header. */
+          html.db-telegram-miniapp:not(.db-showroom-stage){
+            --db-tg-menu-top:max(112px,calc(var(--db-tg-content-safe-top,0px) + 22px));
+          }
+          html.db-telegram-miniapp:not(.db-showroom-stage) #topbar{
+            top:var(--db-tg-menu-top)!important;
+          }
+          html.db-telegram-miniapp:not(.db-showroom-stage) #menu-sheet{
+            top:calc(var(--db-tg-menu-top) + 114px)!important;
+            max-height:calc(100dvh - var(--db-tg-menu-top) - 126px);
+            overflow-y:auto;
+          }"""
+          if source.count(before) != 1:
+              raise SystemExit("Expected CSS block was not found exactly once")
+          p.write_text(source.replace(before, after), encoding="utf-8")
+          PY
+          rm .github/workflows/telegram-menu-offset-once.yml
+      - name: Commit site correction
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html .github/workflows/telegram-menu-offset-once.yml
+          git commit -m "fix: move glass menu below Telegram controls"
+          git push
