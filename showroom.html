@@ -105,9 +105,14 @@
     const root=doc.documentElement;
     const win=doc.defaultView;
     const top=Math.max(148,Number.parseFloat(root.style.getPropertyValue('--db-showroom-menu-top'))||210);
+    // Compare normalized CSSOM values: browsers rewrite transform units and
+    // transition shorthand, which would otherwise retrigger MutationObserver forever.
+    const normalized=doc.createElement('div').style;
     const pin=function(name,value){
-      if(bar.style.getPropertyValue(name)!==value||
-         bar.style.getPropertyPriority(name)!=='important'){
+      normalized.setProperty(name,value,'important');
+      const expected=normalized.getPropertyValue(name);
+      if(expected&&(bar.style.getPropertyValue(name)!==expected||
+         bar.style.getPropertyPriority(name)!=='important')){
         bar.style.setProperty(name,value,'important');
       }
     };
