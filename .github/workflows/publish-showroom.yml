@@ -7,6 +7,9 @@ on:
       - scripts/build-showroom.py
       - .github/workflows/publish-showroom.yml
   workflow_dispatch:
+concurrency:
+  group: dashbyte-showroom-builder-main
+  cancel-in-progress: false
 permissions:
   contents: write
 jobs:
@@ -52,4 +55,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "feat: publish cinematic Arsenal + DashByte showroom with standalone glass menus"
+          git fetch origin main
+          git rebase origin/main
           git push origin HEAD:main
