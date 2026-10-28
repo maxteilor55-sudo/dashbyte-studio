@@ -22,21 +22,45 @@ if len(studio)<9_000_000 or not all(x in studio for x in
 # Direct page; title, media, original portfolio and hero remain intact.
 # Header alignment uses the same Telegram content-safe-area anchor as Arsenal.
 db_extension=r"""
-<style id="db-direct-showroom-v1">
+<style id="db-direct-showroom-v2">
+/* Same spatial anchor as the stable Arsenal native Mini App header.
+   Old DashByte: html:not(.db-header-visible) #topbar moved the capsule
+   by translate(-100% - 84px), making it pass THROUGH Telegram controls.
+   Position NEVER moves now. Visibility fades on that fixed anchor. */
 html.db-direct-showroom #topbar,
 html.db-direct-showroom.db-telegram-miniapp #topbar,
-html.db-direct-showroom.db-telegram-miniapp:not(.db-showroom-stage) #topbar{
+html.db-direct-showroom.db-telegram-miniapp:not(.db-showroom-stage) #topbar,
+html.db-direct-showroom:not(.db-header-visible) #topbar,
+html.db-direct-showroom.db-header-visible #topbar{
+  position:fixed!important;
   top:var(--db-native-header-top,88px)!important;
-  left:50%!important;right:auto!important;
+  left:50%!important;right:auto!important;bottom:auto!important;
   transform:translateX(-50%)!important;
   -webkit-transform:translateX(-50%)!important;
   translate:none!important;
+  -webkit-translate:none!important;
+  animation:none!important;
+  transition:opacity .36s ease,filter .36s ease!important;
+  will-change:opacity!important;
   border-radius:30px!important;
+}
+html.db-direct-showroom:not(.db-header-visible) #topbar{
+  opacity:0!important;
+  filter:blur(7px)!important;
+  pointer-events:none!important;
+}
+html.db-direct-showroom.db-header-visible #topbar{
+  opacity:1!important;
+  filter:none!important;
+  pointer-events:auto!important;
 }
 html.db-direct-showroom #menu-sheet,
 html.db-direct-showroom.db-telegram-miniapp:not(.db-showroom-stage) #menu-sheet{
   top:calc(var(--db-native-header-top,88px) + 114px)!important;
   max-height:calc(100dvh - var(--db-native-header-top,88px) - 128px)!important;
+}
+@media (prefers-reduced-motion:reduce){
+  html.db-direct-showroom #topbar{transition:none!important;filter:none!important}
 }
 .db-showroom-choice-back{
   display:block!important;margin:10px!important;padding:13px 16px!important;
@@ -55,6 +79,16 @@ html.db-direct-showroom.db-telegram-miniapp:not(.db-showroom-stage) #menu-sheet{
     const safe=Math.max(Number(a.top)||0,Number(c.top)||0);
     const top=tg?Math.max(82,safe+8):18;
     root.style.setProperty('--db-native-header-top',top+'px');
+    // Arsenal pins the actual DOM element, not just a CSS custom property.
+    // Do the same here; disable the inherited offscreen translate animation
+    // even if Telegram sends another viewport/safe-area event mid-scroll.
+    const bar=document.getElementById('topbar');
+    if(bar){
+      bar.style.setProperty('top',top+'px','important');
+      bar.style.setProperty('translate','none','important');
+      bar.style.setProperty('animation','none','important');
+      bar.style.setProperty('transition','opacity .36s ease,filter .36s ease','important');
+    }
   }
   try{
     if(tg){
@@ -83,8 +117,8 @@ html.db-direct-showroom.db-telegram-miniapp:not(.db-showroom-stage) #menu-sheet{
     });
     menu.prepend(link);
   }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',addBack);
-  else addBack();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){pos();addBack()});
+  else {pos();addBack()}
 })();
 </script>
 """
