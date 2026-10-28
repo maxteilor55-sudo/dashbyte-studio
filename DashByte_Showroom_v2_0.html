@@ -30,6 +30,12 @@
  #back{left:13px!important;padding:10px 14px;font-size:12px}
 }
 @media(max-height:700px) and (max-width:650px){#home .eyebrow{margin-top:20px}#home .title{font-size:43px}#home .tile{min-height:177px}#home .sub{margin-bottom:14px}}
+
+/* v2.1: clean seamless Telegram chrome and project navigation */
+#overlay:after{display:none!important}
+#overlay:before{background:linear-gradient(to bottom,rgba(9,9,11,.92),rgba(9,9,11,.07))!important}
+#overlay[data-project="dashbyte"] #back{display:none!important}
+#back{transition:top .24s ease,opacity .2s ease}
 </style></head><body><main id="home"><header class="top"><div class="brand">DASH<b>BYTE.</b></div><div class="tag">STUDIO / 2026</div></header><div class="eyebrow">● DIGITAL SHOWROOM</div><h1 class="title">ВЫБЕРИ<br><span>ИСТОРИЮ.</span></h1><p class="sub">Добро пожаловать в пространство проектов DashByte. Выберите проект — и откройте его прямо здесь.</p><section class="grid"><button class="tile ars" data-project="arsenal"><span class="meta">01 / КЛИЕНТСКИЙ ПРОЕКТ</span><span class="orn" aria-hidden="true"><svg viewBox="0 0 400 230" fill="none"><path d="M65 93L189 29L363 74L243 137Z" fill="#77716d" stroke="#c1aaa2" stroke-width="3"/><path d="M65 93V189L243 222V137Z" fill="#9b8070" stroke="#d6bba7" stroke-width="3"/><path d="M243 137L363 74V168L243 222Z" fill="#3b3939" stroke="#bd9c89" stroke-width="3"/><path d="M98 115L207 142V205L98 184Z" fill="#232326" stroke="#ddc5b2" stroke-width="3"/><path d="M110 138L195 158M110 156L195 176M110 174L195 194" stroke="#b29e90" stroke-width="3"/></svg></span><span class="bottom"><span><h2>АРСЕНАЛ</h2><p>Металлоконструкции · Гаражи · Навесы<br>Пермь и Пермский край</p></span><span class="arrow">↗</span></span></button><button class="tile db" data-project="dashbyte"><span class="meta">02 / САЙТ СТУДИИ</span><span class="orn db-mark" aria-hidden="true">DB</span><span class="bottom"><span><h2>DASHBYTE.</h2><p>Веб-разработка · Айдентика · Контент<br>Наш фирменный сайт</p></span><span class="arrow">↗</span></span></button></section><footer><span>● 2 ACTIVE PROJECTS</span><span>DESIGNED BY DASHBYTE © 2026</span></footer></main><section id="overlay"><button id="back" type="button">← Все проекты</button><div id="load">ОТКРЫВАЕМ ПРОЕКТ...</div><iframe id="project" title="Просмотр сайта" allow="fullscreen"></iframe></section><script>
 (function(){
   'use strict';
@@ -71,28 +77,84 @@
 
   function patchArsenal(doc){
     if(!doc||!doc.querySelector('.site-header'))return;
-    const nav=currentSiteY;
-    const css=`/* Telegram-only adjustments. Do not alter the published Arsenal website. */
-      .site-header,.site-header.is-scrolled{top:${nav}px!important;}
-      html{scroll-padding-top:${nav+115}px!important;}
-      .lightbox-close{top:${currentSafe+12}px!important;}
-      @media(max-width:680px){.site-header,.site-header.is-scrolled{top:${nav}px!important}}
+    const headerTop=currentSafe+8;
+    const css=`/* Telegram showroom adjustments to Arsenal */
+      .site-header,.site-header.is-scrolled{top:${headerTop}px!important}
+      html{scroll-padding-top:${headerTop+135}px!important}
+      .lightbox-close{top:${currentSafe+12}px!important}
+      @media(max-width:680px){.site-header,.site-header.is-scrolled{top:${headerTop}px!important}}
     `;
     safeStyle(doc,'dashbyte-tg-arsenal-safe',css);
-    // Any custom flyout uses the actual header rectangle and follows its new position.
+    const header=doc.querySelector('.site-header');
+    const measured=Math.max(90,Math.round(header.getBoundingClientRect().height)||0);
+    // Back button is now below the glass menu, not above it.
+    back.style.top=(headerTop+measured+12)+'px';
+    back.style.left='17px';
   }
 
   function patchDashByte(doc){
     if(!doc||!doc.querySelector('.topbar'))return;
     const nav=currentSiteY;
-    const css=`/* Telegram-only adjustments. Do not alter the published DashByte website. */
-      #topbar,.topbar{top:${nav}px!important;}
-      #menu-sheet,.menu-sheet{top:${nav+109}px!important;max-height:calc(100dvh - ${nav+123}px)!important;overflow-y:auto!important;}
-      html{scroll-padding-top:${nav+120}px!important;}
-      .lightbox-close{top:${currentSafe+12}px!important;}
-      @media(max-width:650px){#topbar,.topbar{top:${nav}px!important;}}
+    const css=`/* Telegram showroom only: center the mobile liquid-glass menu */
+      #topbar,.topbar{top:${nav}px!important;left:16px!important;right:16px!important;
+        width:calc(100% - 32px)!important;max-width:1120px!important;margin-inline:auto!important;
+        box-sizing:border-box!important}
+      #menu-sheet,.menu-sheet{top:${nav+109}px!important;max-height:calc(100dvh - ${nav+123}px)!important;overflow-y:auto!important}
+      html{scroll-padding-top:${nav+120}px!important}
+      .lightbox-close{top:${currentSafe+12}px!important}
+      @media(max-width:650px){
+        #topbar,.topbar{top:${nav}px!important;left:14px!important;right:14px!important;width:calc(100% - 28px)!important}
+      }
+      .db-showroom-return{position:relative;isolation:isolate;display:block;overflow:hidden;
+        margin:clamp(38px,7vw,90px) auto 28px;padding:clamp(26px,5vw,54px);
+        max-width:1180px;border:1px solid rgba(255,255,255,.2);border-radius:32px;
+        background:radial-gradient(ellipse at 95% 5%,rgba(239,42,78,.3),transparent 56%),
+        linear-gradient(135deg,#211720,#0a0a0e);box-shadow:0 30px 95px rgba(0,0,0,.38),inset 0 1px rgba(255,255,255,.09);
+        color:#f7f6f8;text-align:left;box-sizing:border-box}
+      .db-showroom-return:after{content:'DB';position:absolute;right:-2%;bottom:-20%;z-index:-1;
+        font:900 clamp(160px,36vw,420px)/.9 Arial,sans-serif;letter-spacing:-.14em;
+        -webkit-text-stroke:1px rgba(255,255,255,.13);color:transparent;transform:rotate(-12deg);pointer-events:none}
+      .db-showroom-return small{display:block;margin-bottom:21px;color:#fb687c;font:700 11px/1.4 Arial,sans-serif;letter-spacing:.22em}
+      .db-showroom-return h2{margin:0 0 17px;font:850 clamp(30px,6vw,65px)/.99 Arial,sans-serif;letter-spacing:-.065em;text-transform:uppercase;color:white}
+      .db-showroom-return h2 span{color:#f23c57}
+      .db-showroom-return p{max-width:470px;margin:0 0 27px;color:#d4c5cb;font:400 clamp(15px,2vw,19px)/1.65 Arial,sans-serif}
+      .db-showroom-return button{display:inline-flex;align-items:center;justify-content:space-between;gap:25px;
+        min-height:61px;max-width:100%;padding:17px 22px;border:1px solid rgba(255,255,255,.34);
+        border-radius:18px;background:rgba(255,255,255,.1);color:#fff;backdrop-filter:blur(18px);
+        -webkit-backdrop-filter:blur(18px);font:700 15px/1.3 Arial,sans-serif;cursor:pointer;
+        transition:background .2s,transform .2s}
+      .db-showroom-return button:active{transform:scale(.985)}
+      .db-showroom-return button:hover{background:rgba(242,60,87,.25)}
+      @media(max-width:650px){.db-showroom-return{margin:38px 15px 25px;padding:28px 24px;border-radius:25px}
+        .db-showroom-return button{width:100%}}
     `;
     safeStyle(doc,'dashbyte-tg-studio-safe',css);
+    addShowroomReturn(doc);
+  }
+
+  function addShowroomReturn(doc){
+    if(!doc||!doc.body||doc.getElementById('db-showroom-return'))return;
+    const sections=Array.from(doc.querySelectorAll('section,[id],article'));
+    let target=sections.find(el=>el.id&&/^(portfolio|works|work|projects|cases|case-studies)$/i.test(el.id));
+    if(!target)target=sections.find(el=>el.className&&typeof el.className==='string'&&/(^|\\s)(portfolio|works|projects|cases)(\\s|$)/i.test(el.className));
+    const headings=Array.from(doc.querySelectorAll('h1,h2,h3,h4'));
+    if(!target){
+      const head=headings.find(h=>/портфолио|наши работы|кейсы|проекты|избранные работы/i.test(h.textContent||''));
+      if(head)target=head.closest('section')||head.parentElement;
+    }
+    if(!target)target=doc.querySelector('main')||doc.body;
+    const card=doc.createElement('aside');
+    card.id='db-showroom-return';
+    card.className='db-showroom-return';
+    card.setAttribute('aria-label','Вернуться к выбору проектов DashByte');
+    card.innerHTML='<small>● DASHBYTE / DIGITAL SHOWROOM</small>'+
+      '<h2>ЕЩЁ ОДНА<br><span>ИСТОРИЯ.</span></h2>'+
+      '<p>Каждый проект — отдельный мир. Вернись в шоурум и выбери, что посмотреть дальше.</p>'+
+      '<button type="button"><span>← &nbsp; Выбрать другую историю</span> <span aria-hidden="true">↗</span></button>';
+    // This event listener runs in the showroom's JS context, so it closes the parent overlay directly.
+    card.querySelector('button').addEventListener('click',function(){closeProject(true)});
+    if(target===doc.body||target.tagName==='MAIN')target.appendChild(card);
+    else target.appendChild(card);
   }
 
   function patchShowcase(doc){
@@ -125,6 +187,9 @@
     if(active!==id){frame.src=urls[id];loader.classList.remove('off')}
     active=id;
     overlay.classList.add('open');
+    overlay.dataset.project=id;
+    back.style.top='';
+    back.style.left='';
     document.body.style.overflow='hidden';
     document.title=(id==='arsenal'?'Арсенал':'DashByte')+' · DashByte Showroom';
     if(addHistory)history.pushState({project:id},'',location.pathname+location.search+'#'+id);
@@ -138,6 +203,9 @@
     if(!active)return;
     active='';
     overlay.classList.remove('open');
+    overlay.removeAttribute('data-project');
+    back.style.top='';
+    back.style.left='';
     document.body.style.overflow='';
     document.title='DashByte — Showroom';
     // Keep the iframe in memory: returning to the work page is instantaneous.
