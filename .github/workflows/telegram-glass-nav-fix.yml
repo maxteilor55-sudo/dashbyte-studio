@@ -178,6 +178,15 @@ jobs:
           if len(studio)<11000000:
               raise RuntimeError("Unexpected index size after visual update")
           index.write_text(studio, encoding="utf-8")
+          # Restricted diagnostic excerpts; never print inline images or media.
+          import re
+          for needle in (".edge-fog", ".fog-bottom", ".fog-top", "#topbar", "--db-tg-menu-top", "db-header-visible"):
+              matches=list(re.finditer(re.escape(needle),studio))
+              print("DB-CSS-DIAG",repr(needle),"count",len(matches))
+              for m in matches[:5]:
+                  snippet=studio[max(0,m.start()-110):m.start()+370].replace("\n"," ")
+                  print("DB-CSS-DIAG-SNIP",snippet)
+          
           print("Validated and updated both files; preserving all inline media.")
           PY
       - name: Publish both pages atomically
