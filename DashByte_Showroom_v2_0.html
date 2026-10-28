@@ -95,94 +95,18 @@
   }
 
   function patchDashByte(doc){
+    // The embedded studio now owns its own glass-header animation and safe position.
+    // Parent only supplies Telegram's content-safe inset and the showroom return card.
+    const headerTop=Math.max(148,currentSiteY+24);
+    if(frame.contentWindow){
+      try{
+        frame.contentWindow.postMessage({type:'dashbyte-showroom-safearea',top:headerTop},location.origin);
+      }catch(e){}
+    }
     if(!doc||!doc.documentElement)return;
-    // Keep the glass header below Telegram's native controls.
-    const nav=Math.max(148,currentSiteY+24);
-    function pinVisibleGlassMenu(){
-      const bars=doc.querySelectorAll('#topbar,.topbar');
-      if(!bars.length)return false;
-      bars.forEach(function(bar){
-        const pin=function(property,value){
-          if(bar.style.getPropertyValue(property)!==value ||
-             bar.style.getPropertyPriority(property)!=='important'){
-            bar.style.setProperty(property,value,'important');
-          }
-        };
-        pin('position','fixed');
-        pin('top',nav+'px');
-        pin('left','50%');
-        pin('right','auto');
-        pin('bottom','auto');
-        pin('width','calc(100% - 28px)');
-        pin('max-width','1120px');
-        pin('margin-left','0px');
-        pin('margin-right','0px');
-        pin('transform','translate3d(-50%,0,0)');
-        pin('-webkit-transform','translate3d(-50%,0,0)');
-        pin('translate','none');
-        pin('animation','none');
-        pin('-webkit-animation','none');
-        pin('transition','opacity .38s ease, visibility .38s');
-        // Watch for late inline changes from the studio's original animation.
-        if(!bar.dataset.dbTgPinned){
-          bar.dataset.dbTgPinned='1';
-          const observer=new doc.defaultView.MutationObserver(function(){
-            if(active==='dashbyte')pinVisibleGlassMenu();
-          });
-          observer.observe(bar,{attributes:true,attributeFilter:['style','class']});
-        }
-      });
-      const height=Math.max(85,Math.round(bars[0].getBoundingClientRect().height)||0);
-      const sheetY=(nav+height+12)+'px';
-      if(doc.documentElement.style.getPropertyValue('--db-tg-menu-sheet-top')!==sheetY){
-        doc.documentElement.style.setProperty('--db-tg-menu-sheet-top',sheetY);
-      }
-      return true;
-    }
-    if(!doc.documentElement.dataset.dbTgPinObserver){
-      doc.documentElement.dataset.dbTgPinObserver='1';
-      const createdObserver=new doc.defaultView.MutationObserver(function(mutations){
-        if(active!=='dashbyte')return;
-        if(mutations.some(m=>m.addedNodes&&m.addedNodes.length))pinVisibleGlassMenu();
-      });
-      createdObserver.observe(doc.documentElement,{childList:true,subtree:true});
-      const restoreOnScroll=function(){if(active==='dashbyte')pinVisibleGlassMenu()};
-      doc.defaultView.addEventListener('scroll',restoreOnScroll,{passive:true});
-      doc.addEventListener('scroll',restoreOnScroll,{passive:true,capture:true});
-    }
-    pinVisibleGlassMenu();
-    const css=`/* Telegram showroom: pure opacity reveal. No vertical movement into Telegram controls. */
-      #topbar,.topbar{
-        position:fixed!important;top:${nav}px!important;left:50%!important;right:auto!important;
-        width:calc(100% - 32px)!important;max-width:1120px!important;
-        margin-left:0!important;margin-right:0!important;box-sizing:border-box!important;
-        transform:translate3d(-50%,0,0)!important;
-        -webkit-transform:translate3d(-50%,0,0)!important;
-        animation:none!important;-webkit-animation:none!important;
-        transition:opacity .38s cubic-bezier(.22,.8,.24,1),visibility .38s!important;
-        -webkit-transition:opacity .38s cubic-bezier(.22,.8,.24,1),visibility .38s!important;
-        will-change:opacity;
-      }
-      body:not(.db-tg-menu-visible) #topbar,body:not(.db-tg-menu-visible) .topbar{
-        opacity:0!important;visibility:hidden!important;pointer-events:none!important;
-      }
-      body.db-tg-menu-visible #topbar,body.db-tg-menu-visible .topbar{
-        opacity:1!important;visibility:visible!important;pointer-events:auto!important;
-      }
-      #menu-sheet,.menu-sheet{
-        top:var(--db-tg-menu-sheet-top,${nav+155}px)!important;
-        max-height:calc(100dvh - var(--db-tg-menu-sheet-top,${nav+155}px) - 12px)!important;
-        overflow-y:auto!important;
-      }
-      html{scroll-padding-top:${nav+125}px!important}
-      .lightbox-close{top:${currentSafe+12}px!important}
-      @media(max-width:650px){
-        #topbar,.topbar{top:${nav}px!important;left:50%!important;right:auto!important;
-          width:calc(100% - 28px)!important}
-      }
-      @media(prefers-reduced-motion:reduce){
-        #topbar,.topbar{transition:none!important;-webkit-transition:none!important}
-      }
+    doc.documentElement.classList.add('db-showroom-stage');
+    doc.documentElement.style.setProperty('--db-showroom-menu-top',headerTop+'px');
+    const css=`/* Showroom-only portfolio return card; header positioning lives in index.html. */
       .db-showroom-return{position:relative;isolation:isolate;display:block;overflow:hidden;
         margin:clamp(38px,7vw,90px) auto 28px;padding:clamp(26px,5vw,54px);
         max-width:1180px;border:1px solid rgba(255,255,255,.2);border-radius:32px;
@@ -207,27 +131,6 @@
         .db-showroom-return button{width:100%}}
     `;
     safeStyle(doc,'dashbyte-tg-studio-safe',css);
-    // The original site still manages the menu's content and expand/collapse behavior.
-    // We own only opacity visibility while it's embedded in the Telegram showroom.
-    pinVisibleGlassMenu();
-    if(!doc.documentElement.dataset.dbTelegramFadeBound){
-      doc.documentElement.dataset.dbTelegramFadeBound='1';
-      const updateMenuVisibility=function(){
-        const win=doc.defaultView;
-        const scrollPos=Math.max(
-          win?win.scrollY||0:0,
-          doc.scrollingElement?doc.scrollingElement.scrollTop||0:0,
-          doc.documentElement.scrollTop||0,
-          doc.body?doc.body.scrollTop||0:0
-        );
-        // At the top, stay hidden; once the visitor scrolls, fade in and remain
-        // visible even while scrolling back up until reaching the very beginning.
-        doc.body.classList.toggle('db-tg-menu-visible',scrollPos>24);
-      };
-      doc.defaultView&&doc.defaultView.addEventListener('scroll',updateMenuVisibility,{passive:true});
-      doc.addEventListener('scroll',updateMenuVisibility,{passive:true,capture:true});
-      updateMenuVisibility();
-    }
     addShowroomReturn(doc);
   }
 
@@ -283,7 +186,10 @@
 
   function openProject(id,addHistory){
     if(!urls[id])return;
-    if(active!==id){frame.src=urls[id];loader.classList.remove('off')}
+    if(active!==id){
+      frame.name=id==='dashbyte'?'dashbyte-showroom-stage':'dashbyte-showroom-arsenal';
+      frame.src=urls[id];loader.classList.remove('off');
+    }
     active=id;
     overlay.classList.add('open');
     overlay.dataset.project=id;
