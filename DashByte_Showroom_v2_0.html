@@ -95,9 +95,62 @@
   }
 
   function patchDashByte(doc){
-    if(!doc||!doc.querySelector('.topbar'))return;
-    // Fixed beneath Telegram's native top row; never slide through native controls.
-    const nav=currentSiteY+20;
+    if(!doc||!doc.documentElement)return;
+    // Keep the glass header below Telegram's native controls.
+    const nav=Math.max(148,currentSiteY+24);
+    function pinVisibleGlassMenu(){
+      const bars=doc.querySelectorAll('#topbar,.topbar');
+      if(!bars.length)return false;
+      bars.forEach(function(bar){
+        const pin=function(property,value){
+          if(bar.style.getPropertyValue(property)!==value ||
+             bar.style.getPropertyPriority(property)!=='important'){
+            bar.style.setProperty(property,value,'important');
+          }
+        };
+        pin('position','fixed');
+        pin('top',nav+'px');
+        pin('left','50%');
+        pin('right','auto');
+        pin('bottom','auto');
+        pin('width','calc(100% - 28px)');
+        pin('max-width','1120px');
+        pin('margin-left','0px');
+        pin('margin-right','0px');
+        pin('transform','translate3d(-50%,0,0)');
+        pin('-webkit-transform','translate3d(-50%,0,0)');
+        pin('translate','none');
+        pin('animation','none');
+        pin('-webkit-animation','none');
+        pin('transition','opacity .38s ease, visibility .38s');
+        // Watch for late inline changes from the studio's original animation.
+        if(!bar.dataset.dbTgPinned){
+          bar.dataset.dbTgPinned='1';
+          const observer=new doc.defaultView.MutationObserver(function(){
+            if(active==='dashbyte')pinVisibleGlassMenu();
+          });
+          observer.observe(bar,{attributes:true,attributeFilter:['style','class']});
+        }
+      });
+      const height=Math.max(85,Math.round(bars[0].getBoundingClientRect().height)||0);
+      const sheetY=(nav+height+12)+'px';
+      if(doc.documentElement.style.getPropertyValue('--db-tg-menu-sheet-top')!==sheetY){
+        doc.documentElement.style.setProperty('--db-tg-menu-sheet-top',sheetY);
+      }
+      return true;
+    }
+    if(!doc.documentElement.dataset.dbTgPinObserver){
+      doc.documentElement.dataset.dbTgPinObserver='1';
+      const createdObserver=new doc.defaultView.MutationObserver(function(mutations){
+        if(active!=='dashbyte')return;
+        if(mutations.some(m=>m.addedNodes&&m.addedNodes.length))pinVisibleGlassMenu();
+      });
+      createdObserver.observe(doc.documentElement,{childList:true,subtree:true});
+      const restoreOnScroll=function(){if(active==='dashbyte')pinVisibleGlassMenu()};
+      doc.defaultView.addEventListener('scroll',restoreOnScroll,{passive:true});
+      doc.addEventListener('scroll',restoreOnScroll,{passive:true,capture:true});
+    }
+    pinVisibleGlassMenu();
     const css=`/* Telegram showroom: pure opacity reveal. No vertical movement into Telegram controls. */
       #topbar,.topbar{
         position:fixed!important;top:${nav}px!important;left:50%!important;right:auto!important;
@@ -156,9 +209,7 @@
     safeStyle(doc,'dashbyte-tg-studio-safe',css);
     // The original site still manages the menu's content and expand/collapse behavior.
     // We own only opacity visibility while it's embedded in the Telegram showroom.
-    const bar=doc.querySelector('#topbar,.topbar');
-    const height=bar?Math.max(85,Math.round(bar.getBoundingClientRect().height)||0):125;
-    doc.documentElement.style.setProperty('--db-tg-menu-sheet-top',(nav+height+10)+'px');
+    pinVisibleGlassMenu();
     if(!doc.documentElement.dataset.dbTelegramFadeBound){
       doc.documentElement.dataset.dbTelegramFadeBound='1';
       const updateMenuVisibility=function(){
