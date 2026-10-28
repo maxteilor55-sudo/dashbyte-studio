@@ -94,10 +94,11 @@ jobs:
               "Math.max(100,Number.parseFloat(root.style.getPropertyValue('--db-showroom-menu-top'))||118)",
               "Math.max(72,Number.parseFloat(root.style.getPropertyValue('--db-showroom-menu-top'))||84)",
               "nav stabilization")
-          s = once(s,
-              "const headerTop=tg?Math.max(118,currentSafe+24):18;",
-              "const headerTop=tg?Math.max(84,currentSafe-4):18;",
-              "native-safe header position")
+          if "const headerTop=tg?Math.max(82,Math.min(92,currentSafe-40)):18;" not in s:
+              s = once(s,
+                  "const headerTop=tg?Math.max(118,currentSafe+24):18;",
+                  "const headerTop=tg?Math.max(84,currentSafe-4):18;",
+                  "native-safe header position")
           s = s.replace("var(--db-showroom-menu-top,118px)", "var(--db-showroom-menu-top,84px)")
           s = s.replace(
               "    // Screenshot-guided: ~118px on Telegram's CSS viewport keeps the\n    // glass capsule above the hero while clearing the native close controls.\n    // Set it directly on same-origin iframe: its old message handler clamps\n    // all offsets below 148px, causing the menu to remain too low.",
