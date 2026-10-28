@@ -50,6 +50,7 @@
   let needFullScreen=!!tg;
   let currentSafe=0, currentSiteY=62, loadToken=0;
   const injected=new WeakMap();
+  const stabilizedStudioDocs=new WeakSet();
 
   // Telegram defines two independent inset types. contentSafeAreaInset covers
   // the Telegram title/close actions in full-screen mode; device-only safe-area does not.
@@ -94,6 +95,60 @@
     back.style.setProperty('left','17px','important');
   }
 
+  // The studio runs in a same-origin iframe. Its own responsive styles and
+  // scroll animation may rewrite inline transforms after initial load, so
+  // the showroom must keep geometry in sync with Telegram's content-safe area.
+  function stabilizeStudioNav(doc){
+    if(!doc||!doc.documentElement||!doc.defaultView)return;
+    const bar=doc.querySelector('#topbar,.topbar');
+    if(!bar)return;
+    const root=doc.documentElement;
+    const win=doc.defaultView;
+    const top=Math.max(148,Number.parseFloat(root.style.getPropertyValue('--db-showroom-menu-top'))||210);
+    const pin=function(name,value){
+      if(bar.style.getPropertyValue(name)!==value||
+         bar.style.getPropertyPriority(name)!=='important'){
+        bar.style.setProperty(name,value,'important');
+      }
+    };
+    pin('position','fixed');
+    pin('top',top+'px');
+    pin('left','50%');
+    pin('right','auto');
+    pin('bottom','auto');
+    pin('margin','0px');
+    pin('width','calc(100% - 28px)');
+    pin('max-width','1120px');
+    pin('transform','translate3d(-50%, 0, 0)');
+    pin('-webkit-transform','translate3d(-50%, 0, 0)');
+    pin('translate','none');
+    pin('animation','none');
+    pin('transition','opacity .42s ease, visibility .42s ease');
+    const scroller=doc.scrollingElement||doc.documentElement;
+    const scrollY=Math.max(win.scrollY||0,scroller.scrollTop||0,doc.body?doc.body.scrollTop||0:0);
+    const visible=scrollY>18;
+    root.classList.toggle('db-header-visible',visible);
+    pin('opacity',visible?'1':'0');
+    pin('visibility',visible?'visible':'hidden');
+    pin('pointer-events',visible?'auto':'none');
+    const height=Math.max(72,Math.round(bar.getBoundingClientRect().height)||0);
+    const sheetTop=(top+height+10)+'px';
+    if(root.style.getPropertyValue('--db-showroom-sheet-top')!==sheetTop){
+      root.style.setProperty('--db-showroom-sheet-top',sheetTop);
+    }
+    if(stabilizedStudioDocs.has(doc))return;
+    stabilizedStudioDocs.add(doc);
+    const sync=function(){if(active==='dashbyte')stabilizeStudioNav(doc)};
+    win.addEventListener('scroll',sync,{passive:true});
+    doc.addEventListener('scroll',sync,{passive:true,capture:true});
+    win.addEventListener('resize',sync,{passive:true});
+    // Only watch the menu itself; observing the whole document causes
+    // unnecessary work on image/video-heavy pages.
+    new win.MutationObserver(sync).observe(bar,{
+      attributes:true,attributeFilter:['style']
+    });
+  }
+
   function patchDashByte(doc){
     // The embedded studio now owns its own glass-header animation and safe position.
     // Parent only supplies Telegram's content-safe inset and the showroom return card.
@@ -106,7 +161,34 @@
     if(!doc||!doc.documentElement)return;
     doc.documentElement.classList.add('db-showroom-stage');
     doc.documentElement.style.setProperty('--db-showroom-menu-top',headerTop+'px');
-    const css=`/* Showroom-only portfolio return card; header positioning lives in index.html. */
+    const css=/* Showroom-only layout and resilient Telegram-safe header. */`
+      html.db-showroom-stage #topbar,html.db-showroom-stage .topbar{
+        position:fixed!important;
+        top:var(--db-showroom-menu-top,210px)!important;
+        left:50%!important;right:auto!important;bottom:auto!important;
+        width:calc(100% - 28px)!important;max-width:1120px!important;
+        margin:0!important;translate:none!important;
+        transform:translate3d(-50%,0,0)!important;
+        -webkit-transform:translate3d(-50%,0,0)!important;
+        animation:none!important;-webkit-animation:none!important;
+        transition:opacity .42s ease,visibility .42s ease!important;
+      }
+      html.db-showroom-stage:not(.db-header-visible) #topbar,
+      html.db-showroom-stage:not(.db-header-visible) .topbar{
+        opacity:0!important;visibility:hidden!important;pointer-events:none!important;
+      }
+      html.db-showroom-stage.db-header-visible #topbar,
+      html.db-showroom-stage.db-header-visible .topbar{
+        opacity:1!important;visibility:visible!important;pointer-events:auto!important;
+      }
+      html.db-showroom-stage #menu-sheet,html.db-showroom-stage .menu-sheet{
+        top:var(--db-showroom-sheet-top,330px)!important;
+        max-height:max(110px,calc(100dvh - var(--db-showroom-sheet-top,330px) - 12px))!important;
+        overflow-y:auto!important;
+      }
+      html.db-showroom-stage{scroll-padding-top:calc(var(--db-showroom-menu-top,210px) + 120px)}
+      @media(prefers-reduced-motion:reduce){html.db-showroom-stage #topbar,html.db-showroom-stage .topbar{transition:none!important}}
+      /* Portfolio return card styling. */
       .db-showroom-return{position:relative;isolation:isolate;display:block;overflow:hidden;
         margin:clamp(38px,7vw,90px) auto 28px;padding:clamp(26px,5vw,54px);
         max-width:1180px;border:1px solid rgba(255,255,255,.2);border-radius:32px;
@@ -131,6 +213,7 @@
         .db-showroom-return button{width:100%}}
     `;
     safeStyle(doc,'dashbyte-tg-studio-safe',css);
+    stabilizeStudioNav(doc);
     addShowroomReturn(doc);
   }
 
