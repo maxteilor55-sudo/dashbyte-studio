@@ -136,7 +136,7 @@
     if(!doc||!doc.body||doc.getElementById('db-showroom-return'))return;
     const sections=Array.from(doc.querySelectorAll('section,[id],article'));
     let target=sections.find(el=>el.id&&/^(portfolio|works|work|projects|cases|case-studies)$/i.test(el.id));
-    if(!target)target=sections.find(el=>el.className&&typeof el.className==='string'&&/(^|\\s)(portfolio|works|projects|cases)(\\s|$)/i.test(el.className));
+    if(!target)target=sections.find(el=>el.className&&typeof el.className==='string'&&/(^|\s)(portfolio|works|projects|cases)(\s|$)/i.test(el.className));
     const headings=Array.from(doc.querySelectorAll('h1,h2,h3,h4'));
     if(!target){
       const head=headings.find(h=>/портфолио|наши работы|кейсы|проекты|избранные работы/i.test(h.textContent||''));
