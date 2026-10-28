@@ -723,6 +723,38 @@ html.db-showroom-stage #menu-sheet {
   .fog-bottom{height:clamp(102px,13dvh,145px)!important}
 }
 </style>
+<style id="db-arsenal-header-parity">
+/* Embedded studio: share the visual anchor of the Arsenal header.
+   No gradients behind native Telegram controls; use a single glass shell. */
+html.db-showroom-stage{--db-showroom-menu-top:62px}
+html.db-showroom-stage #topbar{
+  position:fixed!important;
+  top:var(--db-showroom-menu-top,62px)!important;
+  left:50%!important;right:auto!important;bottom:auto!important;
+  transform:translate3d(-50%,0,0)!important;
+  -webkit-transform:translate3d(-50%,0,0)!important;
+  translate:none!important;
+  width:calc(100% - 28px)!important;
+  border:1px solid rgba(255,255,255,.30)!important;
+  border-radius:32px!important;
+  backdrop-filter:blur(26px) saturate(140%)!important;
+  -webkit-backdrop-filter:blur(26px) saturate(140%)!important;
+}
+html.db-showroom-stage #menu-sheet{
+  top:var(--db-showroom-sheet-top,178px)!important;
+  max-height:calc(100dvh - var(--db-showroom-sheet-top,178px) - 14px)!important;
+}
+</style>
+<script id="db-arsenal-header-parity-init">
+(function(){
+  if(window.name!=='dashbyte-showroom-stage')return;
+  var root=document.documentElement;
+  root.classList.add('db-showroom-stage');
+  if(!root.style.getPropertyValue('--db-showroom-menu-top')){
+    root.style.setProperty('--db-showroom-menu-top','62px');
+  }
+})();
+</script>
 </head><body>
 <div aria-label="Загрузка DashByte" aria-live="polite" class="db-preloader" id="db-preloader" role="status">
 <div class="db-load-panel">
