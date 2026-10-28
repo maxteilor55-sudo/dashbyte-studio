@@ -1,0 +1,55 @@
+name: Publish DashByte two-project showroom
+on:
+  push:
+    branches: [main]
+    paths:
+      - showroom.html
+      - scripts/build-showroom.py
+      - .github/workflows/publish-showroom.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Build approved DashByte release and new home screen
+        run: python3 scripts/build-showroom.py
+      - name: Validate required routes and media
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          root=Path('.')
+          chooser=(root/'index.html').read_text()
+          studio=(root/'dashbyte.html').read_text()
+          arsenal=(root/'arsenal.html').read_text()
+          assert chooser == (root/'showroom.html').read_text()
+          assert len(chooser)>9000
+          assert 'href="./arsenal.html"' in chooser
+          assert 'href="./dashbyte.html"' in chooser
+          assert len(studio)>9000000
+          assert 'db-direct-showroom-start' in studio
+          assert 'id="topbar"' in studio
+          assert len(arsenal)>1000000
+          assert 'db-arsenal-choice-return-init' in arsenal
+          assert '<iframe' not in chooser
+          for p in ['assets/hero-mobile.mp4','assets/hero-desktop.mp4','assets/showreel-original.mp4']:
+              assert (root/p).exists(),p
+          print('Both complete sites verified, canonical studio media intact.')
+          PY
+      - name: Commit new showroom without touching bot settings
+        run: |
+          git diff --check
+          git add index.html showroom.html dashbyte.html arsenal.html DashByte_Showroom_v2_0.html
+          if git diff --cached --quiet; then
+            echo "Already published"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "feat: publish cinematic Arsenal + DashByte showroom with standalone glass menus"
+          git push origin HEAD:main
