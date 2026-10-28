@@ -1,0 +1,49 @@
+name: One-time Telegram glass navigation position fix
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/telegram-glass-nav-fix.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  adjust-glass-header:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Raise glass header below native Telegram controls
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path("index.html")
+          html = path.read_text(encoding="utf-8")
+          old = "--db-tg-menu-top:max(112px,calc(var(--db-tg-content-safe-top,0px) + 22px));"
+          new = "--db-tg-menu-top:max(76px,calc(var(--db-tg-content-safe-top,0px) + 12px));"
+          if old in html:
+              assert html.count(old) == 1, "Unexpected number of Telegram header styles"
+              path.write_text(html.replace(old, new), encoding="utf-8")
+              print("Raised Telegram glass header by 36 CSS px, retaining Telegram safe-area")
+          elif new in html:
+              print("Telegram header position is already updated")
+          else:
+              raise SystemExit("Expected Telegram header CSS not found; refusing blind edit")
+          PY
+      - name: Publish updated site to the default branch
+        shell: bash
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "No changes needed."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "fix: position glass nav just below Telegram controls"
+          git push origin HEAD:main
