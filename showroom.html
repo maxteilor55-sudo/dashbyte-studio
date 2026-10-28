@@ -97,7 +97,7 @@
   function patchDashByte(doc){
     // The embedded studio now owns its own glass-header animation and safe position.
     // Parent only supplies Telegram's content-safe inset and the showroom return card.
-    const headerTop=Math.max(148,currentSiteY+24);
+    const headerTop=tg?Math.max(210,currentSiteY+72):Math.max(148,currentSiteY+24);
     if(frame.contentWindow){
       try{
         frame.contentWindow.postMessage({type:'dashbyte-showroom-safearea',top:headerTop},location.origin);
