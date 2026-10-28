@@ -91,6 +91,8 @@ html.db-direct-showroom.db-telegram-miniapp:not(.db-showroom-stage) #menu-sheet{
 studio,n=re.subn(r'</head\s*>',lambda m:db_extension+"\n"+m.group(0),
                  studio,count=1,flags=re.I)
 if n!=1:raise RuntimeError("No HEAD boundary in studio release")
+# Preserve pixels and scripts, only remove inherited whitespace at line ends.
+studio=re.sub(r'[ ]+(?=$)', '', studio,flags=re.M)
 (ROOT/"dashbyte.html").write_text(studio,encoding='utf-8')
 
 showroom=(ROOT/"showroom.html").read_text(encoding='utf-8')
