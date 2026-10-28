@@ -17,13 +17,13 @@ jobs:
           import re
           for path,keywords in [
               ('index.html',['id="topbar"','class="topbar"','topbar.classList','db-header-visible','showroom-stage','style.setProperty(\'top\'','function setHeader','class="edge-fog']),
-              ('showcase.html',['class="site-header"','site-header','id="arsenal"','<iframe','safe-area-inset-top'])]:
+              ('showcase.html',['class="site-header"','site-header','id="arsenal"','<iframe','safe-area-inset-top','position:fixed!important'])]:
               t=Path(path).read_text(encoding='utf-8')
               print('===',path,'BYTES',len(t),'===')
               for needle in keywords:
                   found=list(re.finditer(re.escape(needle),t))
                   print('TOKEN',repr(needle),'COUNT',len(found))
-                  for m in found[:4]:
+                  for m in (found[-8:] if needle=='site-header' else found[:4]):
                       s=t[max(0,m.start()-440):m.start()+1050]
                       s=re.sub(r'data:[^"\']{200,}', '[EMBEDDED-MEDIA-OMITTED]',s)
                       print('----',s.replace(chr(10),' '))
