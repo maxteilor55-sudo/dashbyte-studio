@@ -109,10 +109,11 @@ jobs:
           # v3: align the capsule with native controls on Android WebView.
           # contentSafeAreaInset may exceed the visible Telegram controls; use
           # a bounded control-height compensation, not the full inset.
-          s = once(s,
-              "const headerTop=tg?Math.max(84,currentSafe-4):18;",
-              "const headerTop=tg?Math.max(82,Math.min(92,currentSafe-40)):18;",
-              "Telegram nav geometry v3")
+          if "const headerTop=tg?Math.max(47,Math.min(54,currentSafe-30)):18;" not in s:
+              s = once(s,
+                  "const headerTop=tg?Math.max(84,currentSafe-4):18;",
+                  "const headerTop=tg?Math.max(82,Math.min(92,currentSafe-40)):18;",
+                  "Telegram nav geometry v3")
           if "--db-showroom-glass-top',(tg?" not in s:
               s = once(s,
               "root.style.setProperty('--db-telegram-top',currentSafe+'px');",
@@ -202,7 +203,7 @@ jobs:
           # below owns fog paint, blur and masking in one compositing surface.
           import re
           for old_id in ("db-cinematic-edge-fog-v2","db-cinematic-edge-fog-v3"):
-              studio, removed=re.subn(r'<style id="'+old_id+r'">.*?</style>\\s*','',studio,count=1,flags=re.S)
+              studio, removed=re.subn(r'<style id="'+old_id+r'">.*?</style>','',studio,count=1,flags=re.S)
               if removed != 1:
                   raise RuntimeError("Cannot safely deduplicate "+old_id)
           single_fog = """<style id="db-telegram-edge-fog-v4">
