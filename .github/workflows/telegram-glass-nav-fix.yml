@@ -105,6 +105,77 @@ jobs:
           if len(s) < 20000:
               raise RuntimeError("Unexpected showroom size")
           show.write_text(s, encoding="utf-8")
+          # v3: align the capsule with native controls on Android WebView.
+          # contentSafeAreaInset may exceed the visible Telegram controls; use
+          # a bounded control-height compensation, not the full inset.
+          s = once(s,
+              "const headerTop=tg?Math.max(84,currentSafe-4):18;",
+              "const headerTop=tg?Math.max(82,Math.min(92,currentSafe-40)):18;",
+              "Telegram nav geometry v3")
+          s = once(s,
+              "root.style.setProperty('--db-telegram-top',currentSafe+'px');",
+              "root.style.setProperty('--db-telegram-top',currentSafe+'px');\n    root.style.setProperty('--db-showroom-glass-top',(tg?Math.max(82,Math.min(92,currentSafe-40)):18)+'px');",
+              "share glass inset with overlay")
+          # Keep Telegram's chrome shadow behind the glass menu, ending in a
+          # feather before the capsule instead of shading the capsule itself.
+          s = once(s,
+              "#overlay[data-project=\"dashbyte\"] #back{display:none!important}",
+              """#overlay[data-project="dashbyte"] #back{display:none!important}
+#overlay:before{
+  height:var(--db-showroom-glass-top,84px)!important;
+  background:linear-gradient(to bottom,rgba(9,9,11,.78) 0%,rgba(9,9,11,.53) 34%,rgba(9,9,11,.16) 72%,transparent 100%)!important;
+  -webkit-backdrop-filter:blur(12px) saturate(120%);
+  backdrop-filter:blur(12px) saturate(120%);
+  -webkit-mask-image:linear-gradient(to bottom,#000 0%,rgba(0,0,0,.88) 42%,rgba(0,0,0,.38) 76%,transparent 100%);
+  mask-image:linear-gradient(to bottom,#000 0%,rgba(0,0,0,.88) 42%,rgba(0,0,0,.38) 76%,transparent 100%);
+}""",
+              "smooth native Telegram chrome fade")
+          show.write_text(s, encoding="utf-8")
+
+          # Parent showroom determines the real header position. Ignore a
+          # late safe-area message from the embedded page once it is staged.
+          studio = index.read_text(encoding="utf-8")
+          studio = once(studio,
+              "if(Number.isFinite(px)){",
+              "if(Number.isFinite(px) && !root.classList.contains('db-showroom-stage')){",
+              "prevent iframe header offset regression")
+          fog_v3 = """<style id="db-cinematic-edge-fog-v3">
+/* Soft multistop light falloff; no visible bar, rectangular seam or texture. */
+.edge-fog{
+  background:none!important;overflow:hidden!important;
+  border:0!important;box-shadow:none!important;
+  pointer-events:none!important;
+}
+.fog-top{height:clamp(160px,22dvh,238px)!important}
+.fog-bottom{height:clamp(138px,19dvh,210px)!important}
+.edge-fog::before{
+  inset:0!important;
+  backdrop-filter:blur(17px) saturate(128%)!important;
+  -webkit-backdrop-filter:blur(17px) saturate(128%)!important;
+  background:transparent!important;
+  -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.96) 0%,rgba(0,0,0,.91) 17%,rgba(0,0,0,.68) 39%,rgba(0,0,0,.36) 63%,rgba(0,0,0,.1) 85%,transparent 100%)!important;
+  mask-image:linear-gradient(to bottom,rgba(0,0,0,.96) 0%,rgba(0,0,0,.91) 17%,rgba(0,0,0,.68) 39%,rgba(0,0,0,.36) 63%,rgba(0,0,0,.1) 85%,transparent 100%)!important;
+}
+.fog-bottom::before{
+  -webkit-mask-image:linear-gradient(to top,rgba(0,0,0,.95) 0%,rgba(0,0,0,.87) 17%,rgba(0,0,0,.65) 40%,rgba(0,0,0,.34) 64%,rgba(0,0,0,.09) 84%,transparent 100%)!important;
+  mask-image:linear-gradient(to top,rgba(0,0,0,.95) 0%,rgba(0,0,0,.87) 17%,rgba(0,0,0,.65) 40%,rgba(0,0,0,.34) 64%,rgba(0,0,0,.09) 84%,transparent 100%)!important;
+}
+.edge-fog::after{
+  background:linear-gradient(to bottom,rgba(10,9,13,.14) 0%,rgba(10,9,13,.07) 36%,rgba(10,9,13,.02) 66%,transparent 100%)!important;
+}
+.fog-bottom::after{
+  background:linear-gradient(to top,rgba(10,9,13,.17) 0%,rgba(10,9,13,.07) 33%,rgba(10,9,13,.02) 68%,transparent 100%)!important;
+}
+@media(max-width:650px){
+  .fog-top{height:clamp(142px,20dvh,202px)!important}
+  .fog-bottom{height:clamp(125px,18dvh,183px)!important}
+}
+</style>"""
+          if 'id="db-cinematic-edge-fog-v3"' not in studio:
+              studio = once(studio,"</head><body>",fog_v3+"\n</head><body>","edge fog v3 insertion")
+          if len(studio)<11000000:
+              raise RuntimeError("Unexpected index size after visual update")
+          index.write_text(studio, encoding="utf-8")
           print("Validated and updated both files; preserving all inline media.")
           PY
       - name: Publish both pages atomically
