@@ -70,7 +70,7 @@
   const frame=document.getElementById('project');
   const loader=document.getElementById('load');
   const back=document.getElementById('back');
-  const urls={arsenal:'./showcase.html#arsenal',dashbyte:'./?db-glass-parity=20261029-v2'};
+  const urls={arsenal:'./showcase.html#arsenal',dashbyte:'./?db-glass-parity=20261029-v3'};
   let active='';
   let needFullScreen=!!tg;
   let currentSafe=0, currentSiteY=62, loadToken=0;
@@ -204,12 +204,13 @@
     pin('margin','0px');
     pin('width','calc(100% - 28px)');
     pin('max-width','1120px');
-    // Screenshot-calibrated final visual offset: the embedded DB header
-    // renders ~36 CSS pixels below the equivalent Arsenal header despite
-    // matching top values. Apply an actual composited translation here,
-    // not another ineffective top-variable adjustment.
-    pin('transform',tg?'translate3d(-50%, -36px, 0)':'translate3d(-50%, 0, 0)');
-    pin('-webkit-transform',tg?'translate3d(-50%, -36px, 0)':'translate3d(-50%, 0, 0)');
+    // One correction in *actual screen space* (parent viewport plus iframe).
+    // On Android the parent and child WebView sometimes disagree about CSS
+    // offsets. Read the rendered rect and translate the existing capsule.
+    let shift=Number.parseFloat(bar.dataset.dbNavShift||'0')||0;
+    let transform='translate3d(-50%, '+shift+'px, 0)';
+    pin('transform',transform);
+    pin('-webkit-transform',transform);
     pin('translate','none');
     pin('animation','none');
     pin('transition','opacity .42s ease, visibility .42s ease');
@@ -221,10 +222,26 @@
     pin('visibility',visible?'visible':'hidden');
     pin('pointer-events',visible?'auto':'none');
 
-    // Geometry is owned by one stable transform above. Do not run a
-    // competing top-correction loop that cancels its displacement.
+    // Telegram's controls end above this CSS-space anchor. Use the
+    // measured rect so actual visual placement (not just computed 'top')
+    // matches on Android, desktop WebView and different DPRs.
+    if(tg){
+      const desiredScreenTop=Math.max(78,Math.min(118,currentSafe-2));
+      const measuredScreenTop=frame.getBoundingClientRect().top+bar.getBoundingClientRect().top;
+      const error=desiredScreenTop-measuredScreenTop;
+      if(Number.isFinite(error)&&Math.abs(error)>0.75){
+        const corrected=Math.max(-145,Math.min(145,shift+error));
+        if(Math.abs(corrected-shift)>0.75){
+          shift=corrected;
+          bar.dataset.dbNavShift=String(shift);
+          transform='translate3d(-50%, '+shift+'px, 0)';
+          pin('transform',transform);
+          pin('-webkit-transform',transform);
+        }
+      }
+    }
     const height=Math.max(72,Math.round(bar.getBoundingClientRect().height)||0);
-    const sheetTop=(top+height+10)+'px';
+    const sheetTop=(top+shift+height+12)+'px';
     if(root.style.getPropertyValue('--db-showroom-sheet-top')!==sheetTop){
       root.style.setProperty('--db-showroom-sheet-top',sheetTop);
     }
@@ -265,8 +282,8 @@
         left:50%!important;right:auto!important;bottom:auto!important;
         width:calc(100% - 28px)!important;max-width:1120px!important;
         margin:0!important;translate:none!important;
-        transform:translate3d(-50%,-36px,0)!important;
-        -webkit-transform:translate3d(-50%,-36px,0)!important;
+        transform:translate3d(-50%,0,0)!important;
+        -webkit-transform:translate3d(-50%,0,0)!important;
         animation:none!important;-webkit-animation:none!important;
         transition:opacity .42s ease,visibility .42s ease!important;
       }
