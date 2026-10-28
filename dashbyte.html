@@ -630,7 +630,7 @@ html.db-direct-showroom.db-telegram-miniapp:not(.db-showroom-stage) #topbar,
 html.db-direct-showroom:not(.db-header-visible) #topbar,
 html.db-direct-showroom.db-header-visible #topbar{
   position:fixed!important;
-  top:var(--db-native-header-top,88px)!important;
+  top:var(--db-native-header-top,164px)!important;
   left:50%!important;right:auto!important;bottom:auto!important;
   transform:translateX(-50%)!important;
   -webkit-transform:translateX(-50%)!important;
@@ -653,8 +653,8 @@ html.db-direct-showroom.db-header-visible #topbar{
 }
 html.db-direct-showroom #menu-sheet,
 html.db-direct-showroom.db-telegram-miniapp:not(.db-showroom-stage) #menu-sheet{
-  top:calc(var(--db-native-header-top,88px) + 114px)!important;
-  max-height:calc(100dvh - var(--db-native-header-top,88px) - 128px)!important;
+  top:calc(var(--db-native-header-top,164px) + 114px)!important;
+  max-height:calc(100dvh - var(--db-native-header-top,164px) - 128px)!important;
 }
 @media (prefers-reduced-motion:reduce){
   html.db-direct-showroom #topbar{transition:none!important;filter:none!important}
@@ -674,7 +674,7 @@ html.db-direct-showroom.db-telegram-miniapp:not(.db-showroom-stage) #menu-sheet{
   function pos(){
     const a=tg&&tg.safeAreaInset||{},c=tg&&tg.contentSafeAreaInset||{};
     const safe=Math.max(Number(a.top)||0,Number(c.top)||0);
-    const top=tg?Math.max(82,safe+8):18;
+    const top=tg?Math.max(158,safe+84):18; // +76 CSS px: clear Telegram native X / chevron / dots
     root.style.setProperty('--db-native-header-top',top+'px');
     // Arsenal pins the actual DOM element, not just a CSS custom property.
     // Do the same here; disable the inherited offscreen translate animation
