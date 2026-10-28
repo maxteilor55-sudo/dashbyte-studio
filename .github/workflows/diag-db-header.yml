@@ -1,0 +1,27 @@
+name: Diagnose DashByte header animation and CSS origin
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/diag-db-header.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trace exact header selectors, animation rules and scroll handlers
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('dashbyte.html').read_text('utf-8')
+          print('SOURCE_LENGTH',len(s))
+          for needle in ['#topbar','db-header-visible','db-entry-wait','.topbar','translate:','translateY(','headerVisible','headerTop','scrollY>','scrollY <','scrollY>','--db-native-header-top','transition:translate','revealHeader','menu-sheet','motion-enabled']:
+            matches=list(re.finditer(re.escape(needle),s))
+            print('\n===',repr(needle),'TOTAL',len(matches))
+            for m in matches[:16]:
+              left=max(0,m.start()-250);right=min(len(s),m.end()+470)
+              print('MATCH POS',m.start(),repr(s[left:right].replace('\n',' '))[:850])
+          PY
