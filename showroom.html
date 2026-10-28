@@ -82,7 +82,7 @@
     currentSafe=full?Math.max(80,insetTop+9):0;
     currentSiteY=currentSafe+58;
     root.style.setProperty('--db-telegram-top',currentSafe+'px');
-    root.style.setProperty('--db-showroom-glass-top',(tg?Math.max(82,Math.min(92,currentSafe-40)):18)+'px');
+    root.style.setProperty('--db-showroom-glass-top',(tg?Math.max(47,Math.min(54,currentSafe-30)):18)+'px');
     root.style.setProperty('--db-telegram-bottom',insetBottom+'px');
     root.style.setProperty('--db-project-header-top',currentSiteY+'px');
     applyToOpenedProject();
@@ -173,7 +173,7 @@
     if(!bar)return;
     const root=doc.documentElement;
     const win=doc.defaultView;
-    const top=Math.max(72,Number.parseFloat(root.style.getPropertyValue('--db-showroom-menu-top'))||84);
+    const top=Math.max(44,Number.parseFloat(root.style.getPropertyValue('--db-showroom-menu-top'))||50);
     // Compare normalized CSSOM values: browsers rewrite transform units and
     // transition shorthand, which would otherwise retrigger MutationObserver forever.
     const normalized=doc.createElement('div').style;
@@ -228,7 +228,7 @@
     // Parent only supplies Telegram's content-safe inset and the showroom return card.
     // Position glass directly beneath native controls, using Telegram safe-area metrics.
     // No oversized fixed offset; the showroom and iframe now share one position.
-    const headerTop=tg?Math.max(82,Math.min(92,currentSafe-40)):18;
+    const headerTop=tg?Math.max(47,Math.min(54,currentSafe-30)):18;
     if(!doc||!doc.documentElement)return;
     doc.documentElement.classList.add('db-showroom-stage');
     doc.documentElement.style.setProperty('--db-showroom-menu-top',headerTop+'px');
