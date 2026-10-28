@@ -70,7 +70,7 @@
   const frame=document.getElementById('project');
   const loader=document.getElementById('load');
   const back=document.getElementById('back');
-  const urls={arsenal:'./showcase.html#arsenal',dashbyte:'./?db-glass-parity=20261029'};
+  const urls={arsenal:'./showcase.html#arsenal',dashbyte:'./?db-glass-parity=20261029-v2'};
   let active='';
   let needFullScreen=!!tg;
   let currentSafe=0, currentSiteY=62, loadToken=0;
@@ -204,8 +204,12 @@
     pin('margin','0px');
     pin('width','calc(100% - 28px)');
     pin('max-width','1120px');
-    pin('transform','translate3d(-50%, 0, 0)');
-    pin('-webkit-transform','translate3d(-50%, 0, 0)');
+    // Screenshot-calibrated final visual offset: the embedded DB header
+    // renders ~36 CSS pixels below the equivalent Arsenal header despite
+    // matching top values. Apply an actual composited translation here,
+    // not another ineffective top-variable adjustment.
+    pin('transform',tg?'translate3d(-50%, -36px, 0)':'translate3d(-50%, 0, 0)');
+    pin('-webkit-transform',tg?'translate3d(-50%, -36px, 0)':'translate3d(-50%, 0, 0)');
     pin('translate','none');
     pin('animation','none');
     pin('transition','opacity .42s ease, visibility .42s ease');
@@ -217,18 +221,8 @@
     pin('visibility',visible?'visible':'hidden');
     pin('pointer-events',visible?'auto':'none');
 
-    // Critical: top in the iframe and actual on-screen top are not always equal
-    // (composited/transformed ancestors in the studio). Measure and correct,
-    // rather than applying another arbitrary CSS offset.
-    const desiredScreenTop=tg?Math.max(60,Math.min(66,currentSafe-20)):18; // Immediately below Telegram controls, not the old fade band.
-    const iframeTop=frame.getBoundingClientRect().top;
-    const actualScreenTop=iframeTop+bar.getBoundingClientRect().top;
-    const delta=desiredScreenTop-actualScreenTop;
-    if(Number.isFinite(delta)&&Math.abs(delta)>1&&Math.abs(delta)<180){
-      top=Math.max(-95,Math.min(310,top+delta));
-      pin('top',top+'px');
-      root.style.setProperty('--db-showroom-menu-top',top+'px');
-    }
+    // Geometry is owned by one stable transform above. Do not run a
+    // competing top-correction loop that cancels its displacement.
     const height=Math.max(72,Math.round(bar.getBoundingClientRect().height)||0);
     const sheetTop=(top+height+10)+'px';
     if(root.style.getPropertyValue('--db-showroom-sheet-top')!==sheetTop){
@@ -271,8 +265,8 @@
         left:50%!important;right:auto!important;bottom:auto!important;
         width:calc(100% - 28px)!important;max-width:1120px!important;
         margin:0!important;translate:none!important;
-        transform:translate3d(-50%,0,0)!important;
-        -webkit-transform:translate3d(-50%,0,0)!important;
+        transform:translate3d(-50%,-36px,0)!important;
+        -webkit-transform:translate3d(-50%,-36px,0)!important;
         animation:none!important;-webkit-animation:none!important;
         transition:opacity .42s ease,visibility .42s ease!important;
       }
