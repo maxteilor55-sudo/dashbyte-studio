@@ -1,0 +1,177 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#09090b"><title>DashByte — Showroom</title><script src="https://telegram.org/js/telegram-web-app.js"></script><style>
+:root{font-family:Inter,Arial,sans-serif;color-scheme:dark}*{box-sizing:border-box}body{margin:0;color:#faf7f8;background:#09090b;min-height:100dvh;overflow-x:hidden}body:before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 70% 5%,#72132b88,transparent 50%),radial-gradient(ellipse at 3% 80%,#57322444,transparent 55%)}main{position:relative;max-width:1050px;min-height:100dvh;margin:auto;padding:calc(env(safe-area-inset-top) + 26px) 22px calc(env(safe-area-inset-bottom) + 26px);display:flex;flex-direction:column}.top{display:flex;align-items:center;justify-content:space-between}.brand{font-weight:950;font-size:23px;letter-spacing:-1.5px}.brand b{color:#f23c57}.tag{border:1px solid #ffffff33;padding:9px 12px;border-radius:30px;color:#bbb;font-size:10px;letter-spacing:1px}.eyebrow{font-size:10px;letter-spacing:3px;color:#f35a71;font-weight:bold;margin-top:52px}.title{font-size:clamp(48px,9vw,89px);line-height:.91;letter-spacing:-.078em;font-weight:950;margin:16px 0 17px}.title span{color:#f23c57}.sub{font-size:13px;line-height:1.6;color:#a5a0a7;margin:0 0 32px;max-width:460px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:auto}.tile{position:relative;min-height:345px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;border:1px solid #ffffff38;border-radius:27px;background:#151316;text-align:left;padding:23px;cursor:pointer;transition:transform .25s,border-color .25s}.tile:active{transform:scale(.98)}.tile:hover{border-color:#fff9}.tile.ars{background:radial-gradient(ellipse at 73% 40%,#9c725e77,transparent 58%),linear-gradient(145deg,#25211f,#101011)}.tile.db{background:radial-gradient(ellipse at 73% 30%,#dd173e88,transparent 58%),linear-gradient(145deg,#33131f,#110b12)}.tile:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#08080df0,transparent 66%);pointer-events:none}.tile > *{position:relative;z-index:1}.meta{color:#ddd;letter-spacing:1.7px;font-size:10px;font-weight:750}.orn{height:170px;display:grid;place-items:center;opacity:.8}.orn svg{max-width:90%;height:160px;filter:drop-shadow(0 20px 18px #0009)}.db-mark{font-weight:950;font-size:160px;letter-spacing:-.13em;color:#ffffff1c;-webkit-text-stroke:2px #ffffff99;text-shadow:0 12px 28px #0008;transform:rotate(-11deg)}.bottom{display:flex;align-items:end;justify-content:space-between;gap:10px}.bottom h2{font-size:clamp(32px,4vw,48px);line-height:1;margin:0 0 8px;letter-spacing:-2px}.bottom p{color:#d5d0d3;font-size:12px;line-height:1.5;margin:0}.arrow{flex:none;width:46px;height:46px;display:grid;place-items:center;border:1px solid #fff8;background:#ffffff18;border-radius:50%;font-size:25px;backdrop-filter:blur(14px)}footer{display:flex;justify-content:space-between;gap:15px;color:#89838d;font-size:10px;letter-spacing:1px;margin-top:29px}#overlay{display:none;position:fixed;inset:0;background:#09090b;z-index:3}#overlay.open{display:block}#overlay iframe{width:100%;height:100%;border:0;background:#111}#back{position:absolute;top:calc(env(safe-area-inset-top) + 12px);left:12px;border-radius:50px;border:1px solid #ffffff66;background:#09090bdc;color:#fff;font-size:13px;padding:13px 19px;backdrop-filter:blur(20px);font-weight:800;z-index:5;cursor:pointer}#load{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;background:#09090b;color:#999;font-size:12px;letter-spacing:2px}#load.off{display:none}@media(max-width:650px){main{padding:calc(env(safe-area-inset-top) + 19px) 17px calc(env(safe-area-inset-bottom) + 23px)}.eyebrow{margin-top:35px}.title{font-size:clamp(48px,12vw,68px)}.sub{margin-bottom:25px}.grid{grid-template-columns:1fr;gap:12px}.tile{min-height:221px;padding:17px 19px}.orn{position:absolute;inset:0 0 0 27%;height:100%;opacity:.46}.orn svg{width:250px}.db-mark{font-size:150px}.bottom h2{font-size:35px}.bottom p{font-size:11px}.meta{font-size:9px}footer{font-size:9px;margin-top:23px}}@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* DASHBYTE / TELEGRAM FULLSCREEN CHROME — v2.0, scoped to this showroom only */
+:root{--db-telegram-top:0px;--db-telegram-bottom:0px;--db-project-header-top:62px}
+#home{padding-top:calc(var(--db-telegram-top) + 21px)!important;padding-bottom:calc(var(--db-telegram-bottom) + 28px)!important}
+#home .top{min-height:34px;position:relative;z-index:1}
+#home .top .tag{font-size:9px;white-space:nowrap;letter-spacing:1.15px}
+#home .eyebrow{margin-top:clamp(30px,4.2vh,48px)}
+#overlay:before{content:'';position:fixed;z-index:4;top:0;left:0;right:0;height:var(--db-telegram-top);background:linear-gradient(#09090bec,#09090b99 72%,transparent);pointer-events:none}
+#back{position:fixed!important;top:calc(var(--db-telegram-top) + 7px)!important;left:17px!important;z-index:11!important;font-weight:750;min-height:40px;padding:10px 17px;background:rgba(19,18,21,.79);border:1px solid rgba(255,255,255,.25);box-shadow:0 10px 32px #0008,inset 0 1px #fff2;backdrop-filter:blur(23px) saturate(135%);-webkit-backdrop-filter:blur(23px) saturate(135%)}
+#overlay:after{content:'';position:fixed;z-index:4;pointer-events:none;left:0;right:0;top:var(--db-telegram-top);height:60px;background:linear-gradient(to bottom,#09090b40,transparent)}
+#overlay iframe{position:absolute;inset:0;display:block;width:100%;height:100%;border:0}
+#back:hover{border-color:#fff7;background:#272226}
+#home .tile:focus-visible{outline:2px solid #f23c57;outline-offset:4px}
+#home .tile .arrow{transition:transform .25s,background .25s}
+#home .tile:hover .arrow{transform:rotate(45deg);background:#ffffff36}
+#home .tile .meta{letter-spacing:1.8px}
+#home footer{padding-bottom:3px}
+@media(max-width:650px){
+ #home{padding-left:18px!important;padding-right:18px!important}
+ #home .eyebrow{margin-top:26px}
+ #home .title{font-size:clamp(44px,11.65vw,59px);margin:13px 0 15px}
+ #home .sub{font-size:12px;line-height:1.57;margin-bottom:19px}
+ #home .grid{gap:13px}
+ #home .tile{min-height:201px;padding:17px 20px;border-radius:25px}
+ #home .bottom h2{font-size:34px;letter-spacing:-1.3px}
+ #home .bottom p{font-size:11px}
+ #home footer{margin-top:24px;font-size:9px}
+ #back{left:13px!important;padding:10px 14px;font-size:12px}
+}
+@media(max-height:700px) and (max-width:650px){#home .eyebrow{margin-top:20px}#home .title{font-size:43px}#home .tile{min-height:177px}#home .sub{margin-bottom:14px}}
+</style></head><body><main id="home"><header class="top"><div class="brand">DASH<b>BYTE.</b></div><div class="tag">STUDIO / 2026</div></header><div class="eyebrow">● DIGITAL SHOWROOM</div><h1 class="title">ВЫБЕРИ<br><span>ИСТОРИЮ.</span></h1><p class="sub">Добро пожаловать в пространство проектов DashByte. Выберите проект — и откройте его прямо здесь.</p><section class="grid"><button class="tile ars" data-project="arsenal"><span class="meta">01 / КЛИЕНТСКИЙ ПРОЕКТ</span><span class="orn" aria-hidden="true"><svg viewBox="0 0 400 230" fill="none"><path d="M65 93L189 29L363 74L243 137Z" fill="#77716d" stroke="#c1aaa2" stroke-width="3"/><path d="M65 93V189L243 222V137Z" fill="#9b8070" stroke="#d6bba7" stroke-width="3"/><path d="M243 137L363 74V168L243 222Z" fill="#3b3939" stroke="#bd9c89" stroke-width="3"/><path d="M98 115L207 142V205L98 184Z" fill="#232326" stroke="#ddc5b2" stroke-width="3"/><path d="M110 138L195 158M110 156L195 176M110 174L195 194" stroke="#b29e90" stroke-width="3"/></svg></span><span class="bottom"><span><h2>АРСЕНАЛ</h2><p>Металлоконструкции · Гаражи · Навесы<br>Пермь и Пермский край</p></span><span class="arrow">↗</span></span></button><button class="tile db" data-project="dashbyte"><span class="meta">02 / САЙТ СТУДИИ</span><span class="orn db-mark" aria-hidden="true">DB</span><span class="bottom"><span><h2>DASHBYTE.</h2><p>Веб-разработка · Айдентика · Контент<br>Наш фирменный сайт</p></span><span class="arrow">↗</span></span></button></section><footer><span>● 2 ACTIVE PROJECTS</span><span>DESIGNED BY DASHBYTE © 2026</span></footer></main><section id="overlay"><button id="back" type="button">← Все проекты</button><div id="load">ОТКРЫВАЕМ ПРОЕКТ...</div><iframe id="project" title="Просмотр сайта" allow="fullscreen"></iframe></section><script>
+(function(){
+  'use strict';
+  const tg=window.Telegram&&window.Telegram.WebApp;
+  const root=document.documentElement;
+  const overlay=document.getElementById('overlay');
+  const frame=document.getElementById('project');
+  const loader=document.getElementById('load');
+  const back=document.getElementById('back');
+  const urls={arsenal:'./showcase.html#arsenal',dashbyte:'./'};
+  let active='';
+  let needFullScreen=!!tg;
+  let currentSafe=0, currentSiteY=62, loadToken=0;
+  const injected=new WeakMap();
+
+  // Telegram defines two independent inset types. contentSafeAreaInset covers
+  // the Telegram title/close actions in full-screen mode; device-only safe-area does not.
+  function updateSafeArea(){
+    const a=tg&&tg.safeAreaInset||{};
+    const c=tg&&tg.contentSafeAreaInset||{};
+    const full=!!(tg&&(tg.isFullscreen||needFullScreen));
+    const insetTop=Math.max(0,Number(a.top)||0,Number(c.top)||0);
+    const insetBottom=Math.max(0,Number(a.bottom)||0,Number(c.bottom)||0);
+    // On clients that omit inset values the fallback keeps the native controls clear.
+    currentSafe=full?Math.max(80,insetTop+9):0;
+    currentSiteY=currentSafe+58;
+    root.style.setProperty('--db-telegram-top',currentSafe+'px');
+    root.style.setProperty('--db-telegram-bottom',insetBottom+'px');
+    root.style.setProperty('--db-project-header-top',currentSiteY+'px');
+    applyToOpenedProject();
+  }
+
+  function safeStyle(doc,key,css){
+    if(!doc||!doc.head)return;
+    let node=doc.getElementById(key);
+    if(!node){node=doc.createElement('style');node.id=key;doc.head.appendChild(node)}
+    if(node.textContent!==css)node.textContent=css;
+  }
+
+  function patchArsenal(doc){
+    if(!doc||!doc.querySelector('.site-header'))return;
+    const nav=currentSiteY;
+    const css=`/* Telegram-only adjustments. Do not alter the published Arsenal website. */
+      .site-header,.site-header.is-scrolled{top:${nav}px!important;}
+      html{scroll-padding-top:${nav+115}px!important;}
+      .lightbox-close{top:${currentSafe+12}px!important;}
+      @media(max-width:680px){.site-header,.site-header.is-scrolled{top:${nav}px!important}}
+    `;
+    safeStyle(doc,'dashbyte-tg-arsenal-safe',css);
+    // Any custom flyout uses the actual header rectangle and follows its new position.
+  }
+
+  function patchDashByte(doc){
+    if(!doc||!doc.querySelector('.topbar'))return;
+    const nav=currentSiteY;
+    const css=`/* Telegram-only adjustments. Do not alter the published DashByte website. */
+      #topbar,.topbar{top:${nav}px!important;}
+      #menu-sheet,.menu-sheet{top:${nav+109}px!important;max-height:calc(100dvh - ${nav+123}px)!important;overflow-y:auto!important;}
+      html{scroll-padding-top:${nav+120}px!important;}
+      .lightbox-close{top:${currentSafe+12}px!important;}
+      @media(max-width:650px){#topbar,.topbar{top:${nav}px!important;}}
+    `;
+    safeStyle(doc,'dashbyte-tg-studio-safe',css);
+  }
+
+  function patchShowcase(doc){
+    if(!doc)return;
+    safeStyle(doc,'dashbyte-tg-single-back',
+      '.viewer>.back{display:none!important;visibility:hidden!important;pointer-events:none!important;}');
+    const inner=doc.getElementById('arsenal');
+    if(inner){
+      if(!injected.has(inner)){
+        inner.addEventListener('load',function(){try{patchArsenal(inner.contentDocument)}catch(e){}});
+        injected.set(inner,true);
+      }
+      try{patchArsenal(inner.contentDocument)}catch(e){}
+    }
+  }
+
+  function applyToOpenedProject(){
+    if(!active)return;
+    try{
+      const doc=frame.contentDocument;
+      if(active==='arsenal')patchShowcase(doc);
+      if(active==='dashbyte')patchDashByte(doc);
+    }catch(e){
+      // Local deployments on separate domains cannot be styled cross-origin.
+    }
+  }
+
+  function openProject(id,addHistory){
+    if(!urls[id])return;
+    if(active!==id){frame.src=urls[id];loader.classList.remove('off')}
+    active=id;
+    overlay.classList.add('open');
+    document.body.style.overflow='hidden';
+    document.title=(id==='arsenal'?'Арсенал':'DashByte')+' · DashByte Showroom';
+    if(addHistory)history.pushState({project:id},'',location.pathname+location.search+'#'+id);
+    try{tg&&tg.HapticFeedback&&tg.HapticFeedback.impactOccurred('light')}catch(e){}
+    // One explicit in-app back button, not two overlays or a duplicate native button.
+    try{tg&&tg.BackButton&&tg.BackButton.hide()}catch(e){}
+    applyToOpenedProject();
+  }
+
+  function closeProject(updateHistory){
+    if(!active)return;
+    active='';
+    overlay.classList.remove('open');
+    document.body.style.overflow='';
+    document.title='DashByte — Showroom';
+    // Keep the iframe in memory: returning to the work page is instantaneous.
+    if(updateHistory)history.replaceState(null,'',location.pathname+location.search);
+    try{tg&&tg.BackButton&&tg.BackButton.hide()}catch(e){}
+  }
+
+  frame.addEventListener('load',function(){
+    loader.classList.add('off');
+    applyToOpenedProject();
+  });
+  document.querySelectorAll('[data-project]').forEach(function(button){
+    button.addEventListener('click',function(){openProject(button.dataset.project,true)})
+  });
+  back.addEventListener('click',function(){closeProject(true)});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeProject(true)});
+  window.addEventListener('popstate',function(){
+    const id=location.hash.slice(1);
+    if(urls[id])openProject(id,false);else closeProject(false);
+  });
+
+  if(tg){
+    try{
+      tg.ready();tg.expand();tg.setHeaderColor('#09090b');tg.setBackgroundColor('#09090b');
+      if(tg.isVersionAtLeast&&tg.isVersionAtLeast('8.0')&&typeof tg.requestFullscreen==='function'){
+        tg.requestFullscreen();
+      }else needFullScreen=false;
+      ['fullscreenChanged','safeAreaChanged','contentSafeAreaChanged','viewportChanged'].forEach(function(event){
+        tg.onEvent(event,updateSafeArea);
+      });
+    }catch(e){}
+  }
+  updateSafeArea();
+  window.addEventListener('resize',updateSafeArea,{passive:true});
+  if(urls[location.hash.slice(1)])openProject(location.hash.slice(1),false);
+})();
+</script></body></html>
