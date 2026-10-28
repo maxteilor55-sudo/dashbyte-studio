@@ -1,4 +1,5 @@
 name: Mobile smoke test — DashByte and Arsenal showroom
+# Validate enlarged native Telegram clearance on actual generated HTML.
 on:
   push:
     branches: [main]
