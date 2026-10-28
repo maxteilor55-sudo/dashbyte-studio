@@ -298,7 +298,7 @@
     @media(max-width:680px){.launch-panel{border-radius:28px}.launch-disc{width:113px;height:113px;margin:25px auto 20px}.launch-core{width:65px;height:65px;font-size:31px}.site-header,.site-header.is-scrolled{background:rgba(228,228,228,.09)!important}}
     @media(prefers-reduced-motion:reduce){.launch-disc:before,.launch-disc:after,.launch-overlay:before,.launch-panel:before,.launch-core{animation:none!important}.launch-panel{animation:none!important}.has-js .launch-overlay{transition-duration:.15s}}
 
-  
+
 
     /* DASHBYTE V5 — icy cyan palette, edge blur and luxury motion */
     html{background:#130f0d}
@@ -434,7 +434,7 @@
       body:before,body:after,.hero-glass-note:before,.project:before,.form-panel:before,.fact:before,.service-card:after,.lens-dock:after,.site-header:after,.nav-cta:before,.menu-toggle:before,.tabbar:before,.mobile-menu:before,.launch-fill{animation:none!important}
     }
 
-  
+
     /* DASHBYTE V6 FIXES — sticky glass header, pure edge blur, aligned floating dock */
     html{scroll-padding-top:112px}
     .site-header,.site-header.is-scrolled{
@@ -1400,27 +1400,35 @@ html,body{background:#141211!important;color:#eee9e2!important}
 (function(){
   const tg=window.Telegram&&window.Telegram.WebApp;
   if(!tg)return;
+  // Telegram provides tgWebAppVersion and initData in the launch
+  // fragment. These must survive every entrypoint redirect.
   document.documentElement.classList.add('arsenal-telegram-direct');
   function position(){
     const a=tg.safeAreaInset||{},c=tg.contentSafeAreaInset||{};
     const safe=Math.max(Number(a.top)||0,Number(c.top)||0);
-    const top=Math.max(82,safe+8);
+    const fullscreen=!!tg.isFullscreen;
+    const top=fullscreen?Math.max(82,safe+8):Math.max(16,safe+12);
     document.documentElement.style.setProperty('--arsenal-telegram-top',top+'px');
     const header=document.querySelector('.site-header');
     if(header)header.style.setProperty('top',top+'px','important');
-    const close=document.querySelector('.viewer>.back,.back-to-projects');
-    if(close)close.style.display='none';
+  }
+  function fullscreen(){
+    if(tg.isVersionAtLeast&&tg.isVersionAtLeast('8.0')&&
+       typeof tg.requestFullscreen==='function'&&!tg.isFullscreen){
+      try{tg.requestFullscreen()}catch(e){console.warn('Telegram fullscreen:',e)}
+    }
   }
   try{
-    tg.ready();tg.expand();
-    if(tg.isVersionAtLeast&&tg.isVersionAtLeast('8.0')&&typeof tg.requestFullscreen==='function'){
-      tg.requestFullscreen();
-    }
+    tg.ready();
+    tg.expand();
+    if(tg.BackButton)tg.BackButton.hide();
     ['safeAreaChanged','contentSafeAreaChanged','viewportChanged','fullscreenChanged'].forEach(function(e){
       if(tg.onEvent)tg.onEvent(e,position);
     });
-    if(tg.BackButton)tg.BackButton.hide();
-  }catch(e){}
+    // Ask the Telegram native client immediately, not after images,
+    // fonts or the massive portfolio document finish loading.
+    fullscreen();
+  }catch(e){console.warn('Telegram startup:',e)}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',position,{once:true});
   else position();
 })();
