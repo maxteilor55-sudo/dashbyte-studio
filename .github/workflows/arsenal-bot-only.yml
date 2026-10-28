@@ -47,27 +47,35 @@ jobs:
           (function(){
             const tg=window.Telegram&&window.Telegram.WebApp;
             if(!tg)return;
+            // Telegram provides tgWebAppVersion and initData in the launch
+            // fragment. These must survive every entrypoint redirect.
             document.documentElement.classList.add('arsenal-telegram-direct');
             function position(){
               const a=tg.safeAreaInset||{},c=tg.contentSafeAreaInset||{};
               const safe=Math.max(Number(a.top)||0,Number(c.top)||0);
-              const top=Math.max(82,safe+8);
+              const fullscreen=!!tg.isFullscreen;
+              const top=fullscreen?Math.max(82,safe+8):Math.max(16,safe+12);
               document.documentElement.style.setProperty('--arsenal-telegram-top',top+'px');
               const header=document.querySelector('.site-header');
               if(header)header.style.setProperty('top',top+'px','important');
-              const close=document.querySelector('.viewer>.back,.back-to-projects');
-              if(close)close.style.display='none';
+            }
+            function fullscreen(){
+              if(tg.isVersionAtLeast&&tg.isVersionAtLeast('8.0')&&
+                 typeof tg.requestFullscreen==='function'&&!tg.isFullscreen){
+                try{tg.requestFullscreen()}catch(e){console.warn('Telegram fullscreen:',e)}
+              }
             }
             try{
-              tg.ready();tg.expand();
-              if(tg.isVersionAtLeast&&tg.isVersionAtLeast('8.0')&&typeof tg.requestFullscreen==='function'){
-                tg.requestFullscreen();
-              }
+              tg.ready();
+              tg.expand();
+              if(tg.BackButton)tg.BackButton.hide();
               ['safeAreaChanged','contentSafeAreaChanged','viewportChanged','fullscreenChanged'].forEach(function(e){
                 if(tg.onEvent)tg.onEvent(e,position);
               });
-              if(tg.BackButton)tg.BackButton.hide();
-            }catch(e){}
+              // Ask the Telegram native client immediately, not after images,
+              // fonts or the massive portfolio document finish loading.
+              fullscreen();
+            }catch(e){console.warn('Telegram startup:',e)}
             if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',position,{once:true});
             else position();
           })();
@@ -78,23 +86,33 @@ jobs:
           digest=hashlib.sha256(arsenal.encode('utf-8')).hexdigest()[:12]
           (base/'arsenal.html').write_text(arsenal,encoding='utf-8')
           url='./arsenal.html?v='+digest
+          # The bot's main URL must render Arsenal in-place: no navigation
+          # before Telegram reads tgWebAppData, tgWebAppVersion and platform.
+          (base/'index.html').write_text(arsenal,encoding='utf-8')
           redirect="""<!doctype html>
           <html lang="ru"><head><meta charset="utf-8">
           <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
           <title>Арсенал — металлоконструкции</title>
-          <meta http-equiv="refresh" content="0;url=URL">
-          <script>location.replace(new URL('URL',location.href).href)</script>
+          <script>
+          (function(){
+            var target=new URL('__TARGET__',location.href);
+            // Telegram launch context lives in the URL fragment. Losing it
+            // turns WebApp v8+ back into the old, non-fullscreen header.
+            target.hash=location.hash;
+            location.replace(target.href);
+          })();
+          </script>
+          <noscript><meta http-equiv="refresh" content="0;url=__TARGET__"></noscript>
           </head><body style="background:#14100e;color:#eee;font:16px system-ui">
           <p>Открываем сайт «Арсенал»…</p>
-          <a href="URL">Открыть Арсенал</a></body></html>
-          """.replace('URL',url)
-          # All previously configured BotFather addresses now land on the same
-          # exact standalone Arsenal build. Old DashByte files remain in git history.
-          for name in ('index.html','showroom.html','DashByte_Showroom_v2_0.html'):
+          <a href="__TARGET__">Открыть Арсенал</a></body></html>
+          """.replace('__TARGET__',url)
+          # Keep backwards-compatible aliases and their Telegram launch data.
+          for name in ('showroom.html','DashByte_Showroom_v2_0.html'):
               (base/name).write_text(redirect,encoding='utf-8')
           # BotFather was previously configured to showcase.html too. Keep that
           # file intact as source-of-truth, but redirect its public entry directly.
-          script='<script id="db-direct-arsenal-entry">location.replace(new URL('+json.dumps(url)+',location.href).href)</script>'
+          script='<script id="db-direct-arsenal-entry">(function(){var u=new URL('+json.dumps(url)+',location.href);u.hash=location.hash;location.replace(u.href)})()</script>'
           if 'id="db-direct-arsenal-entry"' in text:
               text,n=re.subn(r'<script id="db-direct-arsenal-entry">.*?</script>',lambda m:script,text,count=1,flags=re.S)
           else:
@@ -104,6 +122,10 @@ jobs:
           showcase.write_text(text,encoding='utf-8')
           assert 'data-project' not in (base/'showroom.html').read_text()
           assert 'Все проекты' not in (base/'index.html').read_text()
+          assert 'location.replace(new URL' not in redirect
+          assert 'target.hash=location.hash' in redirect
+          assert 'tg.requestFullscreen()' in arsenal
+          assert (base/'index.html').read_text(encoding='utf-8')==arsenal
           print('DBBot: Arsenal-only entrypoints; source bytes:',len(arsenal),'revision:',digest)
           PY
       - name: Commit all routes and original standalone Arsenal together
