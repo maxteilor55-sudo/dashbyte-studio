@@ -1,0 +1,22 @@
+name: Check DashByte bot
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'bot/**'
+      - '.github/workflows/check-dashbyte-bot.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  bot-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate Worker syntax
+        run: node --check bot/worker.js
+      - name: Run webhook and welcome tests
+        run: node --test bot/test.mjs
