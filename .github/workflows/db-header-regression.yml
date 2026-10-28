@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - .github/workflows/db-header-regression.yml
+      - showroom.html
   workflow_dispatch:
 permissions:
   contents: read
