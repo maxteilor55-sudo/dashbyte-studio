@@ -1,0 +1,8 @@
+name = "dashbyte-studio-bot"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+
+# Public URL. This currently opens the Arsenal website, as requested.
+# Sensitive values belong only in Cloudflare Worker secrets:
+# TELEGRAM_BOT_TOKEN
+# TELEGRAM_WEBHOOK_SECRET
