@@ -1,0 +1,55 @@
+name: Verify DBBot Arsenal-only entry
+on:
+  push:
+    branches: [main]
+    paths:
+      - arsenal.html
+      - index.html
+      - showroom.html
+      - showcase.html
+      - DashByte_Showroom_v2_0.html
+      - .github/workflows/arsenal-bot-smoke.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright@1.56.1
+      - name: Assert all old bot addresses resolve to standalone Arsenal
+        shell: bash
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/arsenal-http.log 2>&1 &
+          node <<'JS'
+          const {chromium}=require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true,executablePath:'/usr/bin/google-chrome',args:['--no-sandbox','--disable-dev-shm-usage']});
+            try{
+              const paths=['/','/showroom.html','/DashByte_Showroom_v2_0.html','/showcase.html'];
+              for(const path of paths){
+                const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:2,isMobile:true,hasTouch:true});
+                await page.route('**/*',route=>route.request().url().startsWith('http://127.0.0.1:8765/')?route.continue():route.abort());
+                await page.goto('http://127.0.0.1:8765'+path,{waitUntil:'domcontentloaded',timeout:20000});
+                await page.waitForURL(/\/arsenal\.html\?v=/,{timeout:16000});
+                await page.locator('.site-header').waitFor({state:'attached',timeout:16000});
+                const result=await page.evaluate(()=>({
+                  title:document.title,
+                  chooser:!!document.querySelector('[data-project],#home .tile'),
+                  externalBack:!!document.querySelector('#back, .viewer>.back'),
+                  header:!!document.querySelector('.site-header'),
+                  nav:!!document.querySelector('.lens-dock'),
+                  current:location.pathname
+                }));
+                console.log('ENTRY_CHECK '+path+' '+JSON.stringify(result));
+                if(!result.header||result.chooser||result.externalBack||!result.current.endsWith('/arsenal.html'))
+                  throw Error('Invalid Arsenal entry from '+path);
+                await page.close();
+              }
+            }finally{await browser.close();}
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
