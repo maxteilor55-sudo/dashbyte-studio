@@ -87,6 +87,68 @@ footer strong{color:#c1b6bb;letter-spacing:.08em}
 }
 @media(max-width:380px){.brand-sub{font-size:7px}.brand-icon{width:43px;height:43px}.brand-name{font-size:18px}.category{font-size:9px;padding:10px}.project{min-height:355px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}.fade{opacity:1;transform:none}}
+
+/* CINEMATIC SHOWROOM — video flows into a truly black studio portal */
+.page{position:relative;isolation:isolate}
+.cinema-layer{position:absolute;z-index:-1;pointer-events:none;inset:0 auto auto 50%;width:100vw;height:clamp(850px,112svh,1240px);overflow:hidden;transform:translateX(-50%);background:radial-gradient(ellipse at 70% 20%,#3d1025,#09090c 70%)}
+.cinema-film{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 38%;opacity:.78;filter:saturate(.9) contrast(1.06)}
+.cinema-layer::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(3,3,5,.66) 0%,rgba(3,3,5,.40) 27%,rgba(3,3,5,.62) 50%,rgba(7,6,8,.92) 73%,#09090c 98%),linear-gradient(90deg,rgba(3,3,5,.35),transparent 72%);pointer-events:none}
+.nav,.intro,.projects,footer{position:relative;z-index:1}
+.brand-icon{position:relative;overflow:hidden;flex:none;letter-spacing:-.11em;padding-right:3px}
+.brand-icon img,.studio-seal img{width:79%;height:79%;object-fit:contain;display:block;position:absolute;inset:10.5%;filter:drop-shadow(0 4px 15px rgba(245,77,109,.22))}
+.brand-icon img:not([hidden]) + span,.studio-seal img:not([hidden]) + span{visibility:hidden}
+.brand-icon img[hidden],.studio-seal img[hidden]{display:none}
+.brand-icon img[hidden] + span,.studio-seal img[hidden] + span{visibility:visible}
+.brand-icon span,.studio-seal span{font-weight:950;letter-spacing:-.13em;transform:translateX(-2px)}
+.intro h1{text-shadow:0 12px 44px rgba(0,0,0,.4)}
+.intro p{color:#d5cdd2;text-shadow:0 2px 18px rgba(0,0,0,.5)}
+.projects{display:block;max-width:980px;margin:0 auto}
+.projects .arsenal{min-height:clamp(390px,53vw,520px);max-width:100%}
+.studio-stage{position:relative;margin:clamp(66px,11vw,135px) auto 28px;padding:18px 4px 8px;text-align:center;isolation:isolate}
+.studio-stage::before{content:"";position:absolute;z-index:-1;inset:0 -12vw -10px;pointer-events:none;background:radial-gradient(ellipse 45% 34% at 50% 59%,rgba(214,30,65,.13),transparent 95%)}
+.studio-rule{display:block;height:1px;margin:0 auto 36px;max-width:580px;background:linear-gradient(90deg,transparent,rgba(253,97,121,.63),transparent);box-shadow:0 0 32px rgba(252,64,93,.4)}
+.studio-stage-top{display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left}
+.studio-eyebrow,.studio-sup,.studio-endline{font-size:10px;letter-spacing:.18em;font-weight:780}
+.studio-eyebrow{display:inline-flex;gap:12px;align-items:center;color:#fa9dac}
+.live-dot{width:6px;height:6px;border-radius:50%;background:#f95678;box-shadow:0 0 0 5px rgba(251,77,107,.09),0 0 25px rgba(251,77,107,.7)}
+.studio-sup{color:#777078;font-size:9px}
+.studio-stage-core{padding:clamp(38px,6vw,80px) 12px 37px}
+.studio-seal{display:grid;place-items:center;position:relative;margin:0 auto 24px;width:79px;height:79px;border:1px solid rgba(255,255,255,.24);border-radius:24px;background:linear-gradient(137deg,rgba(250,115,135,.18),rgba(255,255,255,.045) 60%,rgba(20,10,15,.85));box-shadow:inset 0 1px rgba(255,255,255,.24),0 14px 44px rgba(0,0,0,.5),0 0 48px rgba(255,63,104,.10);font-size:35px}
+.studio-stage h2{font-size:clamp(40px,8.1vw,96px);letter-spacing:-.079em;line-height:.96;font-weight:950;text-transform:uppercase;margin:0 0 21px}
+.studio-stage h2 em{font-style:normal;background:linear-gradient(108deg,#fff8fb 0%,#ff8da3 39%,#e44567 72%,#76213b);-webkit-background-clip:text;background-clip:text;color:transparent}
+.studio-stage-core p{max-width:530px;margin:0 auto;color:#aaa2a8;font-size:clamp(14px,1.7vw,18px);line-height:1.65}
+.project.dashbyte.studio-portal{display:flex;align-items:center;gap:16px;min-height:unset;min-width:0;width:min(700px,100%);margin:0 auto;padding:19px 22px;border-radius:23px;text-align:left;background:linear-gradient(112deg,rgba(65,18,32,.96),rgba(34,14,24,.95) 65%,rgba(18,13,19,.97));border:1px solid rgba(255,131,154,.42);box-shadow:0 20px 70px rgba(0,0,0,.35),inset 0 1px rgba(255,255,255,.16),0 0 50px rgba(251,65,101,.11);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease}
+.project.dashbyte.studio-portal::before{content:"";position:absolute;inset:-40% -20%;z-index:-1;background:linear-gradient(115deg,transparent 35%,rgba(247,97,127,.12) 47%,transparent 64%);transform:translateX(-35%);transition:transform .65s ease}
+.project.dashbyte.studio-portal::after{display:none}
+.studio-portal:hover{border-color:#ff99b0!important;box-shadow:0 19px 65px rgba(245,65,100,.21),inset 0 1px rgba(255,255,255,.22)!important}
+.studio-portal:hover::before{transform:translateX(40%)!important}
+.portal-glyph{display:grid;place-items:center;width:56px;height:56px;flex:none;border:1px solid rgba(255,255,255,.22);border-radius:17px;background:linear-gradient(145deg,rgba(255,255,255,.18),rgba(255,255,255,.04));font-size:22px;font-weight:950;letter-spacing:-.10em;padding-right:4px}
+.portal-glyph span{color:var(--red)}
+.portal-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:5px}
+.portal-copy strong{font-size:clamp(17px,2.6vw,24px);font-weight:950;letter-spacing:-.037em}
+.portal-copy small{color:#c1a7b0;font-size:11px;letter-spacing:.02em}
+.portal-arrow{display:grid;place-items:center;flex:none;width:57px;height:57px;border-radius:18px;background:#f85e7d;color:#230c17;box-shadow:0 8px 22px rgba(242,70,105,.22),inset 0 1px rgba(255,255,255,.33);font-size:28px;transition:transform .25s ease,background .25s ease}
+.studio-portal:hover .portal-arrow{transform:rotate(45deg);background:#ff9caf}
+.studio-endline{display:block;margin:31px auto 0;color:#625c62;font-size:9px;text-align:center}
+.studio-endline span{color:#ad5368;padding:0 8px}
+@media(max-width:760px){
+ .cinema-layer{height:clamp(760px,126svh,1170px)}
+ .cinema-film{object-position:center 30%;opacity:.76}
+ .cinema-layer::after{background:linear-gradient(180deg,rgba(2,2,4,.74) 0%,rgba(2,2,4,.56) 24%,rgba(3,3,5,.65) 48%,rgba(7,6,8,.93) 76%,#09090c 100%)}
+ .studio-stage{margin-top:78px}
+ .studio-stage-top{justify-content:center}
+ .studio-sup{display:none}
+ .studio-stage-core{padding:43px 0 32px}
+ .studio-stage h2{font-size:clamp(40px,10vw,72px)}
+ .project.dashbyte.studio-portal{padding:15px;gap:12px;border-radius:20px}
+ .portal-glyph{width:46px;height:46px;border-radius:14px;font-size:19px}
+ .portal-arrow{width:49px;height:49px;border-radius:15px}
+ .portal-copy strong{font-size:17px}
+ .portal-copy small{font-size:10px}
+}
+@media(max-width:380px){.portal-copy strong{font-size:15px}.studio-stage h2{font-size:37px}.studio-portal{gap:9px!important}.portal-glyph{width:40px;height:43px}.portal-arrow{width:43px;height:43px}}
+@media(prefers-reduced-motion:reduce){.cinema-film{display:none}.studio-portal::before{transition:none!important}}
+
 </style>
 <script>
 (function(){
@@ -128,8 +190,14 @@ footer strong{color:#c1b6bb;letter-spacing:.08em}
 </head>
 <body>
 <main class="page">
+<div class="cinema-layer" aria-hidden="true">
+  <video id="showroom-film" class="cinema-film" autoplay muted defaultmuted playsinline webkit-playsinline loop preload="auto" disablepictureinpicture disableremoteplayback>
+    <source src="./assets/showroom-cover.mp4" type="video/mp4">
+    <source src="./assets/hero-mobile.mp4" type="video/mp4">
+  </video>
+</div>
 <header class="nav">
- <div class="ident"><div class="brand-icon" aria-hidden="true">DB</div><div><div class="brand-name">DashByte<span>.</span></div><div class="brand-sub">ПРЕВРАЩАЕМ ИДЕИ В УСПЕХ</div></div></div>
+ <div class="ident"><div class="brand-icon" aria-label="Логотип DashByte"><img src="./assets/DashByte_DB_Official_Vector.svg" alt="DashByte" onerror="this.hidden=true"><span>DB</span></div><div><div class="brand-name">DashByte<span>.</span></div><div class="brand-sub">ПРЕВРАЩАЕМ ИДЕИ В УСПЕХ</div></div></div>
  <div class="nav-right"><b></b> DIGITAL SHOWROOM / 2026</div>
 </header>
 <section class="intro fade">
@@ -150,15 +218,24 @@ footer strong{color:#c1b6bb;letter-spacing:.08em}
    <div class="project-foot"><span class="project-link">Открыть проект</span><span class="arrow" aria-hidden="true">↗</span></div>
   </div>
  </a>
- <a class="project dashbyte" data-project="dashbyte" href="./dashbyte.html?dbrelease=telegram-safe-v3" aria-label="Открыть сайт студии DashByte">
-  <div class="art" aria-hidden="true"><div class="rings"></div><div class="slash"></div><div class="motif">DB</div></div>
-  <div class="project-head"><span class="category"><i></i>02 · Авторский проект</span><span class="index-num">02 / 02</span></div>
-  <div class="project-body">
-   <div class="project-label">Digital Creative Studio.</div><h2>DASHBYTE<span style="color:#ff687f">.</span></h2>
-   <p>Сайты, фирменный стиль, видео и цифровые истории. Наш взгляд на дизайн будущего.</p>
-   <div class="project-foot"><span class="project-link">Войти в студию</span><span class="arrow" aria-hidden="true">↗</span></div>
+ <div class="studio-stage">
+  <span class="studio-rule" aria-hidden="true"></span>
+  <div class="studio-stage-top">
+    <span class="studio-eyebrow"><span class="live-dot"></span> DASHBYTE / DIGITAL ATELIER</span>
+    <span class="studio-sup">НЕ КЛИЕНТСКИЙ КЕЙС. НАШ МИР.</span>
   </div>
- </a>
+  <div class="studio-stage-core">
+    <div class="studio-seal" aria-label="Логотип DashByte"><img src="./assets/DashByte_DB_Official_Vector.svg" alt="DashByte" onerror="this.hidden=true"><span>DB</span></div>
+    <h2>ДАЛЬШЕ — <em>НАША<br>ТЕРРИТОРИЯ.</em></h2>
+    <p>Сайты. Айдентика. Видео. Создаём цифровые впечатления, которые невозможно спутать.</p>
+  </div>
+  <a class="project dashbyte studio-portal" data-project="dashbyte" href="./dashbyte.html?dbrelease=telegram-safe-v3" aria-label="Войти на сайт студии DashByte">
+    <span class="portal-glyph" aria-hidden="true">DB<span>.</span></span>
+    <span class="portal-copy"><strong>ВОЙТИ В СТУДИЮ</strong><small>Открыть DashByte Digital Atelier</small></span>
+    <span class="portal-arrow" aria-hidden="true">↗</span>
+  </a>
+  <span class="studio-endline">DESIGNED TO FEEL DIFFERENT <span>✳</span> 2026</span>
+ </div>
 </section>
 <footer class="fade"><strong>© 2026 DashByte Digital Atelier.</strong><span>Made with purpose · two worlds</span></footer>
 </main>
