@@ -321,6 +321,17 @@ if 'db-glass-up.js' not in ars:
     if n!=1:raise RuntimeError("Cannot inject Arsenal universal liquid-glass return")
 ars_path.write_text(ars,encoding='utf-8')
 
+# Keep the older standalone showcase URL consistent with current pages.
+# It may still be bookmarked even though the chooser links to arsenal.html.
+legacy_showcase=ROOT/"showcase.html"
+if legacy_showcase.exists():
+    older=legacy_showcase.read_text(encoding='utf-8')
+    if len(older)>1_000_000 and 'db-glass-up.js' not in older:
+        shared='<link rel="stylesheet" href="./assets/db-glass-up.css?v=1">\n<script defer src="./assets/db-glass-up.js?v=1"></script>\n'
+        older,n=re.subn(r'</head\s*>',lambda m:shared+m.group(0),older,count=1,flags=re.I)
+        if n!=1:raise RuntimeError("Cannot inject universal return into legacy showcase")
+        legacy_showcase.write_text(older,encoding='utf-8')
+
 # Older BotFather configuration still points here on some devices.
 legacy=ROOT/"DashByte_Showroom_v2_0.html"
 legacy.write_text("""<!doctype html><html lang="ru"><head>
