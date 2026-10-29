@@ -40,6 +40,21 @@ jobs:
           assert len(arsenal)>1000000
           assert 'db-arsenal-choice-return-init' in arsenal
           assert '<iframe' not in chooser
+          # Every active document loads exactly one unified control; the
+          # previous footer-up implementations must not be reintroduced.
+          for name in ['index.html','showroom.html','arsenal.html','dashbyte.html','green-collection.html','showcase.html']:
+              page=(root/name).read_text(encoding='utf-8')
+              assert page.count('assets/db-glass-up.js?v=1')==1, name
+              assert page.count('assets/db-glass-up.css?v=1')==1, name
+          assert (root/'assets/db-glass-up.js').exists()
+          assert (root/'assets/db-glass-up.css').exists()
+          assert 'db-chooser-footer-up-controller' not in chooser
+          assert 'db-arsenal-footer-up' not in arsenal
+          green=(root/'green-collection.html').read_text(encoding='utf-8')
+          assert 'gc-back-to-top-controller' not in green
+          assert 'gc-footer-up' not in green
+          assert 'САЙТЫ<br><em>В РАЗРАБОТКЕ.</em>' in chooser
+          assert '90%' in chooser and '35%' in chooser
           for p in ['assets/hero-mobile.mp4','assets/hero-desktop.mp4','assets/showreel-original.mp4']:
               assert (root/p).exists(),p
           print('Both complete sites verified, canonical studio media intact.')
@@ -47,7 +62,7 @@ jobs:
       - name: Commit new showroom without touching bot settings
         run: |
           git diff --check
-          git add index.html showroom.html dashbyte.html arsenal.html DashByte_Showroom_v2_0.html
+          git add index.html showroom.html dashbyte.html arsenal.html showcase.html DashByte_Showroom_v2_0.html
           if git diff --cached --quiet; then
             echo "Already published"
             exit 0
