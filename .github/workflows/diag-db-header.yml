@@ -24,4 +24,19 @@ jobs:
             for m in matches[:16]:
               left=max(0,m.start()-250);right=min(len(s),m.end()+470)
               print('MATCH POS',m.start(),repr(s[left:right].replace('\n',' '))[:850])
+          print('\n----- VIDEOS AND MEDIA PLAYER CONTROLLERS -----')
+          for m in list(re.finditer(r'<video\b[^>]*>',s,re.I|re.S))[:35]:
+            tag=m.group(0)
+            print('VIDEO',m.start(),re.sub(r'\s+',' ',tag)[:850])
+            nearby=s[m.start():m.start()+1400]
+            for src in re.findall(r'<source\b[^>]*>',nearby,re.I|re.S)[:3]:
+              print('  SOURCE',re.sub(r'\s+',' ',src)[:340])
+          for needle in ['data-src','preload="none"',"preload='none'",'preload="metadata"','preload="auto"','loading="lazy"','lazy-video','.play()','play().catch','IntersectionObserver','db-reel','db-mobile-hero-video','canplay','loadeddata','requestVideoFrameCallback']:
+            hits=list(re.finditer(re.escape(needle),s))
+            print('\nVIDEO_TERM',repr(needle),'COUNT',len(hits))
+            for m in hits[:6]:
+              st=max(0,m.start()-280);en=min(len(s),m.end()+540)
+              text=s[st:en].replace('\n',' ')
+              text=re.sub(r'data:[^" ]{100,}', '[EMBEDDED]',text)
+              print('CONTEXT',m.start(),repr(text[:940]))
           PY
