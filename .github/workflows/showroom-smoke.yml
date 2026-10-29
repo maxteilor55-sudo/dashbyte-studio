@@ -87,6 +87,7 @@ jobs:
               top:getComputedStyle(document.getElementById('topbar')).top,
               returnLink:!!document.getElementById('db-chooser-return'),
               direct:document.documentElement.classList.contains('db-direct-showroom'),
+              telegramSdkIncluded:!!document.querySelector('script[src*="telegram-web-app.js"]'),
               fullscreenCalls:window.__fullscreenCalls,
               video:!!document.getElementById('db-mobile-hero-video'),
               title:document.title
@@ -125,7 +126,7 @@ jobs:
             }
             if(!shown.visible||shown.opacity!=='1')throw Error('DB header did not reveal after scroll');
 
-            if(!db.returnLink||!db.direct||!db.video||db.fullscreenCalls<1||parseFloat(db.top)<85||parseFloat(db.top)>160)
+            if(!db.returnLink||!db.direct||!db.telegramSdkIncluded||!db.video||db.fullscreenCalls<1||parseFloat(db.top)<85||parseFloat(db.top)>160)
               throw Error('DashByte full release/menu failed: '+JSON.stringify(db));
             await page.locator('#db-chooser-return').evaluate(el=>el.click());
             await page.waitForURL(u=>u.pathname==='/'&&u.hash.includes('tgWebAppVersion'),{timeout:30000});
