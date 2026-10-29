@@ -24,7 +24,15 @@ jobs:
             for m in matches[:16]:
               left=max(0,m.start()-250);right=min(len(s),m.end()+470)
               print('MATCH POS',m.start(),repr(s[left:right].replace('\n',' '))[:850])
-          print('\n----- VIDEOS AND MEDIA PLAYER CONTROLLERS -----')
+          for ident in ['db-archive-reel-control','db-reel-media-control','db-film-controller']:
+            start=s.find('<script id="'+ident+'"')
+            if start>=0:
+              end=s.find('</script>',start)
+              print('FULL_VIDEO_CONTROLLER',ident,s[start:min(end+9,start+10500)])
+          key="function secondAttach()"
+          st=s.find(key)
+          if st>=0:print('SECOND_CONTROLLER_EXCERPT',s[st:st+2200])
+                    print('\n----- VIDEOS AND MEDIA PLAYER CONTROLLERS -----')
           for m in list(re.finditer(r'<video\b[^>]*>',s,re.I|re.S))[:35]:
             tag=m.group(0)
             print('VIDEO',m.start(),re.sub(r'\s+',' ',tag)[:850])
