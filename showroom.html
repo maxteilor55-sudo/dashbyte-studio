@@ -801,5 +801,33 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
  }
 })();
 </script>
+
+<style id="db-chooser-footer-up-style">
+.db-chooser-footer-up{display:inline-flex;gap:8px;align-items:center;white-space:nowrap;
+ text-decoration:none;color:#ede6e9;font-size:11px;font-weight:850;letter-spacing:.11em;
+ border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);
+ border-radius:999px;padding:12px 16px;transition:background .25s}
+.db-chooser-footer-up:hover{background:rgba(255,255,255,.18)}
+@media(max-width:760px){footer:has(.db-chooser-footer-up){flex-wrap:wrap}.db-chooser-footer-up{min-height:44px}}
+</style>
+<script id="db-chooser-footer-up-controller">
+(function(){
+ function install(){
+   const footer=document.querySelector('footer');
+   if(!footer||document.getElementById('db-chooser-footer-up'))return;
+   const a=document.createElement('a');
+   a.id='db-chooser-footer-up';a.className='db-chooser-footer-up';
+   a.href='#top';a.textContent='↑ НАВЕРХ';
+   a.addEventListener('click',function(e){
+     e.preventDefault();
+     const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+     window.scrollTo({top:0,behavior:reduce?'auto':'smooth'});
+   });
+   footer.appendChild(a);
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});
+ else install();
+})();
+</script>
 </body>
 </html>

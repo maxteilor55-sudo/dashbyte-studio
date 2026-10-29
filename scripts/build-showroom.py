@@ -91,7 +91,7 @@ html.db-direct-showroom.db-telegram-miniapp:not(.db-showroom-stage) #topbar,
 html.db-direct-showroom:not(.db-header-visible) #topbar,
 html.db-direct-showroom.db-header-visible #topbar{
   position:fixed!important;
-  top:var(--db-native-header-top,88px)!important;
+  top:var(--db-native-header-top,78px)!important;
   left:50%!important;right:auto!important;bottom:auto!important;
   transform:translateX(-50%)!important;
   -webkit-transform:translateX(-50%)!important;
@@ -114,8 +114,8 @@ html.db-direct-showroom.db-header-visible #topbar{
 }
 html.db-direct-showroom #menu-sheet,
 html.db-direct-showroom.db-telegram-miniapp:not(.db-showroom-stage) #menu-sheet{
-  top:calc(var(--db-native-header-top,88px) + 114px)!important;
-  max-height:calc(100dvh - var(--db-native-header-top,88px) - 128px)!important;
+  top:calc(var(--db-native-header-top,78px) + 96px)!important;
+  max-height:calc(100dvh - var(--db-native-header-top,78px) - 110px)!important;
 }
 @media (prefers-reduced-motion:reduce){
   html.db-direct-showroom #topbar{transition:none!important;filter:none!important}
@@ -144,11 +144,11 @@ html.db-direct-showroom.db-telegram-miniapp:not(.db-showroom-stage) #menu-sheet{
     const tg=sdk();
     const native=!!tg||isTelegramLaunch||window.matchMedia('(max-width:760px)').matches;
     const a=tg&&tg.safeAreaInset||{},c=tg&&tg.contentSafeAreaInset||{};
-    // Native system inset + Telegram content inset, rather than their max.
-    // Fallback must ALWAYS clear the native Telegram controls, even if SDK
-    // isn't loaded yet. The old 18px fallback put the bar under Close/⋮.
-    const safe=safeNumber(a.top)+safeNumber(c.top);
-    const top=native?Math.max(88,safe):18; // 10px higher, halfway to Telegram controls
+    // Match Green Collection: use the larger inset + 12px rather than summing
+    // two areas, which leaves a large unnecessary gap below Telegram chrome.
+    // Protect against late SDK initialization with the 78px mobile fallback.
+    const safe=Math.max(safeNumber(a.top),safeNumber(c.top));
+    const top=native?Math.max(78,safe+12):8; // Green Collection safe-area parity; compact desktop top
     root.style.setProperty('--db-native-header-top',top+'px');
     const bar=document.getElementById('topbar');
     if(bar){
@@ -269,6 +269,75 @@ if marker not in ars:
     ars,n=re.subn(r'</head\s*>',lambda m:addition+"\n"+m.group(0),ars,count=1,flags=re.I)
     if n!=1:raise RuntimeError("Cannot inject Arsenal hamburger choice link")
     ars_path.write_text(ars,encoding="utf-8")
+
+
+# Finish Arsenal navigation at every breakpoint and place a DashByte-style
+# back-to-top action in the footer. Existing mobile return link stays intact.
+arsenal_finish = r"""
+<style id="db-arsenal-navigation-finish-style">
+#db-arsenal-desktop-return{
+  color:#f4e9e0!important;text-decoration:none!important;white-space:nowrap;
+  border:1px solid rgba(255,255,255,.24);border-radius:999px;
+  background:rgba(255,255,255,.09);padding:9px 12px;font-weight:750;
+}
+#db-arsenal-footer-up{
+  display:flex;align-items:center;gap:16px;width:min(1100px,calc(100% - 40px));
+  margin:34px auto 25px;padding:21px 10px;
+  border-top:1px solid rgba(255,255,255,.22);
+  border-bottom:1px solid rgba(255,255,255,.14);
+  color:#f7f2ef;font-size:13px;letter-spacing:.11em;font-weight:800;
+  text-decoration:none;cursor:pointer;position:relative;z-index:3;
+}
+#db-arsenal-footer-up .up-icon{display:grid;place-items:center;width:42px;height:42px;
+  border:1px solid rgba(255,255,255,.4);border-radius:50%;font-size:25px}
+#db-arsenal-footer-up .up-label{margin-left:auto;font-size:10px;color:#a9a5a1}
+@media(max-width:760px){
+  #db-arsenal-desktop-return{display:none!important}
+  #db-arsenal-footer-up{margin:22px auto 115px}
+}
+@media(prefers-reduced-motion:no-preference){
+  #db-arsenal-footer-up .up-icon{transition:transform .3s}
+  #db-arsenal-footer-up:hover .up-icon{transform:translateY(-4px)}
+}
+</style>
+<script id="db-arsenal-navigation-finish">
+(function(){
+ function install(){
+   const nav=document.querySelector('.site-header .nav-links');
+   if(nav&&!document.getElementById('db-arsenal-desktop-return')){
+     const a=document.createElement('a');
+     a.id='db-arsenal-desktop-return';
+     a.href='./';a.textContent='← К проектам';nav.prepend(a);
+     a.addEventListener('click',preserveTelegram);
+   }
+   const footer=document.querySelector('#dashbyte-signature')||document.querySelector('footer');
+   if(footer&&!document.getElementById('db-arsenal-footer-up')){
+     const a=document.createElement('a');a.id='db-arsenal-footer-up';
+     a.href='#top';a.setAttribute('aria-label','Наверх — к началу страницы');
+     a.innerHTML='<span class="up-icon" aria-hidden="true">↑</span><span>НАВЕРХ</span><span class="up-label">BACK TO TOP / 00</span>';
+     a.addEventListener('click',function(e){
+       e.preventDefault();
+       const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+       window.scrollTo({top:0,behavior:reduce?'auto':'smooth'});
+     });
+     footer.appendChild(a);
+   }
+ }
+ function preserveTelegram(e){
+   if(!/tgWebApp/i.test(location.hash))return;
+   e.preventDefault();
+   const to=new URL('./',location.href);to.hash=location.hash;
+   location.assign(to.href);
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});
+ else install();
+})();
+</script>
+"""
+if 'id="db-arsenal-navigation-finish"' not in ars:
+    ars,n=re.subn(r'</head\s*>',lambda m:arsenal_finish+"\n"+m.group(0),ars,count=1,flags=re.I)
+    if n!=1:raise RuntimeError("Cannot inject Arsenal navigation polish")
+    ars_path.write_text(ars,encoding='utf-8')
 
 # Older BotFather configuration still points here on some devices.
 legacy=ROOT/"DashByte_Showroom_v2_0.html"

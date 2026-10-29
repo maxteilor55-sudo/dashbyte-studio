@@ -120,13 +120,13 @@ jobs:
             // fades in/out, never enters the native Telegram control strip.
             for(const state of [initial,moving,shown,leaving]){
               const y=state.rect.top,css=parseFloat(state.top);
-              if(!(Number.isFinite(y)&&y>=85&&y<=160&&Math.abs(y-css)<2&&state.translate==='none'&&
+              if(!(Number.isFinite(y)&&y>=76&&y<=160&&Math.abs(y-css)<2&&state.translate==='none'&&
                    !state.transition.includes('translate')))
                 throw Error('DB glass header overlaps Telegram or moves vertically: '+JSON.stringify(state));
             }
             if(!shown.visible||shown.opacity!=='1')throw Error('DB header did not reveal after scroll');
 
-            if(!db.returnLink||!db.direct||!db.telegramSdkIncluded||!db.video||db.fullscreenCalls<1||parseFloat(db.top)<85||parseFloat(db.top)>160)
+            if(!db.returnLink||!db.direct||!db.telegramSdkIncluded||!db.video||db.fullscreenCalls<1||parseFloat(db.top)<76||parseFloat(db.top)>160)
               throw Error('DashByte full release/menu failed: '+JSON.stringify(db));
             // The two motion reels must already be preparing media BEFORE
             // they come on screen. Neither should depend on a first scroll.
@@ -163,7 +163,7 @@ jobs:
               sdkinitial:!!window.Telegram?.WebApp
             }));
             console.log('LATE_TG_BEFORE '+JSON.stringify(before));
-            if(before.sdkinitial||before.top<85)throw Error('Mobile fallback overlaps native controls before SDK loads');
+            if(before.sdkinitial||before.top<76)throw Error('Mobile fallback overlaps native controls before SDK loads');
             await late.evaluate(()=>{
               window.Telegram={WebApp:{
                 isFullscreen:true,isVersionAtLeast:()=>true,
@@ -178,7 +178,7 @@ jobs:
               variable:document.documentElement.style.getPropertyValue('--db-native-header-top')
             }));
             console.log('LATE_TG_AFTER '+JSON.stringify(after));
-            if(after.top<90||after.top>150)throw Error('Late Telegram SDK header offset not corrected');
+            if(after.top<76||after.top>150)throw Error('Late Telegram SDK header offset not corrected');
             await late.close();
             console.log('PASS: selection -> Arsenal -> selection -> DashByte -> selection');
             await browser.close();
