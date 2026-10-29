@@ -32,7 +32,7 @@ jobs:
           key="function secondAttach()"
           st=s.find(key)
           if st>=0:print('SECOND_CONTROLLER_EXCERPT',s[st:st+2200])
-                    print('\n----- VIDEOS AND MEDIA PLAYER CONTROLLERS -----')
+          print('\n----- VIDEOS AND MEDIA PLAYER CONTROLLERS -----')
           for m in list(re.finditer(r'<video\b[^>]*>',s,re.I|re.S))[:35]:
             tag=m.group(0)
             print('VIDEO',m.start(),re.sub(r'\s+',' ',tag)[:850])
