@@ -149,6 +149,10 @@ html.db-direct-showroom.db-telegram-miniapp:not(.db-showroom-stage) #menu-sheet{
 })();
 </script>
 """
+# Each project is a new document navigation: SDK loaded by the chooser
+# does not survive into DashByte. Ensure the direct page loads Telegram SDK.
+if 'telegram.org/js/telegram-web-app.js' not in studio:
+    db_extension='<script src="https://telegram.org/js/telegram-web-app.js"></script>\n'+db_extension
 studio,n=re.subn(r'</head\s*>',lambda m:db_extension+"\n"+m.group(0),
                  studio,count=1,flags=re.I)
 if n!=1:raise RuntimeError("No HEAD boundary in studio release")
