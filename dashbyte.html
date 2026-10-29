@@ -682,13 +682,16 @@ html.db-direct-showroom.db-telegram-miniapp:not(.db-showroom-stage) #menu-sheet{
   function safeNumber(x){const n=Number(x);return Number.isFinite(n)&&n>0?n:0}
   function pos(){
     const tg=sdk();
-    const native=!!tg||isTelegramLaunch||window.matchMedia('(max-width:760px)').matches;
+    // Desktop Telegram still exposes the WebApp SDK, but its own titlebar
+    // must NOT force the 78px mobile safe-area offset. Match the 14px
+    // desktop Green Collection header regardless of the SDK.
+    const mobileLayout=window.matchMedia('(max-width:820px)').matches;
     const a=tg&&tg.safeAreaInset||{},c=tg&&tg.contentSafeAreaInset||{};
     // Match Green Collection: use the larger inset + 12px rather than summing
     // two areas, which leaves a large unnecessary gap below Telegram chrome.
     // Protect against late SDK initialization with the 78px mobile fallback.
     const safe=Math.max(safeNumber(a.top),safeNumber(c.top));
-    const top=native?Math.max(78,safe+12):8; // Green Collection safe-area parity; compact desktop top
+    const top=mobileLayout?Math.max(78,safe+12):14; // Desktop = Green Collection 14px; mobile = unchanged safe area
     root.style.setProperty('--db-native-header-top',top+'px');
     const bar=document.getElementById('topbar');
     if(bar){
