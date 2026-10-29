@@ -1407,7 +1407,11 @@ html,body{background:#141211!important;color:#eee9e2!important}
     const a=tg.safeAreaInset||{},c=tg.contentSafeAreaInset||{};
     const safe=Math.max(Number(a.top)||0,Number(c.top)||0);
     const fullscreen=!!tg.isFullscreen;
-    const top=fullscreen?Math.max(82,safe+8):Math.max(16,safe+12);
+    // Desktop Telegram controls are in the top-right, outside our centered
+    // header. Keep the bar almost flush to the top on wide viewports.
+    // Mobile retains the safe spacing below Telegram's overlay controls.
+    const desktop=window.matchMedia('(min-width:1024px)').matches;
+    const top=desktop?6:(fullscreen?Math.max(82,safe+8):Math.max(16,safe+12));
     document.documentElement.style.setProperty('--arsenal-telegram-top',top+'px');
     const header=document.querySelector('.site-header');
     if(header)header.style.setProperty('top',top+'px','important');
@@ -1425,6 +1429,7 @@ html,body{background:#141211!important;color:#eee9e2!important}
     ['safeAreaChanged','contentSafeAreaChanged','viewportChanged','fullscreenChanged'].forEach(function(e){
       if(tg.onEvent)tg.onEvent(e,position);
     });
+    window.addEventListener('resize',position,{passive:true});
     // Ask the Telegram native client immediately, not after images,
     // fonts or the massive portfolio document finish loading.
     fullscreen();
@@ -1525,6 +1530,18 @@ html,body{background:#141211!important;color:#eee9e2!important}
 })();
 </script>
 
+<style id="arsenal-desktop-near-edge-header-v1">
+/* Desktop and large displays: position the approved liquid-glass bar close
+   to the top edge, including when scrolled. Do not touch mobile safe areas. */
+@media (min-width:1024px){
+  .site-header,.site-header.is-scrolled,.site-header.scrolled,
+  html.arsenal-telegram-direct .site-header,
+  html.arsenal-telegram-direct .site-header.is-scrolled,
+  html.arsenal-telegram-direct .site-header.scrolled {
+    top:6px!important;
+  }
+}
+</style>
 </head>
 <body>
 <!-- Two independently masked blur layers at each screen edge; no dark fades. -->
