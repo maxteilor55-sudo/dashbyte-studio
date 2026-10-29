@@ -111,8 +111,17 @@ footer strong{color:#c1b6bb;letter-spacing:.08em}
  document.addEventListener('click',function(e){
    const link=e.target.closest&&e.target.closest('a[data-project]');
    if(!link)return;
-   if(location.hash.indexOf('tgWebApp')===-1)return;
-   try{const dest=new URL(link.href);dest.hash=location.hash;e.preventDefault();location.assign(dest.href)}catch(e){}
+   try{
+     const dest=new URL(link.href);
+     // GitHub Pages caches HTML and Android Telegram WebView can preserve
+     // an older 11 MB DashByte document across multiple launches.
+     // A fresh query on this one route guarantees the latest CSS & JS.
+     if(link.dataset.project==='dashbyte')dest.searchParams.set('fresh',String(Date.now()));
+     if(location.hash.indexOf('tgWebApp')!==-1)dest.hash=location.hash;
+     if(link.dataset.project==='dashbyte'||location.hash.indexOf('tgWebApp')!==-1){
+       e.preventDefault();location.assign(dest.href);
+     }
+   }catch(e){}
  });
 })();
 </script>
@@ -141,7 +150,7 @@ footer strong{color:#c1b6bb;letter-spacing:.08em}
    <div class="project-foot"><span class="project-link">Открыть проект</span><span class="arrow" aria-hidden="true">↗</span></div>
   </div>
  </a>
- <a class="project dashbyte" data-project="dashbyte" href="./dashbyte.html" aria-label="Открыть сайт студии DashByte">
+ <a class="project dashbyte" data-project="dashbyte" href="./dashbyte.html?dbrelease=telegram-safe-v3" aria-label="Открыть сайт студии DashByte">
   <div class="art" aria-hidden="true"><div class="rings"></div><div class="slash"></div><div class="motif">DB</div></div>
   <div class="project-head"><span class="category"><i></i>02 · Авторский проект</span><span class="index-num">02 / 02</span></div>
   <div class="project-body">
