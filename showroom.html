@@ -275,45 +275,6 @@ footer strong{color:#c1b6bb;letter-spacing:.08em}
 @media(prefers-reduced-motion:reduce){.studio-portal::before,.portal-arrow svg{transition:none!important}}
 
 
-/* 2026.10.29 / Showroom v3 — GPU-video-safe real matte liquid glass.
-   WebView sometimes promotes HTML5 video beyond backdrop-filter. A small
-   live frosted canvas uses the SAME frame as the background video, not
-   another video download, and remains clipped inside the glass panel. */
-.projects .project.arsenal{
-  background:linear-gradient(141deg,rgba(86,79,81,.39) 0%,rgba(48,43,47,.35) 44%,rgba(19,18,22,.52) 100%)!important;
-  border:1px solid rgba(255,255,255,.32)!important;
-  -webkit-backdrop-filter:blur(30px) saturate(1.26) contrast(.95)!important;
-  backdrop-filter:blur(30px) saturate(1.26) contrast(.95)!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.27),inset 0 -1px 0 rgba(255,255,255,.06),0 22px 70px rgba(0,0,0,.29)!important;
-}
-.projects .project.arsenal::before{
-  z-index:1!important;
-  background:linear-gradient(147deg,rgba(255,255,255,.16),rgba(245,235,240,.04) 34%,transparent 64%)!important;
-  pointer-events:none
-}
-.projects .project.arsenal::after{
-  z-index:1!important;
-  background:linear-gradient(180deg,rgba(24,23,26,.13) 0%,rgba(24,20,22,.16) 37%,rgba(13,11,15,.32) 70%,rgba(12,11,15,.59) 100%)!important;
-  pointer-events:none
-}
-.arsenal-frost-canvas{
-  position:absolute;
-  inset:0;width:100%;height:100%;
-  display:block;z-index:0;pointer-events:none;
-  opacity:0;filter:blur(23px) saturate(.79) brightness(.82);
-  transform:scale(1.14);
-  transform-origin:center;
-  transition:opacity .42s ease;
-}
-.arsenal-frost-canvas.is-ready{opacity:.83}
-.projects .arsenal .art{z-index:1}
-.projects .arsenal .project-head,.projects .arsenal .project-body{position:relative;z-index:3}
-.projects .arsenal .art .motif{opacity:.35}
-.projects .arsenal .category{
-  background:rgba(20,18,21,.27);
-  -webkit-backdrop-filter:blur(14px);
-  backdrop-filter:blur(14px)
-}
 /* New studio entry: a compact horizontal gateway, not a stacked project card. */
 .project.dashbyte.studio-portal{
   display:flex!important;flex-direction:row!important;justify-content:space-between!important;align-items:center!important;
@@ -360,7 +321,6 @@ footer strong{color:#c1b6bb;letter-spacing:.08em}
 .project.dashbyte.studio-portal:hover .portal-arrow svg{transform:translate(3px,-3px)}
 .project.dashbyte.studio-portal:hover{transform:translateY(-4px)!important;border-color:rgba(255,227,236,.82)!important}
 @media(max-width:760px){
-  .projects .project.arsenal{-webkit-backdrop-filter:blur(34px) saturate(1.18)!important;backdrop-filter:blur(34px) saturate(1.18)!important}
   .project.dashbyte.studio-portal{min-height:94px!important;padding:15px 14px 15px 19px!important;gap:11px!important;border-radius:22px!important}
   .project.dashbyte.studio-portal .portal-copy strong{font-size:clamp(20px,5.1vw,26px)}
   .project.dashbyte.studio-portal .portal-overline{font-size:8px;letter-spacing:.08em}
@@ -374,10 +334,48 @@ footer strong{color:#c1b6bb;letter-spacing:.08em}
   .project.dashbyte.studio-portal .portal-overline{font-size:7px}
 }
 @media(prefers-reduced-motion:reduce){
- .arsenal-frost-canvas{transition:none!important}
  .project.dashbyte.studio-portal{transition:none!important}
 }
 
+
+/* MATTE GLASS SHAPE / Arsenal. Entire video remains untouched.
+   Frosted neutral capsule follows the actual glass navigation treatment. */
+.projects .project.arsenal{
+  background:linear-gradient(144deg,rgba(104,97,101,.33),rgba(55,51,58,.30) 48%,rgba(21,19,24,.42))!important;
+  border:1px solid rgba(244,244,245,.35)!important;
+  -webkit-backdrop-filter:blur(31px) saturate(1.43) brightness(1.03)!important;
+  backdrop-filter:blur(31px) saturate(1.43) brightness(1.03)!important;
+  box-shadow:
+     inset 0 1px 0 rgba(255,255,255,.29),
+     inset 1px 0 0 rgba(255,255,255,.09),
+     inset 0 -1px 0 rgba(255,255,255,.065),
+     0 18px 52px rgba(0,0,0,.28)!important;
+}
+/* Light, milkiness and shadow belong to the card surface, not the MP4. */
+.projects .project.arsenal::before{
+  content:"";position:absolute;inset:0;z-index:-2;pointer-events:none;
+  background:radial-gradient(ellipse 102% 55% at -13% -16%,rgba(255,255,255,.21),transparent 68%),
+             linear-gradient(132deg,rgba(255,255,255,.09),rgba(255,255,255,.015) 46%,transparent 74%)!important;
+}
+.projects .project.arsenal::after{
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(180deg,rgba(12,11,14,.045),rgba(12,11,14,.075) 40%,rgba(12,11,14,.23) 76%,rgba(10,9,13,.37))!important;
+}
+.projects .project.arsenal:hover{
+  border-color:rgba(255,255,255,.50)!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.35),0 24px 63px rgba(0,0,0,.32)!important;
+}
+.projects .arsenal .art .motif{opacity:.36}
+@media(max-width:760px){
+ .projects .project.arsenal{
+    background:linear-gradient(146deg,rgba(109,102,107,.36),rgba(52,49,55,.30) 49%,rgba(21,19,23,.44))!important;
+    -webkit-backdrop-filter:blur(32px) saturate(1.42) brightness(1.03)!important;
+    backdrop-filter:blur(32px) saturate(1.42) brightness(1.03)!important;
+ }
+}
+@supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
+ .projects .project.arsenal{background:linear-gradient(145deg,rgba(78,72,77,.83),rgba(20,18,22,.86))!important}
+}
 </style>
 <script>
 (function(){
@@ -438,7 +436,6 @@ footer strong{color:#c1b6bb;letter-spacing:.08em}
 </section>
 <section class="projects fade" aria-label="Выберите проект">
  <a class="project arsenal" data-project="arsenal" href="./arsenal.html" aria-label="Открыть сайт Арсенал">
-  <canvas class="arsenal-frost-canvas" aria-hidden="true"></canvas>
   <div class="art" aria-hidden="true"><div class="rings"></div><div class="slash"></div><div class="motif">A</div></div>
   <div class="project-head"><span class="category"><i></i>01 · Клиентский проект</span><span class="project-progress" role="img" aria-label="Готовность проекта Арсенал — 90 процентов"><span class="progress-ring"><span class="progress-number">90%</span></span><span class="progress-caption">ГОТОВНОСТЬ</span></span></div>
   <div class="project-body">
@@ -467,61 +464,6 @@ footer strong{color:#c1b6bb;letter-spacing:.08em}
 </section>
 <footer class="fade"><strong>© 2026 DashByte Digital Atelier.</strong><span>DESIGN IN PROGRESS · 2026</span></footer>
 </main>
-
-<script id="arsenal-matte-video-capture">
-/* Capture a small cropped frame from the existing local HTML video.
-   On Android WebViews compositor-backed video is not always affected by
-   backdrop-filter. A blurred sampled frame guarantees the frosting visually
-   affects the moving video, without decoding a second MP4. */
-(function(){
- 'use strict';
- const card=document.querySelector('.projects .project.arsenal');
- const canvas=card&&card.querySelector('.arsenal-frost-canvas');
- const video=document.getElementById('showroom-film');
- if(!card||!canvas||!video||!canvas.getContext)return;
- const ctx=canvas.getContext('2d',{alpha:false});
- if(!ctx)return;
- let visible=true,lastDraw=0;
- function draw(){
-   if(!visible||document.hidden||video.readyState<2||!video.videoWidth||!video.videoHeight)return;
-   const vr=video.getBoundingClientRect(),cr=card.getBoundingClientRect();
-   if(cr.width<1||cr.height<1||vr.width<1||vr.height<1)return;
-   const ratio=Math.min(.45,320/cr.width);
-   const w=Math.max(1,Math.round(cr.width*ratio)),h=Math.max(1,Math.round(cr.height*ratio));
-   if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}
-   const scale=Math.max(vr.width/video.videoWidth,vr.height/video.videoHeight);
-   const drawW=video.videoWidth*scale,drawH=video.videoHeight*scale;
-   const pos=getComputedStyle(video).objectPosition.match(/-?\d+(?:\.\d+)?%/g)||[];
-   const py=pos[1]?parseFloat(pos[1])/100:.5;
-   const offsetX=(vr.width-drawW)*.5,offsetY=(vr.height-drawH)*py;
-   const x=(vr.left+offsetX-cr.left)*ratio,y=(vr.top+offsetY-cr.top)*ratio;
-   try{
-     ctx.fillStyle='#17151a';ctx.fillRect(0,0,w,h);
-     ctx.drawImage(video,x,y,drawW*ratio,drawH*ratio);
-     canvas.classList.add('is-ready');
-   }catch(e){canvas.classList.remove('is-ready')}
- }
- function update(force){
-   const now=performance.now();
-   if(force||now-lastDraw>1050){lastDraw=now;draw()}
- }
- if('IntersectionObserver' in window){
-   new IntersectionObserver(function(entries){
-     visible=entries[0].isIntersecting;
-     if(visible)update(true);
-   },{threshold:0,rootMargin:'100px'}).observe(card);
- }
- ['loadeddata','playing','seeked','canplay'].forEach(function(event){
-   video.addEventListener(event,function(){update(true)},{passive:true});
- });
- window.addEventListener('scroll',function(){update(false)},{passive:true});
- window.addEventListener('resize',function(){update(true)},{passive:true});
- document.addEventListener('visibilitychange',function(){if(!document.hidden)update(true)});
- setInterval(function(){update(false)},1100);
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){update(true)},{once:true});
- else update(true);
-})();
-</script>
 
 </body>
 </html>
