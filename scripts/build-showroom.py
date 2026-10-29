@@ -19,6 +19,64 @@ if len(studio)<9_000_000 or not all(x in studio for x in
        ['id="topbar"','db-header-visible','</html>']):
     raise RuntimeError("Not the complete approved DashByte v9.6 release")
 
+# The approved v9.6 filmed reels intentionally used preload="none" and
+# attached media only when in view. On mobile this produces a long poster
+# pause when the visitor scrolls to the reels. Prepare both lightweight
+# (< 5 MB each) MP4s when the main document becomes interactive, but
+# retain visibility-based play/pause to avoid background playback.
+def patch_source(old,new,label):
+    global studio
+    count=studio.count(old)
+    if count!=1:
+        raise RuntimeError(f"{label}: expected one canonical match; found {count}")
+    studio=studio.replace(old,new,1)
+
+patch_source(
+    "let loaded=false;function check(){",
+    """let loaded=false;
+function prepare(){
+  if(loaded)return;
+  loaded=true;film.muted=true;film.defaultMuted=true;
+  film.preload='auto';film.src='assets/showreel-original.mp4';film.load();
+}
+if(document.readyState==='complete')setTimeout(prepare,550);
+else addEventListener('load',()=>setTimeout(prepare,550),{once:true});
+function check(){""",
+    "film-01 eager buffer"
+)
+patch_source(
+    "if(!loaded){loaded=true;film.muted=true;film.defaultMuted=true;film.preload='metadata';film.src='assets/showreel-original.mp4';film.load();}",
+    "prepare();",
+    "film-01 visible playback"
+)
+studio,second_count=re.subn(
+    r'function secondAttach\(\)\{.*?\}\s*function galleryCheck\(\)\{',
+    """function secondAttach(){
+      if(secondReady||!second)return;
+      secondReady=true;
+      second.muted=true;second.defaultMuted=true;
+      second.preload='auto';
+      second.src='assets/hero-mobile.mp4';
+      second.load();
+    }
+    function galleryCheck(){""",
+    studio,count=1,flags=re.S
+)
+if second_count!=1:raise RuntimeError("Film-02 source setup not found")
+patch_source(
+    "if(section&&'IntersectionObserver' in window)new IntersectionObserver(()=>galleryCheck()",
+    """if(!reduced){
+      if(document.readyState==='complete')setTimeout(secondAttach,950);
+      else addEventListener('load',()=>setTimeout(secondAttach,650),{once:true});
+    }
+    if(section&&'IntersectionObserver' in window)new IntersectionObserver(()=>galleryCheck()""",
+    "film-02 ahead-of-scroll buffer"
+)
+# The original preload="none" markup can still override if a browser defers
+# video load before script execution; mark only the two reel tags eager.
+studio=re.sub(r'(<video\b[^>]*\bid="db-(?:archive-video|reel-second-video)"[^>]*?)preload="none"',
+              r'\1preload="auto"',studio,count=2)
+
 # Direct page; title, media, original portfolio and hero remain intact.
 # Header alignment uses the same Telegram content-safe-area anchor as Arsenal.
 db_extension=r"""
@@ -33,7 +91,7 @@ html.db-direct-showroom.db-telegram-miniapp:not(.db-showroom-stage) #topbar,
 html.db-direct-showroom:not(.db-header-visible) #topbar,
 html.db-direct-showroom.db-header-visible #topbar{
   position:fixed!important;
-  top:var(--db-native-header-top,94px)!important;
+  top:var(--db-native-header-top,88px)!important;
   left:50%!important;right:auto!important;bottom:auto!important;
   transform:translateX(-50%)!important;
   -webkit-transform:translateX(-50%)!important;
@@ -56,8 +114,8 @@ html.db-direct-showroom.db-header-visible #topbar{
 }
 html.db-direct-showroom #menu-sheet,
 html.db-direct-showroom.db-telegram-miniapp:not(.db-showroom-stage) #menu-sheet{
-  top:calc(var(--db-native-header-top,94px) + 114px)!important;
-  max-height:calc(100dvh - var(--db-native-header-top,94px) - 128px)!important;
+  top:calc(var(--db-native-header-top,88px) + 114px)!important;
+  max-height:calc(100dvh - var(--db-native-header-top,88px) - 128px)!important;
 }
 @media (prefers-reduced-motion:reduce){
   html.db-direct-showroom #topbar{transition:none!important;filter:none!important}
@@ -90,7 +148,7 @@ html.db-direct-showroom.db-telegram-miniapp:not(.db-showroom-stage) #menu-sheet{
     // Fallback must ALWAYS clear the native Telegram controls, even if SDK
     // isn't loaded yet. The old 18px fallback put the bar under Close/⋮.
     const safe=safeNumber(a.top)+safeNumber(c.top);
-    const top=native?Math.max(94,safe+10):18;
+    const top=native?Math.max(88,safe):18; // 10px higher, halfway to Telegram controls
     root.style.setProperty('--db-native-header-top',top+'px');
     const bar=document.getElementById('topbar');
     if(bar){
