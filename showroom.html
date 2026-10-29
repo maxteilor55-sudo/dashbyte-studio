@@ -611,6 +611,38 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
 </script>
 <link rel="stylesheet" href="./assets/db-glass-up.css?v=1">
 <script defer src="./assets/db-glass-up.js?v=1"></script>
+
+<style id="showroom-desktop-edge-to-edge-video-v1">
+/* Desktop/tablet/TV: the background video is viewport-wide, not clipped
+   to the 1250px content column. The content/grid stays centered. */
+@media (min-width:768px) {
+  .page{
+    overflow-x:visible!important;
+    overflow-y:visible!important;
+  }
+  .page > .cinema-layer{
+    left:50%!important;
+    right:auto!important;
+    top:0!important;
+    width:100vw!important;
+    max-width:none!important;
+    transform:translate3d(-50%,0,0)!important;
+    overflow:hidden;
+  }
+  .page > .cinema-layer > .cinema-film{
+    left:0!important;
+    right:0!important;
+    top:0!important;
+    width:100%!important;
+    height:100svh!important;
+    min-height:100svh!important;
+    object-fit:contain!important;
+    object-position:center top!important;
+    max-width:none!important;
+  }
+}
+/* Never alter the approved narrow mobile video/crop. */
+</style>
 </head>
 <body>
 <div class="scroll-edge-glass scroll-edge-glass--top" aria-hidden="true"></div>
