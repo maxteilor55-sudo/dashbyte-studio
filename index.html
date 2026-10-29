@@ -338,43 +338,71 @@ footer strong{color:#c1b6bb;letter-spacing:.08em}
 }
 
 
-/* MATTE GLASS SHAPE / Arsenal. Entire video remains untouched.
-   Frosted neutral capsule follows the actual glass navigation treatment. */
+
+/* ARSENAL LIQUID MATTE V4 — glass as its own real translucent shape.
+   Background MP4 is unmodified; only the overlay panel diffuses backdrop.
+   A milky material face remains visible when Android Telegram WebView
+   does not support backdrop-filter for hardware-composited video. */
 .projects .project.arsenal{
-  background:linear-gradient(144deg,rgba(104,97,101,.33),rgba(55,51,58,.30) 48%,rgba(21,19,24,.42))!important;
-  border:1px solid rgba(244,244,245,.35)!important;
-  -webkit-backdrop-filter:blur(31px) saturate(1.43) brightness(1.03)!important;
-  backdrop-filter:blur(31px) saturate(1.43) brightness(1.03)!important;
+  background:transparent!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+  border:1px solid rgba(250,247,249,.44)!important;
+  border-radius:32px;
+  isolation:isolate;
   box-shadow:
-     inset 0 1px 0 rgba(255,255,255,.29),
-     inset 1px 0 0 rgba(255,255,255,.09),
-     inset 0 -1px 0 rgba(255,255,255,.065),
-     0 18px 52px rgba(0,0,0,.28)!important;
+    inset 0 1px 0 rgba(255,255,255,.33),
+    inset 0 0 0 1px rgba(255,255,255,.045),
+    0 22px 65px rgba(0,0,0,.28)!important;
 }
-/* Light, milkiness and shadow belong to the card surface, not the MP4. */
+.projects .project.arsenal .arsenal-matte-pane{
+  position:absolute;
+  inset:0;
+  display:block;
+  pointer-events:none;
+  z-index:0;
+  border-radius:inherit;
+  /* This is the GLASS SURFACE, not a filtered replica of the video. */
+  background:
+    radial-gradient(ellipse 106% 65% at 0% -18%,rgba(231,225,228,.25),transparent 72%),
+    linear-gradient(140deg,rgba(134,128,135,.55),rgba(64,59,68,.57) 53%,rgba(21,19,25,.68) 100%);
+  -webkit-backdrop-filter:blur(52px) saturate(.76) contrast(.91)!important;
+  backdrop-filter:blur(52px) saturate(.76) contrast(.91)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.2),inset 0 -1px 0 rgba(255,255,255,.045);
+}
+/* Fine satin diffusion & edge light painted over the shape, no source blurring. */
 .projects .project.arsenal::before{
-  content:"";position:absolute;inset:0;z-index:-2;pointer-events:none;
-  background:radial-gradient(ellipse 102% 55% at -13% -16%,rgba(255,255,255,.21),transparent 68%),
-             linear-gradient(132deg,rgba(255,255,255,.09),rgba(255,255,255,.015) 46%,transparent 74%)!important;
+  content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:
+    radial-gradient(ellipse 100% 50% at -13% -18%,rgba(255,255,255,.24),transparent 68%),
+    linear-gradient(127deg,rgba(255,255,255,.08),rgba(255,255,255,.012) 52%,transparent 77%)!important;
 }
 .projects .project.arsenal::after{
-  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
-  background:linear-gradient(180deg,rgba(12,11,14,.045),rgba(12,11,14,.075) 40%,rgba(12,11,14,.23) 76%,rgba(10,9,13,.37))!important;
+  content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(180deg,rgba(10,10,14,.025),rgba(12,11,15,.08) 38%,rgba(9,8,12,.20) 69%,rgba(8,7,11,.39) 100%)!important;
 }
+.projects .project.arsenal .art{position:absolute;z-index:2;pointer-events:none}
+.projects .project.arsenal .art .motif{opacity:.32}
+.projects .project.arsenal .project-head,
+.projects .project.arsenal .project-body{position:relative;z-index:3}
 .projects .project.arsenal:hover{
-  border-color:rgba(255,255,255,.50)!important;
-  box-shadow:inset 0 1px rgba(255,255,255,.35),0 24px 63px rgba(0,0,0,.32)!important;
+  border-color:rgba(255,255,255,.59)!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.40),0 26px 70px rgba(0,0,0,.33)!important;
 }
-.projects .arsenal .art .motif{opacity:.36}
 @media(max-width:760px){
- .projects .project.arsenal{
-    background:linear-gradient(146deg,rgba(109,102,107,.36),rgba(52,49,55,.30) 49%,rgba(21,19,23,.44))!important;
-    -webkit-backdrop-filter:blur(32px) saturate(1.42) brightness(1.03)!important;
-    backdrop-filter:blur(32px) saturate(1.42) brightness(1.03)!important;
- }
+  .projects .project.arsenal{border-radius:28px}
+  .projects .project.arsenal .arsenal-matte-pane{
+    background:
+      radial-gradient(ellipse 95% 58% at -9% -15%,rgba(235,230,231,.27),transparent 74%),
+      linear-gradient(145deg,rgba(148,141,148,.57),rgba(67,63,70,.60) 51%,rgba(22,19,25,.72));
+    -webkit-backdrop-filter:blur(56px) saturate(.75) contrast(.88)!important;
+    backdrop-filter:blur(56px) saturate(.75) contrast(.88)!important;
+  }
 }
 @supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
- .projects .project.arsenal{background:linear-gradient(145deg,rgba(78,72,77,.83),rgba(20,18,22,.86))!important}
+  .projects .project.arsenal .arsenal-matte-pane {
+    background:linear-gradient(140deg,rgba(127,119,127,.75),rgba(29,26,33,.85))!important;
+  }
 }
 </style>
 <script>
@@ -436,6 +464,7 @@ footer strong{color:#c1b6bb;letter-spacing:.08em}
 </section>
 <section class="projects fade" aria-label="Выберите проект">
  <a class="project arsenal" data-project="arsenal" href="./arsenal.html" aria-label="Открыть сайт Арсенал">
+  <span class="arsenal-matte-pane" aria-hidden="true"></span>
   <div class="art" aria-hidden="true"><div class="rings"></div><div class="slash"></div><div class="motif">A</div></div>
   <div class="project-head"><span class="category"><i></i>01 · Клиентский проект</span><span class="project-progress" role="img" aria-label="Готовность проекта Арсенал — 90 процентов"><span class="progress-ring"><span class="progress-number">90%</span></span><span class="progress-caption">ГОТОВНОСТЬ</span></span></div>
   <div class="project-body">
