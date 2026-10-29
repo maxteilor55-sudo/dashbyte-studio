@@ -644,93 +644,91 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
 /* Never alter the approved narrow mobile video/crop. */
 </style>
 
-<style id="db-desktop-compact-project-deck-v1">
-/* Desktop-only overview: all live client cards sit on the cinematic cover.
-   Mobile and smaller tablets keep their approved vertical presentation. */
+<style id="db-desktop-compact-project-deck-v2">
+/* On desktop the first viewport is a complete project overview.
+   Keep the approved Telegram/mobile composition and both card materials intact. */
 @media (min-width:1024px){
   .page > .intro{
-    margin:clamp(24px,4.1svh,52px) 0 clamp(19px,2.8svh,28px)!important;
+    margin:clamp(18px,3.5svh,34px) 0 clamp(15px,2.8svh,25px)!important;
   }
   .intro .kicker{font-size:9px;letter-spacing:.19em}
   .intro h1{
-    font-size:clamp(49px,5.2vw,79px)!important;
+    font-size:clamp(45px,5.0vw,75px)!important;
     line-height:.91!important;
     max-width:1120px!important;
-    margin:12px 0 14px!important;
+    margin:11px 0 13px!important;
   }
   .intro p{
-    font-size:clamp(12px,1.04vw,15px)!important;
-    line-height:1.48!important;
-    max-width:605px!important;
+    font-size:clamp(12px,1vw,14px)!important;
+    line-height:1.43!important;
+    max-width:590px!important;
   }
-  .intro-hint{font-size:9px;letter-spacing:.14em}
-  /* Flex deck handles 2, 3 or 4 client cards with no empty giant cells.
-     A fifth wraps cleanly; future additions need no layout edits. */
+  .intro-hint{font-size:9px;letter-spacing:.13em}
+  /* Count is taken from the actual client links, so the future third
+     and fourth projects fit the same single row without manual CSS edits. */
   .page > .projects{
-    display:flex!important;
-    flex-flow:row wrap!important;
-    justify-content:center!important;
-    align-items:stretch!important;
+    display:grid!important;
+    grid-template-columns:repeat(var(--db-deck-count,2),minmax(0,1fr))!important;
+    grid-auto-flow:row!important;
     gap:14px!important;
-    width:100%!important;
+    align-items:stretch!important;
+    justify-content:center!important;
+    width:min(100%,var(--db-deck-width,602px))!important;
     max-width:1120px!important;
     margin:0 auto!important;
   }
   .page > .projects > a.project{
     box-sizing:border-box!important;
-    flex:1 1 240px!important;
-    width:auto!important;
+    width:100%!important;
     min-width:0!important;
-    max-width:342px!important;
+    max-width:none!important;
     min-height:0!important;
-    height:clamp(205px,26svh,248px)!important;
+    height:clamp(202px,24svh,231px)!important;
     margin:0!important;
-    padding:16px 18px 14px!important;
-    border-radius:22px!important;
+    padding:14px 16px 12px!important;
+    border-radius:21px!important;
     display:flex!important;
     flex-direction:column!important;
   }
   .page > .projects > a.project .project-head{
-    gap:7px!important;
+    gap:6px!important;
     min-height:0!important;
     align-items:center!important;
   }
   .page > .projects > a.project .category{
-    padding:7px 9px!important;
-    gap:6px!important;
+    padding:6px 8px!important;
+    gap:5px!important;
     font-size:8px!important;
-    letter-spacing:.075em!important;
+    letter-spacing:.06em!important;
   }
   .page > .projects > a.project .project-progress{
     flex-direction:row!important;
     align-items:center!important;
-    gap:7px!important;
+    gap:5px!important;
     margin:0!important;
   }
   .page > .projects > a.project .progress-ring{
-    width:45px!important;height:45px!important;
-    flex:0 0 45px!important;
+    width:42px!important;height:42px!important;
+    flex:0 0 42px!important;
   }
   .page > .projects > a.project .progress-ring::before{inset:4px!important}
-  .page > .projects > a.project .progress-number{font-size:13px!important}
+  .page > .projects > a.project .progress-number{font-size:12px!important}
   .page > .projects > a.project .progress-caption{
-    font-size:8px!important;letter-spacing:.065em!important;
+    font-size:7px!important;letter-spacing:.055em!important;
   }
-  .page > .projects > a.project .project-body{
-    margin-top:auto!important;
-  }
+  .page > .projects > a.project .project-body{margin-top:auto!important}
   .page > .projects > a.project .project-label{
-    font-size:8px!important;letter-spacing:.13em!important;
-    margin-bottom:7px!important;
+    font-size:8px!important;letter-spacing:.12em!important;
+    margin-bottom:6px!important;
   }
   .page > .projects > a.project h2{
-    font-size:clamp(26px,2.25vw,36px)!important;
+    font-size:clamp(25px,2.15vw,34px)!important;
     line-height:.94!important;
-    margin:0 0 8px!important;
+    margin:0 0 7px!important;
   }
   .page > .projects > a.project p{
-    font-size:11px!important;
-    line-height:1.4!important;
+    font-size:10px!important;
+    line-height:1.35!important;
     max-width:none!important;
     display:-webkit-box!important;
     -webkit-line-clamp:2;
@@ -738,69 +736,85 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
     overflow:hidden!important;
   }
   .page > .projects > a.project .project-foot{
-    margin-top:11px!important;padding-top:9px!important;
+    margin-top:8px!important;
+    padding-top:7px!important;
   }
-  .page > .projects > a.project .project-link{
-    font-size:10px!important;
-  }
+  .page > .projects > a.project .project-link{font-size:10px!important}
   .page > .projects > a.project .arrow{
-    width:33px!important;height:33px!important;
-    border-radius:11px!important;font-size:19px!important;
+    width:32px!important;height:32px!important;
+    border-radius:10px!important;font-size:18px!important;
   }
   .page > .projects > a.project.arsenal .art .motif{
-    font-size:clamp(135px,16vw,215px)!important;
-    top:35px!important;right:-9%!important;
+    font-size:clamp(130px,15vw,205px)!important;
+    top:30px!important;right:-9%!important;
     opacity:.30!important;
   }
-  .page > .projects > a.project.green-collection .gc-art{
-    opacity:.60!important;
-  }
-  /* The studio is a separate, second screen—not another client card. */
+  .page > .projects > a.project.green-collection .gc-art{opacity:.56!important}
+  /* The studio is deliberately a full-width second screen, not card 03. */
   .page > .projects > .studio-stage{
-    flex:0 0 100%!important;
-    width:100%!important;
-    max-width:100%!important;
-    margin:var(--db-desktop-stage-gap,110px) 0 25px!important;
-    min-height:min(78svh,760px)!important;
-    padding:clamp(42px,8svh,110px) 12px 75px!important;
+    grid-column:1 / -1!important;
+    justify-self:center!important;
+    box-sizing:border-box!important;
+    width:min(1100px,calc(100vw - 48px))!important;
+    max-width:none!important;
+    margin:var(--db-desktop-stage-gap,100px) 0 0!important;
+    min-height:100svh!important;
+    padding:clamp(48px,8svh,105px) 12px 75px!important;
   }
   .page > .projects > .studio-stage::before{
-    inset:-45px calc(50% - 50vw) -105px!important;
+    inset:0 calc(50% - 50vw) -100px!important;
     max-width:none!important;
-    background:linear-gradient(180deg,rgba(9,8,12,.92),#09090c 13%,#09090c 100%)!important;
+    background:linear-gradient(180deg,rgba(9,8,12,.92),#09090c 12%,#09090c 100%)!important;
   }
   .page > .projects > .studio-stage .studio-stage-core{
-    padding:clamp(30px,5svh,62px) 8px 29px!important;
+    padding:clamp(30px,5svh,62px) 8px 28px!important;
   }
   .page > .projects > .studio-stage h2{
-    font-size:clamp(50px,6.6vw,82px)!important;
+    font-size:clamp(48px,6.3vw,80px)!important;
   }
   .page > .projects > .studio-stage .project.dashbyte.studio-portal{
-    width:min(415px,100%)!important;
-    max-width:415px!important;
-    min-height:82px!important;
-    padding:13px 14px 13px 19px!important;
-    gap:10px!important;
-    border-radius:20px!important;
+    width:min(330px,100%)!important;
+    max-width:330px!important;
+    min-height:76px!important;
+    padding:11px 12px 11px 16px!important;
+    gap:9px!important;
+    border-radius:19px!important;
   }
   .page > .projects > .studio-stage .portal-copy strong{
-    font-size:clamp(17px,1.75vw,22px)!important;
+    font-size:clamp(16px,1.5vw,19px)!important;
   }
-  .page > .projects > .studio-stage .portal-overline{
-    font-size:8px!important;
-  }
+  .page > .projects > .studio-stage .portal-overline{font-size:7px!important}
+  .page > .projects > .studio-stage .portal-copy small{font-size:10px!important}
   .page > .projects > .studio-stage .portal-arrow{
-    width:49px!important;height:49px!important;
-    border-radius:15px!important;
+    width:45px!important;height:45px!important;
+    border-radius:14px!important;
+  }
+  /* Compact the badges only if four projects share a narrower desktop. */
+  .page > .projects[data-deck-count="4"] > a.project .progress-caption{display:none!important}
+  .page > .projects[data-deck-count="4"] > a.project h2{
+    font-size:clamp(21px,1.9vw,29px)!important;
   }
 }
 @media (min-width:1024px) and (max-height:730px){
-  .page > .intro{margin-top:18px!important;margin-bottom:14px!important}
-  .intro h1{font-size:clamp(47px,4.7vw,69px)!important;margin:9px 0 10px!important}
-  .page > .projects > a.project{height:198px!important;padding:13px 15px 12px!important}
-  .page > .projects > a.project .progress-ring{width:40px!important;height:40px!important;flex-basis:40px!important}
-  .page > .projects > a.project .project-label{margin-bottom:5px!important}
-  .page > .projects > a.project .project-foot{margin-top:7px!important;padding-top:7px!important}
+  .page > .intro{margin-top:14px!important;margin-bottom:12px!important}
+  .intro h1{font-size:clamp(43px,4.5vw,64px)!important;margin:8px 0 10px!important}
+  .intro p{line-height:1.35!important}
+  .page > .projects > a.project{
+    height:clamp(188px,27svh,204px)!important;
+    padding:12px 14px 10px!important;
+  }
+  .page > .projects > a.project .project-label{margin-bottom:4px!important}
+  .page > .projects > a.project .project-foot{margin-top:6px!important;padding-top:5px!important}
+  .page > .projects > a.project .progress-ring{width:38px!important;height:38px!important;flex-basis:38px!important}
+}
+@media (min-width:1024px) and (max-height:630px){
+  .page > .intro{margin-top:10px!important;margin-bottom:10px!important}
+  .intro h1{font-size:clamp(40px,4vw,55px)!important}
+  .intro p{font-size:11px!important}
+  .page > .projects > a.project{height:172px!important}
+  .page > .projects > a.project p{display:none!important}
+  .page > .projects > a.project .project-label{font-size:7px!important}
+  .page > .projects > a.project h2{font-size:clamp(23px,2vw,31px)!important}
 }
 </style>
 </head>
@@ -999,27 +1013,39 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
 
 
 <script id="db-desktop-project-deck-fold-fit">
-/* Keep the studio section beyond the first viewport even on tall screens.
-   The compact cards themselves remain completely visible on the cover. */
+/* Measure the cover after layout: all actual client cards stay on screen,
+   and the studio begins at the next viewport, without a long empty scroll. */
 (function(){
   const breakpoint=window.matchMedia('(min-width:1024px)');
+  const deck=document.querySelector('.page > .projects');
+  const stage=deck&&deck.querySelector(':scope > .studio-stage');
+  if(!deck||!stage)return;
   function fit(){
-    const stage=document.querySelector('.page > .projects > .studio-stage');
-    const cards=Array.from(document.querySelectorAll('.page > .projects > a.project'));
-    if(!stage)return;
+    const cards=Array.from(deck.querySelectorAll(':scope > a.project'));
     if(!breakpoint.matches||!cards.length){
-      stage.style.removeProperty('--db-desktop-stage-gap');return;
+      deck.style.removeProperty('--db-deck-count');
+      deck.style.removeProperty('--db-deck-width');
+      deck.removeAttribute('data-deck-count');
+      stage.style.removeProperty('--db-desktop-stage-gap');
+      return;
     }
-    const bottom=Math.max(...cards.map(card=>card.getBoundingClientRect().bottom));
-    const space=Math.max(76,Math.ceil(window.innerHeight-bottom+18));
-    stage.style.setProperty('--db-desktop-stage-gap',space+'px');
+    const cols=Math.min(4,cards.length);
+    deck.style.setProperty('--db-deck-count',String(cols));
+    deck.style.setProperty('--db-deck-width',(294*cols+14*(cols-1))+'px');
+    deck.setAttribute('data-deck-count',String(cols));
+    // Reset before measuring so repeated resize / pageshow never accumulates space.
+    stage.style.setProperty('--db-desktop-stage-gap','16px');
+    const lastCardBottom=Math.max(...cards.map(card=>card.getBoundingClientRect().bottom+window.scrollY));
+    const rowGap=parseFloat(window.getComputedStyle(deck).rowGap)||14;
+    const margin=Math.max(16,Math.ceil(window.innerHeight-lastCardBottom-rowGap+2));
+    stage.style.setProperty('--db-desktop-stage-gap',margin+'px');
   }
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',fit,{once:true});
-  }else fit();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fit,{once:true});
+  else fit();
   window.addEventListener('load',fit,{once:true});
   window.addEventListener('resize',fit,{passive:true});
   window.addEventListener('pageshow',fit,{passive:true});
+  deck.addEventListener('animationend',fit,{once:true});
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fit);
 })();
 </script>
