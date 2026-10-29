@@ -630,7 +630,7 @@ html.db-direct-showroom.db-telegram-miniapp:not(.db-showroom-stage) #topbar,
 html.db-direct-showroom:not(.db-header-visible) #topbar,
 html.db-direct-showroom.db-header-visible #topbar{
   position:fixed!important;
-  top:var(--db-native-header-top,164px)!important;
+  top:var(--db-native-header-top,94px)!important;
   left:50%!important;right:auto!important;bottom:auto!important;
   transform:translateX(-50%)!important;
   -webkit-transform:translateX(-50%)!important;
@@ -653,8 +653,8 @@ html.db-direct-showroom.db-header-visible #topbar{
 }
 html.db-direct-showroom #menu-sheet,
 html.db-direct-showroom.db-telegram-miniapp:not(.db-showroom-stage) #menu-sheet{
-  top:calc(var(--db-native-header-top,164px) + 114px)!important;
-  max-height:calc(100dvh - var(--db-native-header-top,164px) - 128px)!important;
+  top:calc(var(--db-native-header-top,94px) + 114px)!important;
+  max-height:calc(100dvh - var(--db-native-header-top,94px) - 128px)!important;
 }
 @media (prefers-reduced-motion:reduce){
   html.db-direct-showroom #topbar{transition:none!important;filter:none!important}
@@ -668,17 +668,27 @@ html.db-direct-showroom.db-telegram-miniapp:not(.db-showroom-stage) #menu-sheet{
 </style>
 <script id="db-direct-showroom-start">
 (function(){
-  const tg=window.Telegram&&window.Telegram.WebApp;
+  // Important: the native Telegram SDK can become available AFTER this
+  // inline script has run on an Android WebView (especially on a cold start).
+  // Never capture a null Telegram.WebApp once and then use desktop top=18px:
+  // that was the exact cause of the capsule appearing behind Telegram buttons.
   const root=document.documentElement;
+  const isTelegramLaunch=/tgWebApp(?:Version|Platform|Data|StartParam)/i.test(location.hash)
+    ||/tgWebApp(?:Version|Platform|Data|StartParam)/i.test(location.search);
   root.classList.add('db-direct-showroom');
+  let subscribed=null;
+  function sdk(){return window.Telegram&&window.Telegram.WebApp||null}
+  function safeNumber(x){const n=Number(x);return Number.isFinite(n)&&n>0?n:0}
   function pos(){
+    const tg=sdk();
+    const native=!!tg||isTelegramLaunch;
     const a=tg&&tg.safeAreaInset||{},c=tg&&tg.contentSafeAreaInset||{};
-    const safe=Math.max(Number(a.top)||0,Number(c.top)||0);
-    const top=tg?Math.max(158,safe+84):18; // +76 CSS px: clear Telegram native X / chevron / dots
+    // Native system inset + Telegram content inset, rather than their max.
+    // Fallback must ALWAYS clear the native Telegram controls, even if SDK
+    // isn't loaded yet. The old 18px fallback put the bar under Close/⋮.
+    const safe=safeNumber(a.top)+safeNumber(c.top);
+    const top=native?Math.max(94,safe+10):18;
     root.style.setProperty('--db-native-header-top',top+'px');
-    // Arsenal pins the actual DOM element, not just a CSS custom property.
-    // Do the same here; disable the inherited offscreen translate animation
-    // even if Telegram sends another viewport/safe-area event mid-scroll.
     const bar=document.getElementById('topbar');
     if(bar){
       bar.style.setProperty('top',top+'px','important');
@@ -687,17 +697,20 @@ html.db-direct-showroom.db-telegram-miniapp:not(.db-showroom-stage) #menu-sheet{
       bar.style.setProperty('transition','opacity .36s ease,filter .36s ease','important');
     }
   }
-  try{
-    if(tg){
+  function attachTelegram(){
+    const tg=sdk();
+    if(!tg||subscribed===tg)return;
+    subscribed=tg;
+    try{
       tg.ready();tg.expand();
       if(tg.isVersionAtLeast&&tg.isVersionAtLeast('8.0')&&tg.requestFullscreen&&!tg.isFullscreen)tg.requestFullscreen();
       ['safeAreaChanged','contentSafeAreaChanged','fullscreenChanged','viewportChanged'].forEach(
         function(e){if(tg.onEvent)tg.onEvent(e,pos)}
       );
       if(tg.BackButton&&tg.BackButton.hide)tg.BackButton.hide();
-    }
-  }catch(e){}
-  pos();
+    }catch(e){}
+    pos();
+  }
   function addBack(){
     const menu=document.getElementById('menu-sheet');
     if(!menu||document.getElementById('db-chooser-return'))return;
@@ -714,8 +727,22 @@ html.db-direct-showroom.db-telegram-miniapp:not(.db-showroom-stage) #menu-sheet{
     });
     menu.prepend(link);
   }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){pos();addBack()});
-  else {pos();addBack()}
+  function ready(){pos();attachTelegram();addBack()}
+  // Apply the guaranteed protected fallback immediately, before any fetch.
+  pos();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});
+  else ready();
+  window.addEventListener('load',ready,{once:true});
+  window.addEventListener('pageshow',ready);
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)ready()});
+  window.addEventListener('scroll',pos,{passive:true});
+  // SDK arrives asynchronously on some real Telegram Android clients.
+  // Synchronize without moving the glass through native buttons.
+  let checks=0;
+  const retry=setInterval(function(){
+    attachTelegram();pos();
+    if(subscribed||++checks>=24)clearInterval(retry);
+  },250);
 })();
 </script>
 
