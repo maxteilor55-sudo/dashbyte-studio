@@ -1487,6 +1487,67 @@ html,body{background:#141211!important;color:#eee9e2!important}
 .db-forge-footer a.footer-studio:focus-visible{outline:2px solid #e2b47f;outline-offset:5px}
 @media(prefers-reduced-motion:reduce){.db-forge-footer a.footer-studio{transition:none!important}}
 </style>
+
+<style id="db-arsenal-navigation-finish-style">
+#db-arsenal-desktop-return{
+  color:#f4e9e0!important;text-decoration:none!important;white-space:nowrap;
+  border:1px solid rgba(255,255,255,.24);border-radius:999px;
+  background:rgba(255,255,255,.09);padding:9px 12px;font-weight:750;
+}
+#db-arsenal-footer-up{
+  display:flex;align-items:center;gap:16px;width:min(1100px,calc(100% - 40px));
+  margin:34px auto 25px;padding:21px 10px;
+  border-top:1px solid rgba(255,255,255,.22);
+  border-bottom:1px solid rgba(255,255,255,.14);
+  color:#f7f2ef;font-size:13px;letter-spacing:.11em;font-weight:800;
+  text-decoration:none;cursor:pointer;position:relative;z-index:3;
+}
+#db-arsenal-footer-up .up-icon{display:grid;place-items:center;width:42px;height:42px;
+  border:1px solid rgba(255,255,255,.4);border-radius:50%;font-size:25px}
+#db-arsenal-footer-up .up-label{margin-left:auto;font-size:10px;color:#a9a5a1}
+@media(max-width:760px){
+  #db-arsenal-desktop-return{display:none!important}
+  #db-arsenal-footer-up{margin:22px auto 115px}
+}
+@media(prefers-reduced-motion:no-preference){
+  #db-arsenal-footer-up .up-icon{transition:transform .3s}
+  #db-arsenal-footer-up:hover .up-icon{transform:translateY(-4px)}
+}
+</style>
+<script id="db-arsenal-navigation-finish">
+(function(){
+ function install(){
+   const nav=document.querySelector('.site-header .nav-links');
+   if(nav&&!document.getElementById('db-arsenal-desktop-return')){
+     const a=document.createElement('a');
+     a.id='db-arsenal-desktop-return';
+     a.href='./';a.textContent='← К проектам';nav.prepend(a);
+     a.addEventListener('click',preserveTelegram);
+   }
+   const footer=document.querySelector('#dashbyte-signature')||document.querySelector('footer');
+   if(footer&&!document.getElementById('db-arsenal-footer-up')){
+     const a=document.createElement('a');a.id='db-arsenal-footer-up';
+     a.href='#top';a.setAttribute('aria-label','Наверх — к началу страницы');
+     a.innerHTML='<span class="up-icon" aria-hidden="true">↑</span><span>НАВЕРХ</span><span class="up-label">BACK TO TOP / 00</span>';
+     a.addEventListener('click',function(e){
+       e.preventDefault();
+       const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+       window.scrollTo({top:0,behavior:reduce?'auto':'smooth'});
+     });
+     footer.appendChild(a);
+   }
+ }
+ function preserveTelegram(e){
+   if(!/tgWebApp/i.test(location.hash))return;
+   e.preventDefault();
+   const to=new URL('./',location.href);to.hash=location.hash;
+   location.assign(to.href);
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});
+ else install();
+})();
+</script>
+
 </head>
 <body>
 <!-- Two independently masked blur layers at each screen edge; no dark fades. -->

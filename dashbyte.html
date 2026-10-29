@@ -631,7 +631,7 @@ html.db-direct-showroom.db-telegram-miniapp:not(.db-showroom-stage) #topbar,
 html.db-direct-showroom:not(.db-header-visible) #topbar,
 html.db-direct-showroom.db-header-visible #topbar{
   position:fixed!important;
-  top:var(--db-native-header-top,88px)!important;
+  top:var(--db-native-header-top,78px)!important;
   left:50%!important;right:auto!important;bottom:auto!important;
   transform:translateX(-50%)!important;
   -webkit-transform:translateX(-50%)!important;
@@ -654,8 +654,8 @@ html.db-direct-showroom.db-header-visible #topbar{
 }
 html.db-direct-showroom #menu-sheet,
 html.db-direct-showroom.db-telegram-miniapp:not(.db-showroom-stage) #menu-sheet{
-  top:calc(var(--db-native-header-top,88px) + 114px)!important;
-  max-height:calc(100dvh - var(--db-native-header-top,88px) - 128px)!important;
+  top:calc(var(--db-native-header-top,78px) + 96px)!important;
+  max-height:calc(100dvh - var(--db-native-header-top,78px) - 110px)!important;
 }
 @media (prefers-reduced-motion:reduce){
   html.db-direct-showroom #topbar{transition:none!important;filter:none!important}
@@ -684,11 +684,11 @@ html.db-direct-showroom.db-telegram-miniapp:not(.db-showroom-stage) #menu-sheet{
     const tg=sdk();
     const native=!!tg||isTelegramLaunch||window.matchMedia('(max-width:760px)').matches;
     const a=tg&&tg.safeAreaInset||{},c=tg&&tg.contentSafeAreaInset||{};
-    // Native system inset + Telegram content inset, rather than their max.
-    // Fallback must ALWAYS clear the native Telegram controls, even if SDK
-    // isn't loaded yet. The old 18px fallback put the bar under Close/⋮.
-    const safe=safeNumber(a.top)+safeNumber(c.top);
-    const top=native?Math.max(88,safe):18; // 10px higher, halfway to Telegram controls
+    // Match Green Collection: use the larger inset + 12px rather than summing
+    // two areas, which leaves a large unnecessary gap below Telegram chrome.
+    // Protect against late SDK initialization with the 78px mobile fallback.
+    const safe=Math.max(safeNumber(a.top),safeNumber(c.top));
+    const top=native?Math.max(78,safe+12):8; // Green Collection safe-area parity; compact desktop top
     root.style.setProperty('--db-native-header-top',top+'px');
     const bar=document.getElementById('topbar');
     if(bar){
