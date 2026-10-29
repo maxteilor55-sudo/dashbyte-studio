@@ -407,7 +407,7 @@ footer strong{color:#c1b6bb;letter-spacing:.08em}
 
 /* SHOWROOM MOBILE SAFE AREA / cinematic edge diffusion / hard X-axis lock
    Only the selection page; the client and studio sites are not changed. */
-:root{--edge-top:52px;--edge-top-glass:140px;--edge-bottom-glass:130px}
+:root{--edge-top:70px;--edge-top-glass:140px;--edge-bottom-glass:130px}
 .nav-right-compact,.nav-right-tiny{display:none}
 html,body{
   width:100%;
@@ -581,7 +581,7 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
      const a=tg.safeAreaInset||{},c=tg.contentSafeAreaInset||{};
      safe=Math.max(Number(a.top)||0,Number(c.top)||0);
    }
-   document.documentElement.style.setProperty('--edge-top',Math.max(tg?58:18,safe+10)+'px');
+   document.documentElement.style.setProperty('--edge-top',Math.max(tg?70:18,safe+22)+'px');
  }
  if(tg){
    try{
