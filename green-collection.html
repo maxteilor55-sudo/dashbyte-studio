@@ -278,6 +278,18 @@
 @media(max-width:370px){.site-header .brand strong{font-size:11px}.site-header .brand small{font-size:7px}.site-header .brand{gap:7px}.site-header .brand-mark{width:42px;height:42px}.botanical-social-lens{height:50px;border-radius:15px}.botanical-social-lens img{height:30px;width:30px}.botanical-social-name{font-size:9px}.botanical-social-heading{margin-bottom:8px}}
 @media(max-height:680px){.mobile-dropdown{overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;}}
 @media(prefers-reduced-motion:reduce){.botanical-online-dot{animation:none}}
+
+/* Telegram mini-app 2026-10-29 — glass header below Telegram chrome.
+   Keep original menu styling and maintain the hero/header vertical rhythm. */
+:root{--gc-telegram-header-top:78px}
+@media(max-width:820px){
+  .site-header{top:var(--gc-telegram-header-top)!important}
+  .hero{padding-top:calc(126px + var(--gc-telegram-header-top))!important}
+}
+@media(max-width:580px){
+  .site-header{top:var(--gc-telegram-header-top)!important}
+  .hero{padding-top:calc(100px + var(--gc-telegram-header-top))!important}
+}
 </style><meta name="robots" content="noindex,nofollow">
 <style id="gc-private-visibility">html{visibility:hidden!important}html.gc-authorized{visibility:visible!important}</style>
 <script id="gc-private-access-check">
@@ -290,6 +302,35 @@
   }catch(e){}
   if(allowed){document.documentElement.classList.add('gc-authorized')}
   else{location.replace('./?green_pin=1')}
+})();
+</script>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script id="gc-telegram-safe-header">
+(function(){
+  'use strict';
+  const root=document.documentElement;
+  const tg=window.Telegram&&window.Telegram.WebApp;
+  function fitHeader(){
+    let inset=0;
+    if(tg){
+      const device=tg.safeAreaInset||{};
+      const content=tg.contentSafeAreaInset||{};
+      inset=Math.max(Number(device.top)||0,Number(content.top)||0);
+    }
+    const top=Math.max(78,inset+12);
+    root.style.setProperty('--gc-telegram-header-top',top+'px');
+    if(document.getElementById('mobile-menu')?.classList.contains('open')){
+      window.dispatchEvent(new Event('resize'));
+    }
+  }
+  fitHeader();
+  if(tg&&tg.onEvent){
+    tg.onEvent('safeAreaChanged',fitHeader);
+    tg.onEvent('contentSafeAreaChanged',fitHeader);
+    tg.onEvent('viewportChanged',fitHeader);
+  }
+  window.addEventListener('pageshow',fitHeader,{passive:true});
 })();
 </script>
 </head><body>
