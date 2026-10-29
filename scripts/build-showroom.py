@@ -212,6 +212,9 @@ html.db-direct-showroom.db-telegram-miniapp:not(.db-showroom-stage) #menu-sheet{
 """
 # Each project is a new document navigation: SDK loaded by the chooser
 # does not survive into DashByte. Ensure the direct page loads Telegram SDK.
+# Always include the same single, light-transmitting scroll-to-top control.
+# External assets are shared with the chooser and botanical client preview.
+db_extension='<link rel="stylesheet" href="./assets/db-glass-up.css?v=1">\n<script defer src="./assets/db-glass-up.js?v=1"></script>\n'+db_extension
 if 'telegram.org/js/telegram-web-app.js' not in studio:
     db_extension='<script src="https://telegram.org/js/telegram-web-app.js"></script>\n'+db_extension
 studio,n=re.subn(r'</head\s*>',lambda m:db_extension+"\n"+m.group(0),
@@ -274,8 +277,13 @@ if marker not in ars:
     ars_path.write_text(ars,encoding="utf-8")
 
 
-# Finish Arsenal navigation at every breakpoint and place a DashByte-style
-# back-to-top action in the footer. Existing mobile return link stays intact.
+# Remove the previous injected footer-up UI from Arsenal and retain only its
+# desktop navigation link. Generated sites must have exactly one universal up.
+ars,old_nav_count=re.subn(
+    r'<style id="db-arsenal-navigation-finish-style">.*?</style>\s*<script id="db-arsenal-navigation-finish">.*?</script>\s*',
+    '',ars,count=1,flags=re.S
+)
+if old_nav_count>1:raise RuntimeError("Unexpected Arsenal navigation duplicates")
 arsenal_finish = r"""
 <style id="db-arsenal-navigation-finish-style">
 #db-arsenal-desktop-return{
@@ -283,54 +291,21 @@ arsenal_finish = r"""
   border:1px solid rgba(255,255,255,.24);border-radius:999px;
   background:rgba(255,255,255,.09);padding:9px 12px;font-weight:750;
 }
-#db-arsenal-footer-up{
-  display:flex;align-items:center;gap:16px;width:min(1100px,calc(100% - 40px));
-  margin:34px auto 25px;padding:21px 10px;
-  border-top:1px solid rgba(255,255,255,.22);
-  border-bottom:1px solid rgba(255,255,255,.14);
-  color:#f7f2ef;font-size:13px;letter-spacing:.11em;font-weight:800;
-  text-decoration:none;cursor:pointer;position:relative;z-index:3;
-}
-#db-arsenal-footer-up .up-icon{display:grid;place-items:center;width:42px;height:42px;
-  border:1px solid rgba(255,255,255,.4);border-radius:50%;font-size:25px}
-#db-arsenal-footer-up .up-label{margin-left:auto;font-size:10px;color:#a9a5a1}
-@media(max-width:760px){
-  #db-arsenal-desktop-return{display:none!important}
-  #db-arsenal-footer-up{margin:22px auto 115px}
-}
-@media(prefers-reduced-motion:no-preference){
-  #db-arsenal-footer-up .up-icon{transition:transform .3s}
-  #db-arsenal-footer-up:hover .up-icon{transform:translateY(-4px)}
-}
+@media(max-width:760px){#db-arsenal-desktop-return{display:none!important}}
 </style>
 <script id="db-arsenal-navigation-finish">
 (function(){
  function install(){
    const nav=document.querySelector('.site-header .nav-links');
-   if(nav&&!document.getElementById('db-arsenal-desktop-return')){
-     const a=document.createElement('a');
-     a.id='db-arsenal-desktop-return';
-     a.href='./';a.textContent='← К проектам';nav.prepend(a);
-     a.addEventListener('click',preserveTelegram);
-   }
-   const footer=document.querySelector('#dashbyte-signature')||document.querySelector('footer');
-   if(footer&&!document.getElementById('db-arsenal-footer-up')){
-     const a=document.createElement('a');a.id='db-arsenal-footer-up';
-     a.href='#top';a.setAttribute('aria-label','Наверх — к началу страницы');
-     a.innerHTML='<span class="up-icon" aria-hidden="true">↑</span><span>НАВЕРХ</span><span class="up-label">BACK TO TOP / 00</span>';
-     a.addEventListener('click',function(e){
-       e.preventDefault();
-       const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-       window.scrollTo({top:0,behavior:reduce?'auto':'smooth'});
-     });
-     footer.appendChild(a);
-   }
- }
- function preserveTelegram(e){
-   if(!/tgWebApp/i.test(location.hash))return;
-   e.preventDefault();
-   const to=new URL('./',location.href);to.hash=location.hash;
-   location.assign(to.href);
+   if(!nav||document.getElementById('db-arsenal-desktop-return'))return;
+   const a=document.createElement('a');
+   a.id='db-arsenal-desktop-return';a.href='./';a.textContent='← К проектам';
+   a.addEventListener('click',function(e){
+     if(!/tgWebApp/i.test(location.hash))return;
+     e.preventDefault();const u=new URL('./',location.href);u.hash=location.hash;
+     location.assign(u.href);
+   });
+   nav.prepend(a);
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});
  else install();
@@ -339,8 +314,12 @@ arsenal_finish = r"""
 """
 if 'id="db-arsenal-navigation-finish"' not in ars:
     ars,n=re.subn(r'</head\s*>',lambda m:arsenal_finish+"\n"+m.group(0),ars,count=1,flags=re.I)
-    if n!=1:raise RuntimeError("Cannot inject Arsenal navigation polish")
-    ars_path.write_text(ars,encoding='utf-8')
+    if n!=1:raise RuntimeError("Cannot inject Arsenal desktop return navigation")
+if 'db-glass-up.js' not in ars:
+    shared='<link rel="stylesheet" href="./assets/db-glass-up.css?v=1">\n<script defer src="./assets/db-glass-up.js?v=1"></script>\n'
+    ars,n=re.subn(r'</head\s*>',lambda m:shared+m.group(0),ars,count=1,flags=re.I)
+    if n!=1:raise RuntimeError("Cannot inject Arsenal universal liquid-glass return")
+ars_path.write_text(ars,encoding='utf-8')
 
 # Older BotFather configuration still points here on some devices.
 legacy=ROOT/"DashByte_Showroom_v2_0.html"
