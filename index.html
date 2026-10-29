@@ -764,7 +764,11 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
   /* The studio is deliberately a full-width second screen, not card 03. */
   .page > .projects > .studio-stage{
     grid-column:1 / -1!important;
-    justify-self:center!important;
+    /* The project cards are left-aligned, but the studio is centered on the
+       entire viewport, independent of the cards' grid width. */
+    justify-self:start!important;
+    left:calc(min(50vw,625px) - clamp(19px,5vw,62px))!important;
+    transform:translateX(-50%)!important;
     box-sizing:border-box!important;
     width:min(1100px,calc(100vw - 48px))!important;
     max-width:none!important;
