@@ -643,6 +643,166 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
 }
 /* Never alter the approved narrow mobile video/crop. */
 </style>
+
+<style id="db-desktop-compact-project-deck-v1">
+/* Desktop-only overview: all live client cards sit on the cinematic cover.
+   Mobile and smaller tablets keep their approved vertical presentation. */
+@media (min-width:1024px){
+  .page > .intro{
+    margin:clamp(24px,4.1svh,52px) 0 clamp(19px,2.8svh,28px)!important;
+  }
+  .intro .kicker{font-size:9px;letter-spacing:.19em}
+  .intro h1{
+    font-size:clamp(49px,5.2vw,79px)!important;
+    line-height:.91!important;
+    max-width:1120px!important;
+    margin:12px 0 14px!important;
+  }
+  .intro p{
+    font-size:clamp(12px,1.04vw,15px)!important;
+    line-height:1.48!important;
+    max-width:605px!important;
+  }
+  .intro-hint{font-size:9px;letter-spacing:.14em}
+  /* Flex deck handles 2, 3 or 4 client cards with no empty giant cells.
+     A fifth wraps cleanly; future additions need no layout edits. */
+  .page > .projects{
+    display:flex!important;
+    flex-flow:row wrap!important;
+    justify-content:center!important;
+    align-items:stretch!important;
+    gap:14px!important;
+    width:100%!important;
+    max-width:1120px!important;
+    margin:0 auto!important;
+  }
+  .page > .projects > a.project{
+    box-sizing:border-box!important;
+    flex:1 1 240px!important;
+    width:auto!important;
+    min-width:0!important;
+    max-width:342px!important;
+    min-height:0!important;
+    height:clamp(205px,26svh,248px)!important;
+    margin:0!important;
+    padding:16px 18px 14px!important;
+    border-radius:22px!important;
+    display:flex!important;
+    flex-direction:column!important;
+  }
+  .page > .projects > a.project .project-head{
+    gap:7px!important;
+    min-height:0!important;
+    align-items:center!important;
+  }
+  .page > .projects > a.project .category{
+    padding:7px 9px!important;
+    gap:6px!important;
+    font-size:8px!important;
+    letter-spacing:.075em!important;
+  }
+  .page > .projects > a.project .project-progress{
+    flex-direction:row!important;
+    align-items:center!important;
+    gap:7px!important;
+    margin:0!important;
+  }
+  .page > .projects > a.project .progress-ring{
+    width:45px!important;height:45px!important;
+    flex:0 0 45px!important;
+  }
+  .page > .projects > a.project .progress-ring::before{inset:4px!important}
+  .page > .projects > a.project .progress-number{font-size:13px!important}
+  .page > .projects > a.project .progress-caption{
+    font-size:8px!important;letter-spacing:.065em!important;
+  }
+  .page > .projects > a.project .project-body{
+    margin-top:auto!important;
+  }
+  .page > .projects > a.project .project-label{
+    font-size:8px!important;letter-spacing:.13em!important;
+    margin-bottom:7px!important;
+  }
+  .page > .projects > a.project h2{
+    font-size:clamp(26px,2.25vw,36px)!important;
+    line-height:.94!important;
+    margin:0 0 8px!important;
+  }
+  .page > .projects > a.project p{
+    font-size:11px!important;
+    line-height:1.4!important;
+    max-width:none!important;
+    display:-webkit-box!important;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden!important;
+  }
+  .page > .projects > a.project .project-foot{
+    margin-top:11px!important;padding-top:9px!important;
+  }
+  .page > .projects > a.project .project-link{
+    font-size:10px!important;
+  }
+  .page > .projects > a.project .arrow{
+    width:33px!important;height:33px!important;
+    border-radius:11px!important;font-size:19px!important;
+  }
+  .page > .projects > a.project.arsenal .art .motif{
+    font-size:clamp(135px,16vw,215px)!important;
+    top:35px!important;right:-9%!important;
+    opacity:.30!important;
+  }
+  .page > .projects > a.project.green-collection .gc-art{
+    opacity:.60!important;
+  }
+  /* The studio is a separate, second screen—not another client card. */
+  .page > .projects > .studio-stage{
+    flex:0 0 100%!important;
+    width:100%!important;
+    max-width:100%!important;
+    margin:var(--db-desktop-stage-gap,110px) 0 25px!important;
+    min-height:min(78svh,760px)!important;
+    padding:clamp(42px,8svh,110px) 12px 75px!important;
+  }
+  .page > .projects > .studio-stage::before{
+    inset:-45px calc(50% - 50vw) -105px!important;
+    max-width:none!important;
+    background:linear-gradient(180deg,rgba(9,8,12,.92),#09090c 13%,#09090c 100%)!important;
+  }
+  .page > .projects > .studio-stage .studio-stage-core{
+    padding:clamp(30px,5svh,62px) 8px 29px!important;
+  }
+  .page > .projects > .studio-stage h2{
+    font-size:clamp(50px,6.6vw,82px)!important;
+  }
+  .page > .projects > .studio-stage .project.dashbyte.studio-portal{
+    width:min(415px,100%)!important;
+    max-width:415px!important;
+    min-height:82px!important;
+    padding:13px 14px 13px 19px!important;
+    gap:10px!important;
+    border-radius:20px!important;
+  }
+  .page > .projects > .studio-stage .portal-copy strong{
+    font-size:clamp(17px,1.75vw,22px)!important;
+  }
+  .page > .projects > .studio-stage .portal-overline{
+    font-size:8px!important;
+  }
+  .page > .projects > .studio-stage .portal-arrow{
+    width:49px!important;height:49px!important;
+    border-radius:15px!important;
+  }
+}
+@media (min-width:1024px) and (max-height:730px){
+  .page > .intro{margin-top:18px!important;margin-bottom:14px!important}
+  .intro h1{font-size:clamp(47px,4.7vw,69px)!important;margin:9px 0 10px!important}
+  .page > .projects > a.project{height:198px!important;padding:13px 15px 12px!important}
+  .page > .projects > a.project .progress-ring{width:40px!important;height:40px!important;flex-basis:40px!important}
+  .page > .projects > a.project .project-label{margin-bottom:5px!important}
+  .page > .projects > a.project .project-foot{margin-top:7px!important;padding-top:7px!important}
+}
+</style>
 </head>
 <body>
 <div class="scroll-edge-glass scroll-edge-glass--top" aria-hidden="true"></div>
@@ -837,5 +997,31 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
 })();
 </script>
 
+
+<script id="db-desktop-project-deck-fold-fit">
+/* Keep the studio section beyond the first viewport even on tall screens.
+   The compact cards themselves remain completely visible on the cover. */
+(function(){
+  const breakpoint=window.matchMedia('(min-width:1024px)');
+  function fit(){
+    const stage=document.querySelector('.page > .projects > .studio-stage');
+    const cards=Array.from(document.querySelectorAll('.page > .projects > a.project'));
+    if(!stage)return;
+    if(!breakpoint.matches||!cards.length){
+      stage.style.removeProperty('--db-desktop-stage-gap');return;
+    }
+    const bottom=Math.max(...cards.map(card=>card.getBoundingClientRect().bottom));
+    const space=Math.max(76,Math.ceil(window.innerHeight-bottom+18));
+    stage.style.setProperty('--db-desktop-stage-gap',space+'px');
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',fit,{once:true});
+  }else fit();
+  window.addEventListener('load',fit,{once:true});
+  window.addEventListener('resize',fit,{passive:true});
+  window.addEventListener('pageshow',fit,{passive:true});
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fit);
+})();
+</script>
 </body>
 </html>
