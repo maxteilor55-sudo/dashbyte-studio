@@ -274,6 +274,110 @@ footer strong{color:#c1b6bb;letter-spacing:.08em}
 }
 @media(prefers-reduced-motion:reduce){.studio-portal::before,.portal-arrow svg{transition:none!important}}
 
+
+/* 2026.10.29 / Showroom v3 — GPU-video-safe real matte liquid glass.
+   WebView sometimes promotes HTML5 video beyond backdrop-filter. A small
+   live frosted canvas uses the SAME frame as the background video, not
+   another video download, and remains clipped inside the glass panel. */
+.projects .project.arsenal{
+  background:linear-gradient(141deg,rgba(86,79,81,.39) 0%,rgba(48,43,47,.35) 44%,rgba(19,18,22,.52) 100%)!important;
+  border:1px solid rgba(255,255,255,.32)!important;
+  -webkit-backdrop-filter:blur(30px) saturate(1.26) contrast(.95)!important;
+  backdrop-filter:blur(30px) saturate(1.26) contrast(.95)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.27),inset 0 -1px 0 rgba(255,255,255,.06),0 22px 70px rgba(0,0,0,.29)!important;
+}
+.projects .project.arsenal::before{
+  z-index:1!important;
+  background:linear-gradient(147deg,rgba(255,255,255,.16),rgba(245,235,240,.04) 34%,transparent 64%)!important;
+  pointer-events:none
+}
+.projects .project.arsenal::after{
+  z-index:1!important;
+  background:linear-gradient(180deg,rgba(24,23,26,.13) 0%,rgba(24,20,22,.16) 37%,rgba(13,11,15,.32) 70%,rgba(12,11,15,.59) 100%)!important;
+  pointer-events:none
+}
+.arsenal-frost-canvas{
+  position:absolute;
+  inset:0;width:100%;height:100%;
+  display:block;z-index:0;pointer-events:none;
+  opacity:0;filter:blur(23px) saturate(.79) brightness(.82);
+  transform:scale(1.14);
+  transform-origin:center;
+  transition:opacity .42s ease;
+}
+.arsenal-frost-canvas.is-ready{opacity:.83}
+.projects .arsenal .art{z-index:1}
+.projects .arsenal .project-head,.projects .arsenal .project-body{position:relative;z-index:3}
+.projects .arsenal .art .motif{opacity:.35}
+.projects .arsenal .category{
+  background:rgba(20,18,21,.27);
+  -webkit-backdrop-filter:blur(14px);
+  backdrop-filter:blur(14px)
+}
+/* New studio entry: a compact horizontal gateway, not a stacked project card. */
+.project.dashbyte.studio-portal{
+  display:flex!important;flex-direction:row!important;justify-content:space-between!important;align-items:center!important;
+  width:min(700px,100%);min-width:0;min-height:100px!important;height:auto!important;
+  margin:0 auto;padding:17px 20px 17px 25px!important;gap:18px!important;
+  border-radius:24px!important;
+  border:1px solid rgba(255,196,216,.54)!important;
+  background:linear-gradient(114deg,rgba(72,22,43,.88),rgba(28,13,23,.88) 53%,rgba(20,13,22,.95))!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 13px 44px rgba(0,0,0,.4),0 0 48px rgba(231,45,94,.13)!important;
+  -webkit-backdrop-filter:blur(22px) saturate(1.3);
+  backdrop-filter:blur(22px) saturate(1.3);
+}
+.project.dashbyte.studio-portal::before{
+  content:"";position:absolute;z-index:0;inset:0;pointer-events:none;
+  background:linear-gradient(111deg,rgba(255,255,255,.12),transparent 36%),
+    radial-gradient(ellipse at 95% 52%,rgba(248,74,117,.15),transparent 54%);
+  transform:none!important
+}
+.project.dashbyte.studio-portal::after{
+  content:"";position:absolute;z-index:0;inset:1px;border-radius:23px;pointer-events:none;
+  background:linear-gradient(165deg,rgba(255,255,255,.07),transparent 47%);
+}
+.project.dashbyte.studio-portal .portal-copy{
+  position:relative;z-index:2;flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;
+  text-align:left!important;align-items:flex-start
+}
+.project.dashbyte.studio-portal .portal-overline{color:#ef9fb8;font-size:10px;letter-spacing:.14em}
+.project.dashbyte.studio-portal .portal-copy strong{
+  font-size:clamp(22px,3.7vw,35px);line-height:1.04;
+  white-space:normal;overflow-wrap:normal;letter-spacing:-.055em;
+  background:linear-gradient(90deg,#fff 0%,#fff4f7 65%,#ffabc5 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent
+}
+.portal-period{color:#ff6b94!important;-webkit-text-fill-color:#ff6b94}
+.project.dashbyte.studio-portal .portal-copy small{color:#c4aab5;font-size:12px}
+.project.dashbyte.studio-portal .portal-arrow{
+  position:relative;z-index:2;display:grid;place-items:center;flex:0 0 auto;
+  width:64px;height:64px;border-radius:19px;transform:none!important;
+  background:linear-gradient(142deg,#fff1f6,#ff90b1 54%,#f45380)!important;
+  color:#361222;
+  border:1px solid rgba(255,230,236,.65);
+  box-shadow:inset 0 1px rgba(255,255,255,.57),0 9px 30px rgba(255,77,125,.25);
+}
+.project.dashbyte.studio-portal:hover .portal-arrow svg{transform:translate(3px,-3px)}
+.project.dashbyte.studio-portal:hover{transform:translateY(-4px)!important;border-color:rgba(255,227,236,.82)!important}
+@media(max-width:760px){
+  .projects .project.arsenal{-webkit-backdrop-filter:blur(34px) saturate(1.18)!important;backdrop-filter:blur(34px) saturate(1.18)!important}
+  .project.dashbyte.studio-portal{min-height:94px!important;padding:15px 14px 15px 19px!important;gap:11px!important;border-radius:22px!important}
+  .project.dashbyte.studio-portal .portal-copy strong{font-size:clamp(20px,5.1vw,26px)}
+  .project.dashbyte.studio-portal .portal-overline{font-size:8px;letter-spacing:.08em}
+  .project.dashbyte.studio-portal .portal-copy small{font-size:10px}
+  .project.dashbyte.studio-portal .portal-arrow{width:53px;height:53px;border-radius:17px}
+}
+@media(max-width:380px){
+  .project.dashbyte.studio-portal{padding:13px 12px!important;gap:9px!important}
+  .project.dashbyte.studio-portal .portal-copy strong{font-size:19px}
+  .project.dashbyte.studio-portal .portal-arrow{width:45px;height:45px;border-radius:14px}
+  .project.dashbyte.studio-portal .portal-overline{font-size:7px}
+}
+@media(prefers-reduced-motion:reduce){
+ .arsenal-frost-canvas{transition:none!important}
+ .project.dashbyte.studio-portal{transition:none!important}
+}
+
 </style>
 <script>
 (function(){
@@ -334,6 +438,7 @@ footer strong{color:#c1b6bb;letter-spacing:.08em}
 </section>
 <section class="projects fade" aria-label="Выберите проект">
  <a class="project arsenal" data-project="arsenal" href="./arsenal.html" aria-label="Открыть сайт Арсенал">
+  <canvas class="arsenal-frost-canvas" aria-hidden="true"></canvas>
   <div class="art" aria-hidden="true"><div class="rings"></div><div class="slash"></div><div class="motif">A</div></div>
   <div class="project-head"><span class="category"><i></i>01 · Клиентский проект</span><span class="project-progress" role="img" aria-label="Готовность проекта Арсенал — 90 процентов"><span class="progress-ring"><span class="progress-number">90%</span></span><span class="progress-caption">ГОТОВНОСТЬ</span></span></div>
   <div class="project-body">
@@ -354,8 +459,7 @@ footer strong{color:#c1b6bb;letter-spacing:.08em}
     <p>Сайты. Айдентика. Видео. Создаём цифровые впечатления, которые невозможно спутать.</p>
   </div>
   <a class="project dashbyte studio-portal" data-project="dashbyte" href="./dashbyte.html?dbrelease=telegram-safe-v3" aria-label="Войти на сайт студии DashByte">
-    <span class="portal-glyph" aria-hidden="true"><img src="./assets/DashByte_DB_Official_Vector.svg" alt="" onerror="this.hidden=true"><span>DB</span></span>
-    <span class="portal-copy"><span class="portal-overline"><i></i>DASHBYTE / DIGITAL ATELIER</span><strong>ОТКРЫТЬ СТУДИЮ</strong><small>Портфолио, проекты и наши идеи</small></span>
+    <span class="portal-copy"><span class="portal-overline"><i></i>ПРИГЛАШЕНИЕ В DIGITAL ATELIER</span><strong>ВОЙТИ В DASHBYTE<span class="portal-period">.</span></strong><small>Посмотреть студию изнутри</small></span>
     <span class="portal-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="27" height="27"><path d="M5 19 19 5M7.5 5H19v11.5"/></svg></span>
   </a>
   <span class="studio-endline">DESIGNED TO FEEL DIFFERENT <span>✳</span> 2026</span>
@@ -363,5 +467,61 @@ footer strong{color:#c1b6bb;letter-spacing:.08em}
 </section>
 <footer class="fade"><strong>© 2026 DashByte Digital Atelier.</strong><span>DESIGN IN PROGRESS · 2026</span></footer>
 </main>
+
+<script id="arsenal-matte-video-capture">
+/* Capture a small cropped frame from the existing local HTML video.
+   On Android WebViews compositor-backed video is not always affected by
+   backdrop-filter. A blurred sampled frame guarantees the frosting visually
+   affects the moving video, without decoding a second MP4. */
+(function(){
+ 'use strict';
+ const card=document.querySelector('.projects .project.arsenal');
+ const canvas=card&&card.querySelector('.arsenal-frost-canvas');
+ const video=document.getElementById('showroom-film');
+ if(!card||!canvas||!video||!canvas.getContext)return;
+ const ctx=canvas.getContext('2d',{alpha:false});
+ if(!ctx)return;
+ let visible=true,lastDraw=0;
+ function draw(){
+   if(!visible||document.hidden||video.readyState<2||!video.videoWidth||!video.videoHeight)return;
+   const vr=video.getBoundingClientRect(),cr=card.getBoundingClientRect();
+   if(cr.width<1||cr.height<1||vr.width<1||vr.height<1)return;
+   const ratio=Math.min(.45,320/cr.width);
+   const w=Math.max(1,Math.round(cr.width*ratio)),h=Math.max(1,Math.round(cr.height*ratio));
+   if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}
+   const scale=Math.max(vr.width/video.videoWidth,vr.height/video.videoHeight);
+   const drawW=video.videoWidth*scale,drawH=video.videoHeight*scale;
+   const pos=getComputedStyle(video).objectPosition.match(/-?\d+(?:\.\d+)?%/g)||[];
+   const py=pos[1]?parseFloat(pos[1])/100:.5;
+   const offsetX=(vr.width-drawW)*.5,offsetY=(vr.height-drawH)*py;
+   const x=(vr.left+offsetX-cr.left)*ratio,y=(vr.top+offsetY-cr.top)*ratio;
+   try{
+     ctx.fillStyle='#17151a';ctx.fillRect(0,0,w,h);
+     ctx.drawImage(video,x,y,drawW*ratio,drawH*ratio);
+     canvas.classList.add('is-ready');
+   }catch(e){canvas.classList.remove('is-ready')}
+ }
+ function update(force){
+   const now=performance.now();
+   if(force||now-lastDraw>1050){lastDraw=now;draw()}
+ }
+ if('IntersectionObserver' in window){
+   new IntersectionObserver(function(entries){
+     visible=entries[0].isIntersecting;
+     if(visible)update(true);
+   },{threshold:0,rootMargin:'100px'}).observe(card);
+ }
+ ['loadeddata','playing','seeked','canplay'].forEach(function(event){
+   video.addEventListener(event,function(){update(true)},{passive:true});
+ });
+ window.addEventListener('scroll',function(){update(false)},{passive:true});
+ window.addEventListener('resize',function(){update(true)},{passive:true});
+ document.addEventListener('visibilitychange',function(){if(!document.hidden)update(true)});
+ setInterval(function(){update(false)},1100);
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){update(true)},{once:true});
+ else update(true);
+})();
+</script>
+
 </body>
 </html>
