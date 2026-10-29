@@ -609,6 +609,8 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
  });
 })();
 </script>
+<link rel="stylesheet" href="./assets/db-glass-up.css?v=1">
+<script defer src="./assets/db-glass-up.js?v=1"></script>
 </head>
 <body>
 <div class="scroll-edge-glass scroll-edge-glass--top" aria-hidden="true"></div>
@@ -621,24 +623,24 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
 </div>
 <header class="nav">
  <div class="ident"><div class="brand-icon" aria-label="Логотип DashByte"><img src="./assets/DashByte_DB_Official_Vector.svg" alt="DashByte" onerror="this.hidden=true"><span>DB</span></div><div><div class="brand-name">DashByte<span>.</span></div><div class="brand-sub">ПРЕВРАЩАЕМ ИДЕИ В УСПЕХ</div></div></div>
- <div class="nav-right"><b></b><span class="nav-right-full">DIGITAL SHOWROOM / 2026</span><span class="nav-right-compact">SHOWROOM / 2026</span><span class="nav-right-tiny">SHOWROOM</span></div>
+ <div class="nav-right"><b></b><span class="nav-right-full">ПРОЕКТЫ В РАЗРАБОТКЕ / 2026</span><span class="nav-right-compact">ПРОЕКТЫ / 2026</span><span class="nav-right-tiny">ПРОЕКТЫ</span></div>
 </header>
 <section class="intro fade">
- <div class="kicker">DASHBYTE · DIGITAL SHOWROOM / 2026</div>
- <h1>САЙТ В<br><em>РАЗРАБОТКЕ.</em></h1>
+ <div class="kicker">DASHBYTE · ПРОЕКТЫ В РАБОТЕ / 2026</div>
+ <h1>САЙТЫ<br><em>В РАЗРАБОТКЕ.</em></h1>
  <div class="intro-bottom">
- <p>Мы создаём новый цифровой опыт и доводим каждую деталь до идеала. А пока можно заглянуть в проект «Арсенал» и познакомиться с нашей студией.</p>
+ <p>Здесь собраны сайты, которые DashByte создаёт прямо сейчас. Открывайте текущие версии проектов и следите за их готовностью — мы обновляем статусы по мере разработки.</p>
  <div class="intro-hint">Выберите проект <span>↘</span></div>
  </div>
 </section>
-<section class="projects fade" aria-label="Выберите проект">
+<section class="projects fade" aria-label="Сайты в разработке и их готовность">
  <a class="project arsenal" data-project="arsenal" href="./arsenal.html" aria-label="Открыть сайт Арсенал">
   <span class="arsenal-matte-pane" aria-hidden="true"></span>
   <div class="art" aria-hidden="true"><div class="rings"></div><div class="slash"></div><div class="motif">A</div></div>
   <div class="project-head"><span class="category"><i></i>01 · Клиентский проект</span><span class="project-progress" role="img" aria-label="Готовность проекта Арсенал — 90 процентов"><span class="progress-ring"><span class="progress-number">90%</span></span><span class="progress-caption">ГОТОВНОСТЬ</span></span></div>
   <div class="project-body">
    <div class="project-label">Metal. Form. Character.</div><h2>АРСЕНАЛ</h2>
-   <p>Металлоконструкции, навесы, гаражи. Сдержанный стиль и характер настоящего производства.</p>
+   <p>Навесы, гаражи и металлоконструкции. Разрабатываем каталог услуг и удобный способ оставить заявку.</p>
    <div class="project-foot"><span class="project-link">Открыть проект</span><span class="arrow" aria-hidden="true">↗</span></div>
   </div>
  </a>
@@ -655,7 +657,7 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
   <div class="project-body">
    <div class="project-label gc-label">BOTANICAL. LIVING. BEAUTY.</div>
    <h2>ЗЕЛЁНАЯ<br>КОЛЛЕКЦИЯ</h2>
-   <p>Растения с характером. Живая эстетика, забота и природное вдохновение.</p>
+   <p>Сайт-каталог домашних растений: коллекция, карточки и советы по уходу. Предпросмотр по PIN-коду.</p>
    <div class="project-foot"><span class="project-link">Открыть по PIN-коду <span class="gc-lock" aria-hidden="true">⌑</span></span><span class="arrow gc-arrow" aria-hidden="true">↗</span></div>
   </div>
  </a>
@@ -677,7 +679,7 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
   <span class="studio-endline">DESIGNED TO FEEL DIFFERENT <span>✳</span> 2026</span>
  </div>
 </section>
-<footer class="fade"><strong>© 2026 DashByte Digital Atelier.</strong><span>DESIGN IN PROGRESS · 2026</span></footer>
+<footer class="fade"><strong>© 2026 DashByte Digital Atelier.</strong><span>САЙТЫ В РАЗРАБОТКЕ · 2026</span></footer>
 </main>
 
 
@@ -802,32 +804,5 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
 })();
 </script>
 
-<style id="db-chooser-footer-up-style">
-.db-chooser-footer-up{display:inline-flex;gap:8px;align-items:center;white-space:nowrap;
- text-decoration:none;color:#ede6e9;font-size:11px;font-weight:850;letter-spacing:.11em;
- border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);
- border-radius:999px;padding:12px 16px;transition:background .25s}
-.db-chooser-footer-up:hover{background:rgba(255,255,255,.18)}
-@media(max-width:760px){footer:has(.db-chooser-footer-up){flex-wrap:wrap}.db-chooser-footer-up{min-height:44px}}
-</style>
-<script id="db-chooser-footer-up-controller">
-(function(){
- function install(){
-   const footer=document.querySelector('footer');
-   if(!footer||document.getElementById('db-chooser-footer-up'))return;
-   const a=document.createElement('a');
-   a.id='db-chooser-footer-up';a.className='db-chooser-footer-up';
-   a.href='#top';a.textContent='↑ НАВЕРХ';
-   a.addEventListener('click',function(e){
-     e.preventDefault();
-     const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-     window.scrollTo({top:0,behavior:reduce?'auto':'smooth'});
-   });
-   footer.appendChild(a);
- }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});
- else install();
-})();
-</script>
 </body>
 </html>
