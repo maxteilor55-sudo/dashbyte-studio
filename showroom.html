@@ -644,7 +644,7 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
 /* Never alter the approved narrow mobile video/crop. */
 </style>
 
-<style id="db-desktop-compact-project-deck-v3">
+<style id="db-desktop-compact-project-deck-v4">
 /* Desktop editorial alignment: left-anchored widescreen client deck and second-screen studio.
    On desktop the first viewport is a complete project overview.
    Keep the approved Telegram/mobile composition and both card materials intact. */
@@ -769,23 +769,46 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
     width:min(1100px,calc(100vw - 48px))!important;
     max-width:none!important;
     margin:var(--db-desktop-stage-gap,100px) 0 0!important;
-    min-height:100svh!important;
-    padding:clamp(48px,8svh,105px) 12px 75px!important;
+    min-height:0!important;
+    height:auto!important;
+    padding:clamp(28px,4.2svh,42px) 12px clamp(24px,3.5svh,36px)!important;
   }
   .page > .projects > .studio-stage::before{
-    inset:0 calc(50% - 50vw) -100px!important;
+    inset:-8px calc(50% - 50vw) -35px!important;
     max-width:none!important;
-    background:linear-gradient(180deg,rgba(9,8,12,.92),#09090c 12%,#09090c 100%)!important;
+    background:linear-gradient(180deg,rgba(9,8,12,.90),#09090c 16%,#09090c 100%)!important;
+  }
+  .page > .projects > .studio-stage .studio-rule{
+    margin-bottom:clamp(16px,2.7svh,28px)!important;
   }
   .page > .projects > .studio-stage .studio-stage-core{
-    padding:clamp(30px,5svh,62px) 8px 28px!important;
+    padding:clamp(15px,2.4svh,25px) 8px clamp(17px,2.7svh,28px)!important;
+  }
+  .page > .projects > .studio-stage .studio-seal{
+    width:66px!important;height:66px!important;border-radius:20px!important;
+    margin-bottom:clamp(12px,1.9svh,18px)!important;
   }
   .page > .projects > .studio-stage h2{
-    font-size:clamp(48px,6.3vw,80px)!important;
+    font-size:clamp(43px,5.1vw,67px)!important;
+    line-height:.96!important;
+    margin:0 0 15px!important;
+  }
+  .page > .projects > .studio-stage .studio-stage-core p{
+    font-size:clamp(13px,1.3vw,16px)!important;
+    line-height:1.5!important;
+    max-width:510px!important;
+  }
+  .page > .projects > .studio-stage .studio-endline{
+    margin:clamp(17px,2.6svh,25px) auto 0!important;
+  }
+  .page > .projects > .studio-stage + footer{margin-top:8px!important}
+  .page > footer{
+    margin-top:clamp(12px,2.5svh,24px)!important;
+    padding-bottom:12px!important;
   }
   .page > .projects > .studio-stage .project.dashbyte.studio-portal{
-    width:min(330px,100%)!important;
-    max-width:330px!important;
+    width:min(360px,100%)!important;
+    max-width:360px!important;
     min-height:76px!important;
     padding:11px 12px 11px 16px!important;
     gap:9px!important;
@@ -834,10 +857,46 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
 <div class="scroll-edge-glass scroll-edge-glass--bottom" aria-hidden="true"></div>
 <main class="page">
 <div class="cinema-layer" aria-hidden="true">
-  <video id="showroom-film" class="cinema-film" autoplay muted defaultmuted playsinline webkit-playsinline loop preload="auto" disablepictureinpicture disableremoteplayback>
-    <source src="./assets/hero-desktop.mp4?v=db-desktop-hero" type="video/mp4" media="(min-width: 768px)">
-    <source src="./assets/VID_20261029_051632_393.mp4?v=official-original" type="video/mp4" media="(max-width: 767px)">
-  </video>
+  <video id="showroom-film" class="cinema-film" autoplay muted defaultmuted playsinline webkit-playsinline loop preload="auto" disablepictureinpicture disableremoteplayback></video>
+  <script id="db-showroom-video-first-open-v1">
+  /* The video has NO <source> until this synchronous script selects exactly
+     one file. Prevents Telegram WebView from briefly starting the mobile
+     source on a desktop's first cold launch before viewport settles. */
+  (function(){
+    'use strict';
+    const video=document.getElementById('showroom-film');
+    if(!video)return;
+    const desktopSrc='./assets/hero-desktop.mp4?v=desktop-first-open-v1';
+    const mobileSrc='./assets/VID_20261029_051632_393.mp4?v=mobile-first-open-v1';
+    const tg=window.Telegram&&window.Telegram.WebApp;
+    const platform=String(tg&&tg.platform||'');
+    function desktopView(){
+      const wide=window.matchMedia('(min-width:768px)').matches;
+      const nativeDesktop=/^(tdesktop|macos|windows|linux)$/i.test(platform);
+      const physicalWide=Math.max(window.screen&&window.screen.width||0,window.screen&&window.screen.height||0)>=1024;
+      const desktopPointer=window.matchMedia('(pointer:fine) and (hover:hover)').matches;
+      return wide||nativeDesktop||(physicalWide&&desktopPointer);
+    }
+    function selectVideo(){
+      const target=desktopView()?'desktop':'mobile';
+      if(video.dataset.videoVariant===target)return;
+      video.dataset.videoVariant=target;
+      video.src=target==='desktop'?desktopSrc:mobileSrc;
+      video.load();
+      const result=video.play();
+      if(result&&typeof result.catch==='function')result.catch(function(){});
+    }
+    // Run immediately, while the document is still parsing, before first paint.
+    selectVideo();
+    window.addEventListener('resize',selectVideo,{passive:true});
+    window.addEventListener('orientationchange',selectVideo,{passive:true});
+    window.addEventListener('pageshow',selectVideo,{passive:true});
+    if(tg&&typeof tg.onEvent==='function'){
+      tg.onEvent('viewportChanged',selectVideo);
+      tg.onEvent('fullscreenChanged',selectVideo);
+    }
+  })();
+  </script>
 </div>
 <header class="nav">
  <div class="ident"><div class="brand-icon" aria-label="Логотип DashByte"><img src="./assets/DashByte_DB_Official_Vector.svg" alt="DashByte" onerror="this.hidden=true"><span>DB</span></div><div><div class="brand-name">DashByte<span>.</span></div><div class="brand-sub">ПРЕВРАЩАЕМ ИДЕИ В УСПЕХ</div></div></div>
