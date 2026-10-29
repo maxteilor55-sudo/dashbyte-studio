@@ -80,7 +80,7 @@ jobs:
             await page.locator('#db-arsenal-chooser-link').evaluate(el=>el.click());
             await page.waitForURL(u=>u.pathname==='/'&&u.hash.includes('tgWebAppVersion'),{timeout:25000});
             await page.locator('.project[data-project="dashbyte"]').click({timeout:16000});
-            await page.waitForURL(/\/dashbyte\.html#tgWebAppVersion/,{timeout:60000});
+            await page.waitForURL(u=>u.pathname.endsWith('/dashbyte.html')&&u.hash.includes('tgWebAppVersion')&&u.searchParams.has('fresh'),{timeout:60000});
             await page.locator('#topbar').waitFor({state:'attached',timeout:60000});
             await page.waitForTimeout(3500);
             const db=await page.evaluate(()=>({
@@ -119,16 +119,48 @@ jobs:
             // fades in/out, never enters the native Telegram control strip.
             for(const state of [initial,moving,shown,leaving]){
               const y=state.rect.top,css=parseFloat(state.top);
-              if(!(Number.isFinite(y)&&y>=145&&y<=230&&Math.abs(y-css)<2&&state.translate==='none'&&
+              if(!(Number.isFinite(y)&&y>=85&&y<=160&&Math.abs(y-css)<2&&state.translate==='none'&&
                    !state.transition.includes('translate')))
                 throw Error('DB glass header overlaps Telegram or moves vertically: '+JSON.stringify(state));
             }
             if(!shown.visible||shown.opacity!=='1')throw Error('DB header did not reveal after scroll');
 
-            if(!db.returnLink||!db.direct||!db.video||db.fullscreenCalls<1||parseFloat(db.top)<145||parseFloat(db.top)>230)
+            if(!db.returnLink||!db.direct||!db.video||db.fullscreenCalls<1||parseFloat(db.top)<85||parseFloat(db.top)>160)
               throw Error('DashByte full release/menu failed: '+JSON.stringify(db));
             await page.locator('#db-chooser-return').evaluate(el=>el.click());
             await page.waitForURL(u=>u.pathname==='/'&&u.hash.includes('tgWebAppVersion'),{timeout:30000});
+            // Reproduce the real Telegram Android race: WebApp SDK is not
+            // available yet when the inline head script runs, then arrives later.
+            const late=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+            await late.route('**/*',route=>{
+              const u=route.request().url();
+              if(u.startsWith(base))return route.continue();
+              return route.abort();
+            });
+            await late.goto(base+'dashbyte.html?late-sdk='+Date.now()+tgFragment,{waitUntil:'domcontentloaded',timeout:90000});
+            const before=await late.evaluate(()=>({
+              top:document.getElementById('topbar').getBoundingClientRect().top,
+              css:getComputedStyle(document.getElementById('topbar')).top,
+              sdkinitial:!!window.Telegram?.WebApp
+            }));
+            console.log('LATE_TG_BEFORE '+JSON.stringify(before));
+            if(before.sdkinitial||before.top<85)throw Error('Mobile fallback overlaps native controls before SDK loads');
+            await late.evaluate(()=>{
+              window.Telegram={WebApp:{
+                isFullscreen:true,isVersionAtLeast:()=>true,
+                safeAreaInset:{top:24},contentSafeAreaInset:{top:66},
+                ready(){},expand(){},requestFullscreen(){},onEvent(){},BackButton:{hide(){}}
+              }};
+              window.dispatchEvent(new Event('load'));
+            });
+            await late.waitForTimeout(900);
+            const after=await late.evaluate(()=>({
+              top:document.getElementById('topbar').getBoundingClientRect().top,
+              variable:document.documentElement.style.getPropertyValue('--db-native-header-top')
+            }));
+            console.log('LATE_TG_AFTER '+JSON.stringify(after));
+            if(after.top<90||after.top>150)throw Error('Late Telegram SDK header offset not corrected');
+            await late.close();
             console.log('PASS: selection -> Arsenal -> selection -> DashByte -> selection');
             await browser.close();
           })().catch(e=>{console.error(e);process.exit(1)});
