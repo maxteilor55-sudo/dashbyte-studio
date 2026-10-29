@@ -1503,6 +1503,19 @@ html,body{background:#141211!important;color:#eee9e2!important}
 
 
 
+<style id="arsenal-desktop-near-edge-header-v1">
+/* Desktop and large displays: position the approved liquid-glass bar close
+   to the top edge, including when scrolled. Do not touch mobile safe areas. */
+@media (min-width:1024px){
+  .site-header,.site-header.is-scrolled,.site-header.scrolled,
+  html.arsenal-telegram-direct .site-header,
+  html.arsenal-telegram-direct .site-header.is-scrolled,
+  html.arsenal-telegram-direct .site-header.scrolled {
+    top:6px!important;
+  }
+}
+</style>
+
 <style id="db-arsenal-navigation-finish-style">
 #db-arsenal-desktop-return{
   color:#f4e9e0!important;text-decoration:none!important;white-space:nowrap;
@@ -1530,18 +1543,6 @@ html,body{background:#141211!important;color:#eee9e2!important}
 })();
 </script>
 
-<style id="arsenal-desktop-near-edge-header-v1">
-/* Desktop and large displays: position the approved liquid-glass bar close
-   to the top edge, including when scrolled. Do not touch mobile safe areas. */
-@media (min-width:1024px){
-  .site-header,.site-header.is-scrolled,.site-header.scrolled,
-  html.arsenal-telegram-direct .site-header,
-  html.arsenal-telegram-direct .site-header.is-scrolled,
-  html.arsenal-telegram-direct .site-header.scrolled {
-    top:6px!important;
-  }
-}
-</style>
 </head>
 <body>
 <!-- Two independently masked blur layers at each screen edge; no dark fades. -->
