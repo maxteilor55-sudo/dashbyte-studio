@@ -644,16 +644,18 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
 /* Never alter the approved narrow mobile video/crop. */
 </style>
 
-<style id="db-desktop-compact-project-deck-v2">
-/* On desktop the first viewport is a complete project overview.
+<style id="db-desktop-compact-project-deck-v3">
+/* Desktop editorial alignment: left-anchored widescreen client deck and second-screen studio.
+   On desktop the first viewport is a complete project overview.
    Keep the approved Telegram/mobile composition and both card materials intact. */
+.deck-hint{display:none}
 @media (min-width:1024px){
   .page > .intro{
-    margin:clamp(18px,3.5svh,34px) 0 clamp(15px,2.8svh,25px)!important;
+    margin:clamp(48px,8svh,82px) 0 clamp(14px,2.3svh,21px)!important;
   }
   .intro .kicker{font-size:9px;letter-spacing:.19em}
   .intro h1{
-    font-size:clamp(45px,5.0vw,75px)!important;
+    font-size:clamp(49px,5.2vw,78px)!important;
     line-height:.91!important;
     max-width:1120px!important;
     margin:11px 0 13px!important;
@@ -663,7 +665,16 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
     line-height:1.43!important;
     max-width:590px!important;
   }
-  .intro-hint{font-size:9px;letter-spacing:.13em}
+  .intro-hint{display:none!important}
+  .page > .projects > .deck-hint{
+    display:flex!important;grid-column:1 / -1!important;
+    align-items:center;justify-content:flex-start;gap:12px;
+    margin:0 0 -2px!important;padding:0!important;
+    font-size:10px;font-weight:780;letter-spacing:.19em;text-transform:uppercase;
+    color:rgba(233,226,227,.82);line-height:1.1;text-shadow:0 2px 12px rgba(0,0,0,.46)
+  }
+  .page > .projects > .deck-hint span{color:#fb728c;font-size:20px;line-height:1;transform:translateY(1px)}
+
   /* Count is taken from the actual client links, so the future third
      and fourth projects fit the same single row without manual CSS edits. */
   .page > .projects{
@@ -672,10 +683,10 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
     grid-auto-flow:row!important;
     gap:14px!important;
     align-items:stretch!important;
-    justify-content:center!important;
-    width:min(100%,var(--db-deck-width,602px))!important;
+    justify-content:start!important;
+    width:min(100%,var(--db-deck-width,852px))!important;
     max-width:1120px!important;
-    margin:0 auto!important;
+    margin:0!important;
   }
   .page > .projects > a.project{
     box-sizing:border-box!important;
@@ -683,10 +694,10 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
     min-width:0!important;
     max-width:none!important;
     min-height:0!important;
-    height:clamp(202px,24svh,231px)!important;
+    height:clamp(228px,29svh,258px)!important;
     margin:0!important;
-    padding:14px 16px 12px!important;
-    border-radius:21px!important;
+    padding:19px 21px 16px!important;
+    border-radius:24px!important;
     display:flex!important;
     flex-direction:column!important;
   }
@@ -722,13 +733,13 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
     margin-bottom:6px!important;
   }
   .page > .projects > a.project h2{
-    font-size:clamp(25px,2.15vw,34px)!important;
+    font-size:clamp(29px,2.4vw,38px)!important;
     line-height:.94!important;
     margin:0 0 7px!important;
   }
   .page > .projects > a.project p{
-    font-size:10px!important;
-    line-height:1.35!important;
+    font-size:11px!important;
+    line-height:1.43!important;
     max-width:none!important;
     display:-webkit-box!important;
     -webkit-line-clamp:2;
@@ -796,11 +807,11 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
   }
 }
 @media (min-width:1024px) and (max-height:730px){
-  .page > .intro{margin-top:14px!important;margin-bottom:12px!important}
+  .page > .intro{margin-top:clamp(20px,4svh,36px)!important;margin-bottom:11px!important}
   .intro h1{font-size:clamp(43px,4.5vw,64px)!important;margin:8px 0 10px!important}
   .intro p{line-height:1.35!important}
   .page > .projects > a.project{
-    height:clamp(188px,27svh,204px)!important;
+    height:clamp(198px,29svh,222px)!important;
     padding:12px 14px 10px!important;
   }
   .page > .projects > a.project .project-label{margin-bottom:4px!important}
@@ -808,10 +819,10 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
   .page > .projects > a.project .progress-ring{width:38px!important;height:38px!important;flex-basis:38px!important}
 }
 @media (min-width:1024px) and (max-height:630px){
-  .page > .intro{margin-top:10px!important;margin-bottom:10px!important}
+  .page > .intro{margin-top:12px!important;margin-bottom:9px!important}
   .intro h1{font-size:clamp(40px,4vw,55px)!important}
   .intro p{font-size:11px!important}
-  .page > .projects > a.project{height:172px!important}
+  .page > .projects > a.project{height:178px!important}
   .page > .projects > a.project p{display:none!important}
   .page > .projects > a.project .project-label{font-size:7px!important}
   .page > .projects > a.project h2{font-size:clamp(23px,2vw,31px)!important}
@@ -841,6 +852,7 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
  </div>
 </section>
 <section class="projects fade" aria-label="Сайты в разработке и их готовность">
+ <div class="deck-hint" aria-hidden="true">Выберите проект <span>↘</span></div>
  <a class="project arsenal" data-project="arsenal" href="./arsenal.html" aria-label="Открыть сайт Арсенал">
   <span class="arsenal-matte-pane" aria-hidden="true"></span>
   <div class="art" aria-hidden="true"><div class="rings"></div><div class="slash"></div><div class="motif">A</div></div>
@@ -1031,7 +1043,8 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
     }
     const cols=Math.min(4,cards.length);
     deck.style.setProperty('--db-deck-count',String(cols));
-    deck.style.setProperty('--db-deck-width',(294*cols+14*(cols-1))+'px');
+    const preferredWidth=cols===1?420:cols===2?852:cols===3?1079:1120;
+    deck.style.setProperty('--db-deck-width',preferredWidth+'px');
     deck.setAttribute('data-deck-count',String(cols));
     // Reset before measuring so repeated resize / pageshow never accumulates space.
     stage.style.setProperty('--db-desktop-stage-gap','16px');
