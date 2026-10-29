@@ -180,7 +180,36 @@ jobs:
             console.log('LATE_TG_AFTER '+JSON.stringify(after));
             if(after.top<76||after.top>150)throw Error('Late Telegram SDK header offset not corrected');
             await late.close();
-            console.log('PASS: selection -> Arsenal -> selection -> DashByte -> selection');
+            // Desktop UX: two live client projects fully visible without scrolling;
+            // the studio introduction is the next screen, with a narrow gateway.
+            const desktop=await browser.newPage({viewport:{width:1536,height:864}});
+            await desktop.route('**/*',route=>{
+              const u=route.request().url();
+              return u.startsWith(base)?route.continue():route.abort();
+            });
+            await desktop.goto(base,{waitUntil:'domcontentloaded',timeout:90000});
+            for(const [width,height] of [[1536,864],[1280,720],[1920,1080]]){
+              await desktop.setViewportSize({width,height});
+              await desktop.waitForTimeout(650);
+              const ui=await desktop.evaluate(()=>{
+                const rect=el=>{const r=el.getBoundingClientRect();
+                  return {top:r.top,bottom:r.bottom,width:r.width,height:r.height}};
+                return {
+                  cards:Array.from(document.querySelectorAll('.page > .projects > a.project')).map(rect),
+                  stage:rect(document.querySelector('.studio-stage')),
+                  portal:rect(document.querySelector('.studio-portal')),
+                  video:document.querySelector('#showroom-film source[media*="min-width"]')?.getAttribute('src'),
+                  viewport:{width:innerWidth,height:innerHeight}
+                };
+              });
+              console.log('DESKTOP_COVER '+JSON.stringify(ui));
+              if(ui.cards.length!==2||ui.cards.some(c=>c.top<0||c.bottom>height-8||c.width>350||c.height>260)||
+                 ui.stage.top<height-8||ui.portal.width>430||!ui.video.includes('hero-desktop.mp4')){
+                throw Error('Desktop overview must fit both client cards above fold: '+JSON.stringify(ui));
+              }
+            }
+            await desktop.close();
+            console.log('PASS: selection -> Arsenal -> selection -> DashByte -> selection + desktop card deck');
             await browser.close();
           })().catch(e=>{console.error(e);process.exit(1)});
           JS
