@@ -128,6 +128,24 @@ jobs:
 
             if(!db.returnLink||!db.direct||!db.telegramSdkIncluded||!db.video||db.fullscreenCalls<1||parseFloat(db.top)<85||parseFloat(db.top)>160)
               throw Error('DashByte full release/menu failed: '+JSON.stringify(db));
+            // The two motion reels must already be preparing media BEFORE
+            // they come on screen. Neither should depend on a first scroll.
+            await page.waitForTimeout(1600);
+            const prepared=await page.evaluate(()=>{
+              return ['db-archive-video','db-reel-second-video'].map(id=>{
+                const v=document.getElementById(id);
+                return {id,src:v?.currentSrc||v?.src||'',preload:v?.preload,
+                  muted:v?.muted,readyState:v?.readyState,networkState:v?.networkState};
+              });
+            });
+            console.log('REELS_PREPARED '+JSON.stringify(prepared));
+            if(prepared.length!==2||
+               !prepared[0].src.includes('showreel-original.mp4')||
+               !prepared[1].src.includes('hero-mobile.mp4')||
+               prepared.some(v=>v.preload!=='auto'||!v.muted)){
+              throw Error('DashByte reels did not start prebuffering before scroll: '+JSON.stringify(prepared));
+            }
+
             await page.locator('#db-chooser-return').evaluate(el=>el.click());
             await page.waitForURL(u=>u.pathname==='/'&&u.hash.includes('tgWebAppVersion'),{timeout:30000});
             // Reproduce the real Telegram Android race: WebApp SDK is not
