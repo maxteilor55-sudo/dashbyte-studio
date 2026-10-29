@@ -33,7 +33,7 @@ jobs:
           assert chooser == (root/'showroom.html').read_text()
           assert len(chooser)>9000
           assert 'href="./arsenal.html"' in chooser
-          assert 'href="./dashbyte.html"' in chooser
+          assert 'href="./dashbyte.html?' in chooser
           assert len(studio)>9000000
           assert 'db-direct-showroom-start' in studio
           assert 'id="topbar"' in studio
