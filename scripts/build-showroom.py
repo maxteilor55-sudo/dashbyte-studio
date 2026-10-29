@@ -84,7 +84,7 @@ html.db-direct-showroom.db-telegram-miniapp:not(.db-showroom-stage) #menu-sheet{
   function safeNumber(x){const n=Number(x);return Number.isFinite(n)&&n>0?n:0}
   function pos(){
     const tg=sdk();
-    const native=!!tg||isTelegramLaunch;
+    const native=!!tg||isTelegramLaunch||window.matchMedia('(max-width:760px)').matches;
     const a=tg&&tg.safeAreaInset||{},c=tg&&tg.contentSafeAreaInset||{};
     // Native system inset + Telegram content inset, rather than their max.
     // Fallback must ALWAYS clear the native Telegram controls, even if SDK
