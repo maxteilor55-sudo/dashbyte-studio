@@ -481,6 +481,96 @@ html.showroom-scrolled .scroll-edge-glass--top{opacity:1}
   .scroll-edge-glass{transition:none}
 }
 
+
+/* Green Collection card / private preview: independent botanical glass. */
+.projects .project.green-collection{
+ display:flex;position:relative;isolation:isolate;margin-top:22px;
+ width:100%;max-width:100%;min-height:460px;overflow:hidden;
+ border-radius:32px;background:transparent!important;
+ text-align:left;color:#f6f8e9;font-family:inherit;cursor:pointer;
+ border:1px solid rgba(207,226,189,.36)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.22),0 20px 65px rgba(0,0,0,.29);
+}
+.project.green-collection .gc-card-matte{
+ position:absolute;inset:0;z-index:0;pointer-events:none;border-radius:inherit;
+ background:linear-gradient(142deg,rgba(87,107,83,.54),rgba(36,54,42,.55) 49%,rgba(12,23,18,.78));
+ -webkit-backdrop-filter:blur(37px) saturate(1.17);backdrop-filter:blur(37px) saturate(1.17);
+}
+.project.green-collection::before{
+ content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+ background:radial-gradient(ellipse 78% 62% at 88% 36%,rgba(192,226,141,.16),transparent 75%),linear-gradient(145deg,rgba(255,255,255,.10),transparent 43%)!important;
+}
+.project.green-collection::after{
+ content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+ background:linear-gradient(180deg,rgba(9,17,12,.025),rgba(12,22,15,.11) 43%,rgba(6,14,10,.39) 100%)!important;
+}
+.gc-art{position:absolute;inset:52px -2% 0 30%;z-index:2;overflow:hidden;pointer-events:none;color:#bfd99e;opacity:.62}
+.gc-art svg{position:absolute;top:-5%;right:-7%;width:min(360px,90%);height:105%;filter:drop-shadow(0 13px 24px rgba(0,0,0,.20))}
+.gc-monogram{position:absolute;right:5%;bottom:2%;font-weight:1000;font-size:clamp(110px,22vw,285px);letter-spacing:-.13em;line-height:1;color:rgba(198,223,159,.08)}
+.project.green-collection .project-head,.project.green-collection .project-body{position:relative;z-index:3}
+.project.green-collection .category{background:rgba(18,34,23,.26);border-color:rgba(223,241,208,.28);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+.project.green-collection .category i{background:#c4e294}
+.project.green-collection .gc-label{color:#bfd49f}
+.project.green-collection h2{font-size:clamp(40px,7.6vw,84px);line-height:.94;letter-spacing:-.075em;color:#f5f9ed}
+.project.green-collection p{max-width:440px;color:rgba(239,247,230,.81)}
+.project.green-collection .project-foot{border-color:rgba(236,250,224,.27)}
+.project.green-collection .project-link{color:#f0f5e8}
+.project.green-collection .gc-arrow{background:linear-gradient(145deg,#d3e4ae,#a8bf7e);color:#22351f;border-color:rgba(255,255,255,.36)}
+.gc-lock{display:inline-block;color:#cbdeac;font-size:17px;padding-left:7px}
+.gc-progress{color:#ffd292}
+.gc-progress-ring{
+ background:conic-gradient(from -90deg,#ffdb83 0deg,#f4a94a 126deg,rgba(255,255,255,.18) 126deg 360deg)!important;
+ box-shadow:0 0 22px rgba(246,165,63,.18),0 0 0 1px rgba(255,202,123,.22);
+}
+.gc-progress-ring::before{background:rgba(31,29,17,.88)!important}
+.gc-progress-ring .progress-number{color:#fff2d5}
+.project.green-collection .progress-caption{color:#ffcf81}
+@media(max-width:760px){
+ .projects .project.green-collection{min-height:420px;padding:24px;border-radius:28px;margin-top:19px}
+ .project.green-collection h2{font-size:clamp(38px,9vw,60px)}
+ .gc-art{inset:90px -5% 0 15%}
+ .project.green-collection .project-body p{max-width:350px}
+ .project.green-collection .gc-progress{align-self:flex-start}
+ .project.green-collection .gc-card-matte{-webkit-backdrop-filter:blur(42px) saturate(1.1);backdrop-filter:blur(42px) saturate(1.1)}
+}
+@media(max-width:380px){
+ .project.green-collection .category{font-size:8px;padding:10px}
+ .project.green-collection .project-head{gap:5px}
+ .project.green-collection h2{font-size:35px}
+}
+
+/* Fullscreen liquid glass keypad; it sits above Telegram-safe scroll gradients. */
+body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
+.gc-pin-overlay[hidden]{display:none!important}
+.gc-pin-overlay{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;overflow-y:auto;padding:74px 16px max(22px,env(safe-area-inset-bottom));overscroll-behavior:contain}
+.gc-pin-backdrop{position:fixed;inset:0;background:rgba(5,10,7,.57);-webkit-backdrop-filter:blur(24px) saturate(.64) brightness(.72);backdrop-filter:blur(24px) saturate(.64) brightness(.72)}
+.gc-pin-dialog{position:relative;flex:0 0 auto;z-index:1;width:min(390px,100%);padding:25px 24px 20px;border-radius:32px;text-align:center;
+ background:linear-gradient(146deg,rgba(37,54,42,.96),rgba(12,21,16,.97) 60%,rgba(8,14,11,.985));
+ border:1px solid rgba(216,248,211,.27);
+ box-shadow:0 24px 90px rgba(0,0,0,.62),inset 0 1px rgba(255,255,255,.2),0 0 70px rgba(143,200,131,.13)}
+.gc-pin-close{position:absolute;right:16px;top:16px;width:39px;height:39px;display:grid;place-items:center;color:#f1f7ef;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:14px;cursor:pointer}
+.gc-pin-logo{margin:2px auto 18px;display:grid;place-items:center;width:62px;height:62px;border-radius:20px;background:linear-gradient(140deg,rgba(190,226,170,.19),rgba(255,255,255,.035));color:#c6eaa9;border:1px solid rgba(210,243,189,.29)}
+.gc-pin-eyebrow{color:#b5d5a6;font-size:9px;letter-spacing:.18em;font-weight:800}
+.gc-pin-eyebrow span{color:#f5bc67}
+.gc-pin-dialog h2{font-size:clamp(31px,7vw,43px);line-height:1.02;letter-spacing:-.068em;margin:13px auto 11px;font-weight:900}
+.gc-pin-dialog h2 em{font-style:normal;background:linear-gradient(110deg,#f7f9e9,#b5d8a5 70%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.gc-pin-dialog p{margin:0 auto;color:#b7c5b6;font-size:13px;line-height:1.48;max-width:285px}
+.gc-pin-dots{display:flex;justify-content:center;gap:12px;margin:20px 0 7px}
+.gc-pin-dot{width:45px;height:50px;display:grid;place-items:center;border:1px solid rgba(232,248,217,.23);border-radius:14px;background:rgba(255,255,255,.065);box-shadow:inset 0 1px rgba(255,255,255,.07)}
+.gc-pin-dot::after{content:"";width:11px;height:11px;border:1px solid rgba(232,248,217,.26);border-radius:50%}
+.gc-pin-dot.is-filled::after{background:#c5e7ad;box-shadow:0 0 13px rgba(188,236,163,.65);border-color:#c5e7ad}
+.gc-pin-status{min-height:19px;color:#ffc083;font-size:12px;font-weight:700;letter-spacing:.02em;margin-bottom:11px}
+.gc-pin-status.is-success{color:#b6edb1}
+.gc-pin-keyboard{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.gc-pin-keyboard button{height:53px;border-radius:16px;border:1px solid rgba(226,248,218,.12);color:#f8fdf5;background:linear-gradient(145deg,rgba(255,255,255,.11),rgba(255,255,255,.035));box-shadow:inset 0 1px rgba(255,255,255,.10);font:750 23px Inter,Arial,sans-serif;display:grid;place-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.gc-pin-keyboard button:active{transform:scale(.96);background:rgba(212,245,193,.24)}
+.gc-pin-keyboard .gc-pin-control{color:#d4e8c7;font-size:17px;background:rgba(147,194,142,.09)}
+.gc-pin-dialog .gc-pin-footnote{margin:14px auto 0;font-size:9px;color:#779a7e;letter-spacing:.17em}
+.gc-pin-dialog.is-shaking{animation:gcPinShake .32s ease}
+@keyframes gcPinShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+@media(max-height:720px){.gc-pin-overlay{align-items:flex-start;padding-top:28px}.gc-pin-dialog{padding-top:17px;padding-bottom:16px}.gc-pin-logo{width:48px;height:48px;margin-bottom:9px}.gc-pin-dialog h2{font-size:32px}.gc-pin-dots{margin:11px 0 4px}.gc-pin-keyboard button{height:46px}.gc-pin-dialog .gc-pin-footnote{margin-top:10px}}
+@media(prefers-reduced-motion:reduce){.gc-pin-dialog.is-shaking{animation:none!important}}
+
 </style>
 <script>
 (function(){
@@ -491,7 +581,7 @@ html.showroom-scrolled .scroll-edge-glass--top{opacity:1}
      const a=tg.safeAreaInset||{},c=tg.contentSafeAreaInset||{};
      safe=Math.max(Number(a.top)||0,Number(c.top)||0);
    }
-   document.documentElement.style.setProperty('--edge-top',Math.max(tg?52:14,safe+4)+'px');
+   document.documentElement.style.setProperty('--edge-top',Math.max(tg?58:18,safe+10)+'px');
  }
  if(tg){
    try{
@@ -552,6 +642,23 @@ html.showroom-scrolled .scroll-edge-glass--top{opacity:1}
    <div class="project-foot"><span class="project-link">Открыть проект</span><span class="arrow" aria-hidden="true">↗</span></div>
   </div>
  </a>
+ <a class="project green-collection" href="./green-collection.html" data-open-pin="green-collection" aria-haspopup="dialog" aria-controls="greenPinModal" aria-label="Зелёная коллекция — открыть с PIN-кодом">
+  <span class="gc-card-matte" aria-hidden="true"></span>
+  <span class="gc-art" aria-hidden="true">
+   <svg viewBox="0 0 380 400" fill="none"><path d="M94 360C136 307 122 243 183 182C234 129 297 93 312 20" stroke="currentColor" stroke-width="2"/><path d="M181 190C119 207 99 175 87 122C148 128 182 145 181 190Z" fill="currentColor" opacity=".13" stroke="currentColor" stroke-width="2"/><path d="M240 128C254 66 294 62 345 63C330 119 286 143 240 128Z" fill="currentColor" opacity=".20" stroke="currentColor" stroke-width="2"/><path d="M145 260C93 254 62 292 49 348C111 345 146 310 145 260Z" fill="currentColor" opacity=".16" stroke="currentColor" stroke-width="2"/><path d="M173 219C233 233 273 272 281 321C218 309 170 267 173 219Z" fill="currentColor" opacity=".13" stroke="currentColor" stroke-width="2"/></svg>
+   <span class="gc-monogram">GC</span>
+  </span>
+  <div class="project-head">
+   <span class="category gc-category"><i></i>02 · КЛИЕНТСКИЙ ПРОЕКТ</span>
+   <span class="project-progress gc-progress" role="img" aria-label="Готовность проекта Зелёная коллекция — 35 процентов"><span class="progress-ring gc-progress-ring"><span class="progress-number">35%</span></span><span class="progress-caption">ГОТОВНОСТЬ</span></span>
+  </div>
+  <div class="project-body">
+   <div class="project-label gc-label">BOTANICAL. LIVING. BEAUTY.</div>
+   <h2>ЗЕЛЁНАЯ<br>КОЛЛЕКЦИЯ</h2>
+   <p>Растения с характером. Живая эстетика, забота и природное вдохновение.</p>
+   <div class="project-foot"><span class="project-link">Открыть по PIN-коду <span class="gc-lock" aria-hidden="true">⌑</span></span><span class="arrow gc-arrow" aria-hidden="true">↗</span></div>
+  </div>
+ </a>
  <div class="studio-stage">
   <span class="studio-rule" aria-hidden="true"></span>
   <div class="studio-stage-top">
@@ -581,6 +688,117 @@ html.showroom-scrolled .scroll-edge-glass--top{opacity:1}
   window.addEventListener('scroll',sync,{passive:true});
   window.addEventListener('pageshow',sync,{passive:true});
   sync();
+})();
+</script>
+
+<div class="gc-pin-overlay" id="greenPinModal" aria-hidden="true" hidden>
+ <div class="gc-pin-backdrop" data-gc-close aria-hidden="true"></div>
+ <section class="gc-pin-dialog" role="dialog" aria-modal="true" aria-labelledby="gcPinHeading" aria-describedby="gcPinSubheading">
+  <button class="gc-pin-close" type="button" data-gc-close aria-label="Закрыть ввод PIN-кода"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 5l14 14M19 5 5 19"/></svg></button>
+  <div class="gc-pin-logo" aria-hidden="true"><svg viewBox="0 0 54 54" width="35" height="35" fill="none"><path d="M13 40C14 23 25 13 42 10C41 30 31 41 13 40Z" stroke="currentColor" stroke-width="2"/><path d="M13 40c10-13 17-18 29-30" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+  <div class="gc-pin-eyebrow">GREEN COLLECTION <span>·</span> PRIVATE ACCESS</div>
+  <h2 id="gcPinHeading">Зелёная<br><em>коллекция.</em></h2>
+  <p id="gcPinSubheading">Введите четырёхзначный PIN-код, чтобы открыть проект.</p>
+  <div class="gc-pin-dots" role="group" aria-label="Поле ввода PIN-кода: четыре цифры">
+   <span class="gc-pin-dot" aria-hidden="true"></span><span class="gc-pin-dot" aria-hidden="true"></span><span class="gc-pin-dot" aria-hidden="true"></span><span class="gc-pin-dot" aria-hidden="true"></span>
+  </div>
+  <div class="gc-pin-status" role="status" aria-live="polite"></div>
+  <div class="gc-pin-keyboard" role="group" aria-label="Цифровая клавиатура PIN">
+   <button type="button" data-gc-digit="1">1</button><button type="button" data-gc-digit="2">2</button><button type="button" data-gc-digit="3">3</button>
+   <button type="button" data-gc-digit="4">4</button><button type="button" data-gc-digit="5">5</button><button type="button" data-gc-digit="6">6</button>
+   <button type="button" data-gc-digit="7">7</button><button type="button" data-gc-digit="8">8</button><button type="button" data-gc-digit="9">9</button>
+   <button type="button" class="gc-pin-control" data-gc-clear aria-label="Очистить PIN">C</button><button type="button" data-gc-digit="0">0</button><button type="button" class="gc-pin-control" data-gc-back aria-label="Удалить цифру"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H20v14H9L3 12l6-7Z"/><path d="m11 9 5 6m0-6-5 6"/></svg></button>
+  </div>
+  <p class="gc-pin-footnote">ДОСТУП К ПРЕДПРОСМОТРУ</p>
+ </section>
+</div>
+
+
+<script id="green-collection-pin-controller">
+(function(){
+ 'use strict';
+ const card=document.querySelector('[data-open-pin="green-collection"]');
+ const modal=document.getElementById('greenPinModal');
+ if(!card||!modal)return;
+ const page=document.querySelector('main.page');
+ const panel=modal.querySelector('.gc-pin-dialog');
+ const status=modal.querySelector('.gc-pin-status');
+ const dots=Array.from(modal.querySelectorAll('.gc-pin-dot'));
+ const closeButton=modal.querySelector('.gc-pin-close');
+ const buttons=Array.from(modal.querySelectorAll('button'));
+ const PIN_SALT='db-green-public-preview-v1:';
+ const PIN_SHA256='b93c7b4ab0fd18b1119c6739da7beb9db5773661ab639e0c3a88489c8593af26';
+ let digits='',busy=false,priorFocus=null;
+ function shown(){return !modal.hidden}
+ function paint(){dots.forEach((el,i)=>el.classList.toggle('is-filled',i<digits.length))}
+ function report(message,success){status.textContent=message;status.classList.toggle('is-success',!!success)}
+ function open(event){
+   if(event){event.preventDefault();event.stopPropagation()}
+   if(shown())return;
+   digits='';busy=false;paint();report('',false);
+   priorFocus=document.activeElement;modal.hidden=false;modal.setAttribute('aria-hidden','false');
+   document.body.classList.add('gc-pin-open');
+   if(page){page.setAttribute('inert','');page.setAttribute('aria-hidden','true')}
+   closeButton.focus({preventScroll:true});
+ }
+ function close(){
+   if(!shown()||busy)return;
+   modal.hidden=true;modal.setAttribute('aria-hidden','true');
+   document.body.classList.remove('gc-pin-open');
+   if(page){page.removeAttribute('inert');page.removeAttribute('aria-hidden')}
+   digits='';paint();report('',false);
+   if(priorFocus&&priorFocus.focus)priorFocus.focus({preventScroll:true});
+ }
+ function wrong(){
+   digits='';busy=false;paint();report('Неверный PIN-код. Попробуйте ещё раз.',false);
+   panel.classList.remove('is-shaking');void panel.offsetWidth;panel.classList.add('is-shaking');
+ }
+ async function validate(){
+   if(busy||digits.length!==4)return;
+   busy=true;
+   report('Проверяем код…',false);
+   try{
+     if(!window.crypto||!crypto.subtle||!window.TextEncoder)throw Error('crypto-unavailable');
+     const raw=new TextEncoder().encode(PIN_SALT+digits);
+     const hash=await crypto.subtle.digest('SHA-256',raw);
+     const hex=Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
+     if(hex!==PIN_SHA256){wrong();return}
+     try{sessionStorage.setItem('db_gc_authorized_at',String(Date.now()))}
+     catch(e){report('Браузер ограничил доступ. Откройте сайт в Telegram заново.',false);busy=false;return}
+     report('Код принят. Открываем коллекцию…',true);
+     const destination=new URL(card.getAttribute('href'),location.href);
+     if(location.hash.includes('tgWebApp'))destination.hash=location.hash;
+     location.assign(destination.href);
+   }catch(e){busy=false;report('Проверка недоступна. Обновите страницу.',false)}
+ }
+ function addDigit(value){
+   if(busy||digits.length>=4||!/^[0-9]$/.test(value))return;
+   digits+=value;report('',false);paint();if(digits.length===4)void validate();
+ }
+ card.addEventListener('click',open);
+ modal.addEventListener('click',function(e){
+   if(e.target.closest('[data-gc-close]')){close();return}
+   const digit=e.target.closest('[data-gc-digit]');
+   if(digit){addDigit(digit.getAttribute('data-gc-digit'));return}
+   if(e.target.closest('[data-gc-back]')){if(!busy){digits=digits.slice(0,-1);paint();report('',false)}return}
+   if(e.target.closest('[data-gc-clear]')){if(!busy){digits='';paint();report('',false)}return}
+ });
+ document.addEventListener('keydown',function(e){
+   if(!shown())return;
+   if(e.key==='Escape'){e.preventDefault();close();return}
+   if(e.key==='Backspace'){e.preventDefault();if(!busy){digits=digits.slice(0,-1);paint();report('',false)}return}
+   if(/^[0-9]$/.test(e.key)){e.preventDefault();addDigit(e.key);return}
+   if(e.key==='Tab'){
+     const reachable=buttons.filter(b=>!b.disabled);
+     const first=reachable[0],last=reachable[reachable.length-1];
+     if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}
+     else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}
+   }
+ });
+ if(new URLSearchParams(location.search).get('green_pin')==='1'){
+   open();
+   try{const u=new URL(location.href);u.searchParams.delete('green_pin');history.replaceState(null,'',u.pathname+u.search+u.hash)}catch(e){}
+ }
 })();
 </script>
 </body>
