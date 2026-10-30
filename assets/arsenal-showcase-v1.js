@@ -67,6 +67,7 @@ document.querySelectorAll('[data-ars-sample]').forEach(card=>{
  const idx=representative[card.dataset.arsSample];
  const origin=gallery[idx]?.querySelector('.project-visual img');
  if(!origin)return;
+ const oldCardImage=card.querySelector('img');if(oldCardImage)oldCardImage.remove();
  const img=document.createElement('img');
  img.src=origin.getAttribute('src')||origin.src;
  img.alt='Пример иллюстрации к услуге — фотография из действующей галереи';
