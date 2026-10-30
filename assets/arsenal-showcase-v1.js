@@ -62,21 +62,29 @@ section.addEventListener('focusin',()=>{pausedUntil=Date.now()+9000});
 if('IntersectionObserver' in window){new IntersectionObserver(entries=>{visible=entries.some(x=>x.isIntersecting)},{threshold:.16}).observe(section);}else visible=true;
 window.setInterval(()=>{if(!visible||document.hidden||prefersReduced.matches||Date.now()<pausedUntil)return;change(current+1,false)},6800);
 /* Existing gallery photos are temporary visual samples for categories without supplied project photos. */
-const representative={terrace:17,fence:23,rail:23,stairs:22,fire:22,welding:8,garage:20};
+const representative={terrace:17,rail:23,stairs:22,welding:8};
+const clientPhotos={
+  fence:{src:'assets/arsenal-fences-client.avif',alt:'Реальные металлические ограждения и заборы у жилого дома',position:'center 49%'},
+  fire:{src:'assets/arsenal-fire-stairs-client.avif',alt:'Наружная металлическая пожарная лестница с площадкой и ограждением',position:'center 50%'},
+  garage:{src:'assets/arsenal-garage-client.avif',alt:'Гараж с облицовкой под дерево и тёмными секционными воротами',position:'center 48%'}
+};
 document.querySelectorAll('[data-ars-sample]').forEach(card=>{
- const idx=representative[card.dataset.arsSample];
- const origin=gallery[idx]?.querySelector('.project-visual img');
- if(!origin)return;
+ const kind=card.dataset.arsSample;
+ const approved=clientPhotos[kind];
+ const origin=gallery[representative[kind]]?.querySelector('.project-visual img');
+ if(!approved&&!origin)return;
  const oldCardImage=card.querySelector('img');if(oldCardImage)oldCardImage.remove();
  const img=document.createElement('img');
- img.src=origin.getAttribute('src')||origin.src;
- img.alt='Пример иллюстрации к услуге — фотография из действующей галереи';
+ img.src=approved?.src||(origin.getAttribute('src')||origin.src);
+ img.alt=approved?.alt||'Пример иллюстрации к услуге — фотография из действующей галереи';
  img.loading='lazy';img.decoding='async';
+ if(approved){img.style.objectPosition=approved.position;img.onerror=()=>{img.onerror=null;if(origin)img.src=origin.getAttribute('src')||origin.src;};}
  card.insertBefore(img,card.firstChild);
- card.classList.add('ars-photo-card');
- card.classList.remove('ars-text-card');
+ card.classList.add('ars-photo-card');card.classList.remove('ars-text-card');
  const oldGlyph=card.querySelector('.ars-card-glyph');if(oldGlyph)oldGlyph.remove();
- const sticker=document.createElement('span');sticker.className='ars-demo-label';sticker.textContent='Фото для примера';
- card.appendChild(sticker);
+ if(!approved){
+  const sticker=document.createElement('span');sticker.className='ars-demo-label';sticker.textContent='Фото для примера';
+  card.appendChild(sticker);
+ }
 });
 })();
