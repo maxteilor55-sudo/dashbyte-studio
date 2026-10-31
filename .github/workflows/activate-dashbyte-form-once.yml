@@ -1,0 +1,39 @@
+name: One-time DashByte email form activation request
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/activate-dashbyte-form-once.yml
+permissions:
+  contents: read
+jobs:
+  activate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Submit one harmless form-activation test
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json,urllib.request,urllib.error
+          endpoint="https://formsubmit.co/ajax/maxteilor55@gmail.com"
+          payload={
+            "name":"DashByte / тест подключения",
+            "contact":"maxteilor55@gmail.com",
+            "email":"maxteilor55@gmail.com",
+            "service":"Проверка формы",
+            "message":"Тестовое сообщение для активации формы. Если FormSubmit просит подтвердить почту, нажмите ссылку подтверждения в письме.",
+            "_subject":"DashByte — проверка и активация формы",
+            "_template":"table",
+            "_honey":"",
+            "page_url":"https://maxteilor55-sudo.github.io/dashbyte-studio/dashbyte.html"
+          }
+          req=urllib.request.Request(endpoint,data=json.dumps(payload,ensure_ascii=False).encode(),headers={"Content-Type":"application/json","Accept":"application/json","User-Agent":"DashByte-Form-Setup/1.0"},method="POST")
+          try:
+            with urllib.request.urlopen(req,timeout=25) as response:
+              data=response.read(2500).decode("utf-8","replace")
+              print("FORM_RESPONSE_CODE",response.status)
+              print("FORM_RESPONSE_BODY",data[:1000])
+          except urllib.error.HTTPError as e:
+            print("FORM_HTTP_ERROR",e.code,e.read(1000).decode("utf-8","replace"))
+            raise
+          PY
