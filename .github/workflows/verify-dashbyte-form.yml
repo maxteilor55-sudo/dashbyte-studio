@@ -57,6 +57,7 @@ jobs:
               await form.locator('#name').fill('Повторная попытка');
               await form.locator('#contact-info').fill('test@example.org');
               shouldFail=true;
+              await form.locator('#db-privacy-consent').check();
               await form.evaluate(el=>el.requestSubmit());
               await page.waitForFunction(()=>document.querySelector('#form-status').dataset.state==='error',{timeout:15000});
               if(submitted.length!==2||submitted[1].data.email!=='test@example.org'||await form.locator('#name').inputValue()!=='Повторная попытка')throw Error('Error handling or field retention broken');
