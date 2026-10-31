@@ -102,6 +102,7 @@ patch_source(
     '<button class="cta" style="width:100%" type="submit">Отправить заявку',
     '<input type="hidden" name="_subject" value="Новая заявка с сайта DashByte">'
     '<input type="hidden" name="_template" value="table">'
+    '<input type="hidden" name="_url" value="">'
     '<input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" '
     'style="position:absolute;left:-10000px;opacity:0;width:1px;height:1px">'
     '<button class="cta" style="width:100%" type="submit">Отправить заявку',

@@ -9,6 +9,9 @@
   const submit=form.querySelector('button[type="submit"]');
   if(!submit||!status)return;
   const originalButton=submit.innerHTML;
+  const publicPage=location.origin+location.pathname;
+  const pageField=form.querySelector('[name="_url"]');
+  if(pageField)pageField.value=publicPage;
   let pending=false;
   const field=id=>String(document.getElementById(id)?.value||'').trim();
   const show=(message,state)=>{
@@ -43,7 +46,8 @@
       _subject:'Новая заявка с сайта DashByte',
       _template:'table',
       _honey:'',
-      page_url:location.href
+      page_url:publicPage,
+      _url:publicPage
     };
     // Reply-To is useful only for a valid email, never for a Telegram handle or phone.
     if(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact))payload.email=contact;
