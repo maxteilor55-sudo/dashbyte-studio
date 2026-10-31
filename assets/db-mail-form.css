@@ -1,0 +1,7 @@
+/* Live email-form status without touching the approved DashByte layout. */
+#brief .form-status{transition:color .2s ease;overflow-wrap:anywhere}
+#brief .form-status[data-state="success"]{color:#a4e8ba!important}
+#brief .form-status[data-state="error"]{color:#ffabae!important}
+#brief .form-status[data-state="loading"]{color:#e8d4ad!important}
+#brief .cta:disabled{opacity:.7!important;cursor:wait!important;pointer-events:none!important}
+#brief[aria-busy="true"]{cursor:progress}

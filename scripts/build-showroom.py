@@ -77,6 +77,45 @@ patch_source(
 studio=re.sub(r'(<video\b[^>]*\bid="db-(?:archive-video|reel-second-video)"[^>]*?)preload="none"',
               r'\1preload="auto"',studio,count=2)
 
+
+# Convert the approved demo brief into a real progressively-enhanced email form.
+# This patch belongs in the canonical builder so future publishing jobs do not
+# silently regenerate the obsolete clipboard-only form.
+patch_source(
+    '<form class="contact-form fluid-glass" data-reveal="right" id="brief">',
+    '<form class="contact-form fluid-glass" data-reveal="right" id="brief" '
+    'method="POST" action="https://formsubmit.co/maxteilor55@gmail.com">',
+    "working form action"
+)
+for old,new,label in [
+    ('autocomplete="name" id="name" maxlength="80"', 'autocomplete="name" id="name" name="name" maxlength="80"', 'name input'),
+    ('id="contact-info" maxlength="100"', 'id="contact-info" name="contact" maxlength="100"', 'contact input'),
+    ('<select id="service">', '<select id="service" name="service">', 'service selector'),
+    ('<textarea id="message" placeholder=', '<textarea id="message" name="message" placeholder=', 'project textarea'),
+    ('<button class="cta" style="width:100%" type="submit">Подготовить сообщение', '<button class="cta" style="width:100%" type="submit">Отправить заявку', 'submit call to action'),
+    ('<p class="form-status" id="form-status">Демо-форма: данные не отправляются на сервер. После нажатия текст заявки можно скопировать и отправить в Telegram.</p>',
+     '<p class="form-status" id="form-status" role="status" aria-live="polite">Заявка придёт мне на почту. Использую контакт только для ответа на ваше обращение.</p>',
+     'form status disclosure'),
+]:
+    patch_source(old,new,label)
+patch_source(
+    '<button class="cta" style="width:100%" type="submit">Отправить заявку',
+    '<input type="hidden" name="_subject" value="Новая заявка с сайта DashByte">'
+    '<input type="hidden" name="_template" value="table">'
+    '<input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" '
+    'style="position:absolute;left:-10000px;opacity:0;width:1px;height:1px">'
+    '<button class="cta" style="width:100%" type="submit">Отправить заявку',
+    "mail metadata and spam honeypot"
+)
+# Remove the original listener which only copied the form text to clipboard.
+studio,legacy_count=re.subn(
+    r"\$\('#brief'\)\.addEventListener\('submit',async e=>\{.*?\}\);",
+    "/* The real form is handled by assets/db-mail-form.js. */",
+    studio,count=1,flags=re.S
+)
+if legacy_count!=1 or 'Заявка скопирована' in studio:
+    raise RuntimeError("Cannot remove the old clipboard-only form handler")
+
 # Direct page; title, media, original portfolio and hero remain intact.
 # Header alignment uses the same Telegram content-safe-area anchor as Arsenal.
 db_extension=r"""
@@ -229,6 +268,7 @@ html.db-direct-showroom.db-telegram-miniapp:not(.db-showroom-stage) #menu-sheet{
 # Always include the same single, light-transmitting scroll-to-top control.
 # External assets are shared with the chooser and botanical client preview.
 db_extension='<link rel="stylesheet" href="./assets/db-glass-up.css?v=1">\n<script defer src="./assets/db-glass-up.js?v=1"></script>\n'+db_extension
+db_extension='<link rel="stylesheet" href="./assets/db-mail-form.css?v=1">\n<script defer src="./assets/db-mail-form.js?v=1"></script>\n'+db_extension
 if 'telegram.org/js/telegram-web-app.js' not in studio:
     db_extension='<script src="https://telegram.org/js/telegram-web-app.js"></script>\n'+db_extension
 studio,n=re.subn(r'</head\s*>',lambda m:db_extension+"\n"+m.group(0),
