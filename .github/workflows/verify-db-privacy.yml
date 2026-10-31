@@ -1,0 +1,66 @@
+name: Verify DashByte cookie notice, privacy policy, and separate consent
+on:
+  push:
+    branches: [main]
+    paths:
+      - assets/db-legal.js
+      - assets/db-legal.css
+      - privacy.html
+      - dashbyte.html
+      - index.html
+      - .github/workflows/verify-db-privacy.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright@1.56.1
+      - name: Browser test for local choices, layout and policies
+        shell: bash
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/privacy-server.log 2>&1 &
+          node <<'JS'
+          const {chromium}=require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true,executablePath:'/usr/bin/google-chrome',args:['--no-sandbox','--disable-dev-shm-usage']});
+            const origin='http://127.0.0.1:8765/';
+            for(const width of [390,1365]){
+              const page=await browser.newPage({viewport:{width,height:850},isMobile:width===390,hasTouch:width===390});
+              await page.route('**/*',r=>r.request().url().startsWith(origin)?r.continue():r.abort());
+              await page.goto(origin+'dashbyte.html',{waitUntil:'domcontentloaded',timeout:90000});
+              const banner=page.locator('#db-cookie-banner');await banner.waitFor({state:'visible',timeout:25000});
+              if(!await page.locator('#brief #db-privacy-consent').count())throw Error('Missing separate form checkbox');
+              if(await page.locator('#brief #db-privacy-consent').isChecked())throw Error('Consent was preselected');
+              const link=await banner.locator('a.db-cookie-details').getAttribute('href');
+              if(!link.includes('privacy.html#cookies'))throw Error('Missing policy link '+link);
+              await banner.locator('button.db-cookie-minimal').click();
+              if(await banner.isVisible())throw Error('Choice does not close banner');
+              const choice=await page.evaluate(()=>JSON.parse(localStorage.getItem('db-cookie-choice-v1')||'null'));
+              if(choice.kind!=='necessary')throw Error('Choice was not saved');
+              await page.reload({waitUntil:'domcontentloaded'});
+              if(await banner.isVisible())throw Error('Banner reappears after a saved decision');
+              await page.locator('#db-cookie-reopen').click();
+              if(!await banner.isVisible())throw Error('Cannot reopen cookie preferences');
+              await banner.locator('button.db-cookie-accept').click();
+              const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('db-cookie-choice-v1')||'null'));
+              if(saved.kind!=='accepted')throw Error('Accept choice not saved');
+              await page.goto(origin+'privacy.html',{waitUntil:'domcontentloaded'});
+              if(!await page.locator('#operator').count()||!await page.locator('#projects').count()||!await page.locator('#rights').count()||!await page.locator('#consent').count())throw Error('Incomplete legal policy');
+              if(await page.locator('#db-cookie-banner').count())throw Error('Cookie banner unexpectedly on legal page');
+              const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
+              if(overflow>2)throw Error('Privacy page horizontal overflow '+overflow);
+              await page.goto(origin,{waitUntil:'domcontentloaded'});
+              if(await page.locator('#db-cookie-banner').count())throw Error('Cookie banner appeared on chooser');
+              console.log('DB_PRIVACY_PASS',JSON.stringify({width,consent:false,choice:saved.kind,overflow,privacy:true,studioOnly:true}));
+              await page.close();
+            }
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
