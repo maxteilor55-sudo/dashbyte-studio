@@ -1,0 +1,66 @@
+name: Verify DashByte contact form delivery integration
+on:
+  push:
+    branches: [main]
+    paths:
+      - dashbyte.html
+      - assets/db-mail-form.js
+      - .github/workflows/verify-dashbyte-form.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright@1.56.1
+      - name: Confirm AJAX email submission and error handling without sending real mail
+        shell: bash
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/db-mail-http.log 2>&1 &
+          node <<'JS'
+          const {chromium}=require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true,executablePath:'/usr/bin/google-chrome',args:['--no-sandbox','--disable-dev-shm-usage']});
+            const base='http://127.0.0.1:8765/';
+            for(const width of [390,1365]){
+              const page=await browser.newPage({viewport:{width,height:844},isMobile:width===390,hasTouch:width===390});
+              let submitted=[],shouldFail=false;
+              await page.route('**/*',async route=>{
+                const url=route.request().url();
+                if(url.startsWith('https://formsubmit.co/ajax/')){
+                  submitted.push({url,data:route.request().postDataJSON()});
+                  return route.fulfill({status:shouldFail?503:200,contentType:'application/json',body:JSON.stringify(shouldFail?{success:false}:{success:true,message:'accepted'})});
+                }
+                if(url.startsWith(base))return route.continue();
+                return route.abort();
+              });
+              await page.goto(base+'dashbyte.html',{waitUntil:'domcontentloaded',timeout:90000});
+              const form=page.locator('#brief');
+              await form.waitFor({state:'attached',timeout:25000});
+              const details=await form.evaluate(el=>({action:el.action,method:el.method,label:el.querySelector('button[type="submit"]')?.innerText,legacy:el.querySelector('#form-status')?.textContent}));
+              if(!details.action.includes('formsubmit.co/maxteilor55@gmail.com')||details.method!=='post'||!details.label.includes('Отправить заявку')||details.legacy.includes('Демо-форма'))throw Error('Form not correctly upgraded: '+JSON.stringify(details));
+              await form.locator('#name').fill('Тестовый клиент');
+              await form.locator('#contact-info').fill('@example_client');
+              await form.locator('#service').selectOption({label:'Разработка сайта'});
+              await form.locator('#message').fill('Проверка отправки тестового запроса');
+              await form.evaluate(el=>el.requestSubmit());
+              await page.waitForFunction(()=>document.querySelector('#form-status').dataset.state==='success',{timeout:15000});
+              if(submitted.length!==1||submitted[0].url!=='https://formsubmit.co/ajax/maxteilor55@gmail.com'||submitted[0].data.name!=='Тестовый клиент'||submitted[0].data.contact!=='@example_client')throw Error('Request not sent properly: '+JSON.stringify(submitted));
+              await form.locator('#name').fill('Повторная попытка');
+              await form.locator('#contact-info').fill('test@example.org');
+              shouldFail=true;
+              await form.evaluate(el=>el.requestSubmit());
+              await page.waitForFunction(()=>document.querySelector('#form-status').dataset.state==='error',{timeout:15000});
+              if(submitted.length!==2||submitted[1].data.email!=='test@example.org'||await form.locator('#name').inputValue()!=='Повторная попытка')throw Error('Error handling or field retention broken');
+              console.log('DASHBYTE_MAIL_PASS',JSON.stringify({width,form:details,requests:submitted.length,success:true,errorHandling:true}));
+              await page.close();
+            }
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
