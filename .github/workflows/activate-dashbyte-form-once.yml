@@ -25,14 +25,17 @@ jobs:
             "_subject":"DashByte — проверка и активация формы",
             "_template":"table",
             "_honey":"",
+            "_url":"https://maxteilor55-sudo.github.io/dashbyte-studio/dashbyte.html",
             "page_url":"https://maxteilor55-sudo.github.io/dashbyte-studio/dashbyte.html"
           }
-          req=urllib.request.Request(endpoint,data=json.dumps(payload,ensure_ascii=False).encode(),headers={"Content-Type":"application/json","Accept":"application/json","User-Agent":"DashByte-Form-Setup/1.0"},method="POST")
+          req=urllib.request.Request(endpoint,data=json.dumps(payload,ensure_ascii=False).encode(),headers={"Content-Type":"application/json","Accept":"application/json","User-Agent":"Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/130 Safari/537.36","Origin":"https://maxteilor55-sudo.github.io","Referer":"https://maxteilor55-sudo.github.io/dashbyte-studio/dashbyte.html"},method="POST")
           try:
             with urllib.request.urlopen(req,timeout=25) as response:
               data=response.read(2500).decode("utf-8","replace")
               print("FORM_RESPONSE_CODE",response.status)
               print("FORM_RESPONSE_BODY",data[:1000])
+              if json.loads(data).get("success") not in ("true",True):
+                raise RuntimeError("FormSubmit did not accept the activation test")
           except urllib.error.HTTPError as e:
             print("FORM_HTTP_ERROR",e.code,e.read(1000).decode("utf-8","replace"))
             raise
