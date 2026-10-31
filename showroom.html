@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#09090c">
-<meta name="description" content="DashByte Digital Atelier — выберите историю: Арсенал или наша студия DashByte.">
+<meta name="description" content="DashByte Digital Atelier — проекты Арсенал, Зелёная коллекция и железнодорожный симулятор PERM–VL.">
 <title>DashByte — Digital Showroom</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
@@ -855,6 +855,46 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
   .page > .projects > a.project .project-label{font-size:7px!important}
   .page > .projects > a.project h2{font-size:clamp(23px,2vw,31px)!important}
 }
+
+/* PERM–VL / game project — cinematic mineral green glass with locomotive art.
+   The common progress component owns the red 10% ring. */
+.projects .project.perm-vl{
+ position:relative;isolation:isolate;min-height:460px;margin-top:22px;
+ border:1px solid rgba(153,196,182,.35)!important;
+ background:linear-gradient(142deg,#25383c,#101b20 66%,#090f12)!important;
+ color:#f3f6ec;overflow:hidden;
+ box-shadow:0 22px 65px rgba(0,0,0,.32),inset 0 1px rgba(214,246,231,.2)
+}
+.project.perm-vl .pv-card-matte{position:absolute;inset:0;z-index:0;border-radius:inherit;pointer-events:none;
+ background:linear-gradient(145deg,rgba(62,92,99,.30),rgba(12,26,30,.68) 90%);
+ -webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
+.project.perm-vl::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+ background:radial-gradient(ellipse 85% 53% at 86% 29%,rgba(142,206,174,.24),transparent 80%),linear-gradient(145deg,rgba(255,255,255,.08),transparent 45%)!important}
+.project.perm-vl::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+ background:linear-gradient(180deg,transparent 2%,rgba(9,19,22,.02) 30%,rgba(7,15,19,.91) 93%)!important}
+.project.perm-vl .project-head,.project.perm-vl .project-body{z-index:4;position:relative}
+.project.perm-vl .category{background:rgba(13,29,31,.34);border-color:rgba(168,212,191,.30)}
+.project.perm-vl .category i{background:#b6dcc3}
+.project.perm-vl .project-label{color:#b5c9ba}
+.project.perm-vl .project-foot{border-color:rgba(224,251,226,.25)}
+.project.perm-vl .project-link{color:#e6f3e3}
+.project.perm-vl .pv-arrow{background:linear-gradient(140deg,#c7dbbb,#a2bfa9);color:#15291f;border-color:rgba(240,255,237,.4)}
+.pv-card-art{position:absolute;inset:6% -13% 19% 16%;pointer-events:none;z-index:2;opacity:.58;transform:translateX(0);transition:opacity .3s,transform .5s}
+.pv-card-art svg{width:100%;height:100%;filter:drop-shadow(0 14px 30px rgba(0,0,0,.6))}
+.perm-vl:hover .pv-card-art{opacity:.78;transform:translateX(-7px)}
+@media(min-width:761px) and (max-width:1023px){
+ .projects .project.perm-vl{grid-column:1/-1;min-height:365px}
+}
+@media(max-width:760px){
+ .projects .project.perm-vl{min-height:420px;margin-top:19px;border-radius:28px;padding:24px}
+ .pv-card-art{inset:12% -28% 18% 10%;opacity:.56}
+ .project.perm-vl h2{font-size:clamp(40px,10vw,61px)}
+}
+@media(min-width:1024px){
+ .page > .projects > a.project.perm-vl{margin:0!important;min-height:0!important}
+ .page > .projects > a.project.perm-vl .pv-card-art{inset:16% -19% 12% 13%;opacity:.52}
+ .page > .projects > a.project.perm-vl h2{font-size:clamp(29px,2.4vw,38px)!important}
+}
 </style>
 </head>
 <body>
@@ -909,9 +949,9 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
 </header>
 <section class="intro fade">
  <div class="kicker">DASHBYTE · ПРОЕКТЫ В РАБОТЕ / 2026</div>
- <h1>САЙТЫ<br><em>В РАЗРАБОТКЕ.</em></h1>
+ <h1>ПРОЕКТЫ<br><em>В РАЗРАБОТКЕ.</em></h1>
  <div class="intro-bottom">
- <p>Здесь собраны сайты, которые DashByte создаёт прямо сейчас. Открывайте текущие версии проектов и следите за их готовностью — мы обновляем статусы по мере разработки.</p>
+ <p>Здесь собраны сайты клиентов и собственные разработки DashByte. Открывайте проекты, следите за готовностью и пробуйте доступные версии.</p>
  <div class="intro-hint">Выберите проект <span>↘</span></div>
  </div>
 </section>
@@ -944,6 +984,36 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
    <div class="project-foot"><span class="project-link">Открыть по PIN-коду <span class="gc-lock" aria-hidden="true">⌑</span></span><span class="arrow gc-arrow" aria-hidden="true">↗</span></div>
   </div>
  </a>
+ <a class="project perm-vl" data-project="perm-vl" href="./perm-vl.html" aria-label="Открыть игровой проект PERM–VL">
+  <span class="pv-card-matte" aria-hidden="true"></span>
+  <div class="pv-card-art" aria-hidden="true">
+    <svg viewBox="0 0 600 330" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 205L107 110 176 166 279 72 381 171 492 98 600 181V330H0Z" fill="#27414b" opacity=".77"/>
+      <path d="M0 248 145 195 267 230 404 167 600 232V330H0Z" fill="#15292d"/>
+      <path d="M201 332 326 198M420 332 369 198M135 332 310 198M535 332 391 198" stroke="#a1ad9d" stroke-width="4" opacity=".7"/>
+      <path d="M180 300h310M212 269h246M255 237h165" stroke="#bea78f" stroke-width="6" opacity=".55"/>
+      <g transform="translate(219 76)">
+        <path d="M42 28 93 8H226L260 30 291 99 298 202 260 226H24L0 202 3 103Z" fill="#426d64" stroke="#9dc0af" stroke-width="3"/>
+        <path d="M55 39 103 24H149V110H22Z" fill="#0e303d" stroke="#9bb9af" stroke-width="5"/>
+        <path d="M174 24H218L251 45 277 111H174Z" fill="#122c37" stroke="#9bb9af" stroke-width="5"/>
+        <path d="M6 140h282M6 169h284" stroke="#d5d5aa" stroke-width="4" opacity=".8"/>
+        <text x="80" y="157" fill="#d4e2bb" font-size="32" font-family="Arial" font-weight="900">ВЛ10</text>
+        <circle cx="44" cy="183" r="11" fill="#fff1c6"/><circle cx="253" cy="183" r="11" fill="#fff1c6"/>
+        <path d="M50 220H252" stroke="#cfaa87" stroke-width="5"/>
+      </g>
+    </svg>
+  </div>
+  <div class="project-head">
+   <span class="category pv-category"><i></i>03 · ИГРОВОЙ ПРОЕКТ</span>
+   <span class="project-progress" data-progress="10" role="img" aria-label="Готовность проекта PERM–VL — 10 процентов"><span class="progress-ring"><span class="progress-number">10%</span></span><span class="progress-caption">ГОТОВНОСТЬ</span></span>
+  </div>
+  <div class="project-body">
+   <div class="project-label">URAL. RAILS. ELECTRIC.</div>
+   <h2>PERM–VL</h2>
+   <p>Железнодорожный симулятор Пермь II — Екатеринбург. Альфа уже доступна для игры.</p>
+   <div class="project-foot"><span class="project-link">Играть и узнать о проекте</span><span class="arrow pv-arrow" aria-hidden="true">↗</span></div>
+  </div>
+ </a>
  <div class="studio-stage">
   <span class="studio-rule" aria-hidden="true"></span>
   <div class="studio-stage-top">
@@ -962,7 +1032,7 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
   <span class="studio-endline">DESIGNED TO FEEL DIFFERENT <span>✳</span> 2026</span>
  </div>
 </section>
-<footer class="fade"><strong>© 2026 DashByte Digital Atelier.</strong><span>САЙТЫ В РАЗРАБОТКЕ · 2026</span></footer>
+<footer class="fade"><strong>© 2026 DashByte Digital Atelier.</strong><span>ПРОЕКТЫ В РАЗРАБОТКЕ · 2026</span></footer>
 </main>
 
 

@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#090f13">
+<meta name="description" content="PERM–VL — независимый железнодорожный симулятор Пермь II — Екатеринбург. История, разработка, дорожная карта, браузерная альфа и скачивание на телефон.">
+<title>PERM–VL — Железнодорожный симулятор / DashByte</title>
+<link rel="icon" href="./assets/DashByte_DB_Official_Vector.svg" type="image/svg+xml">
+<style>
+:root{color-scheme:dark;--bg:#080e12;--bg2:#101b21;--white:#f4f5ef;--muted:#99a6a9;--lime:#d8f092;--copper:#eeac78;--mint:#94cbbf;--line:rgba(230,247,242,.13);--glass:rgba(24,35,39,.68);font-family:Inter,"Helvetica Neue",Arial,system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;color:var(--white);background:var(--bg);overflow-x:hidden}
+body.locked{overflow:hidden}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;cursor:pointer}
+a:focus-visible,button:focus-visible{outline:2px solid var(--lime);outline-offset:4px}
+::selection{background:#d8f092;color:#091214}
+.aurora{position:fixed;inset:0;z-index:-3;pointer-events:none;background:radial-gradient(ellipse 54% 40% at 83% 7%,rgba(82,126,132,.17),transparent 95%),radial-gradient(ellipse 44% 35% at 1% 43%,rgba(116,92,64,.10),transparent 90%),#080e12}
+.grain{position:fixed;inset:0;z-index:10;pointer-events:none;opacity:.17;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.19'/%3E%3C/svg%3E")}
+.edge-fade{position:fixed;inset:0 0 auto;height:85px;z-index:14;pointer-events:none;background:linear-gradient(to bottom,rgba(8,14,18,.8),transparent)}
+nav{position:fixed;z-index:30;top:15px;left:50%;transform:translateX(-50%);width:min(1220px,calc(100% - 34px));display:flex;align-items:center;gap:14px;justify-content:space-between;padding:10px 15px;border:1px solid rgba(243,250,246,.20);border-radius:22px;background:rgba(15,26,31,.70);-webkit-backdrop-filter:blur(24px) saturate(1.4);backdrop-filter:blur(24px) saturate(1.4);box-shadow:0 20px 75px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.1)}
+body.in-tg nav{top:calc(max(70px,env(safe-area-inset-top)) + 7px)}
+.navbrand{display:flex;align-items:center;gap:11px;min-width:0}
+.navbrand img{width:35px;height:35px;object-fit:contain}
+.navbrand span{font-weight:900;letter-spacing:-.05em;font-size:18px}
+.navbrand small{display:block;font-size:8px;letter-spacing:.19em;color:#b9c5c5;margin-top:2px;font-weight:700}
+.backlink,.navlinks a,.nav-play{display:inline-flex;align-items:center;gap:9px;border-radius:13px;padding:10px 13px;font-size:11px;font-weight:800;letter-spacing:.04em;white-space:nowrap}
+.backlink{background:rgba(255,255,255,.08);border:1px solid var(--line)}
+.backlink svg{width:16px;height:16px;flex:none}
+.navlinks{display:flex;align-items:center;gap:5px}
+.navlinks a{color:#bac7c8}
+.nav-play{border:1px solid #d9ed99;background:var(--lime);color:#182225}
+main{width:100%;overflow:hidden}
+.container{width:min(1220px,calc(100% - 48px));margin:auto}
+.hero{position:relative;min-height:min(950px,100svh);display:flex;align-items:flex-end;isolation:isolate;padding:160px 0 62px}
+.hero:before{content:"";position:absolute;inset:0;z-index:-2;background:radial-gradient(ellipse 65% 45% at 73% 38%,rgba(105,169,156,.1),transparent 83%),linear-gradient(180deg,transparent 0%,#080e12 97%)}
+.hero-visual{position:absolute;top:0;right:0;left:0;height:min(790px,90svh);z-index:-1;pointer-events:none;overflow:hidden}
+.hero-visual svg{position:absolute;right:-5%;top:2%;width:min(1140px,110vw);height:100%;max-height:795px;filter:drop-shadow(0 14px 45px rgba(0,0,0,.26))}
+.hero-visual:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,14,18,.80) 0%,rgba(8,14,18,.20) 65%,rgba(8,14,18,.11)),linear-gradient(0deg,#080e12 4%,transparent 50%)}
+.horizon{position:absolute;left:-4%;right:-4%;bottom:8%;height:20%;background:linear-gradient(0deg,#080e12,transparent);z-index:2}
+.eyebrow{display:inline-flex;align-items:center;gap:12px;font-size:10px;letter-spacing:.27em;color:var(--lime);font-weight:900;text-transform:uppercase}
+.eyebrow i{display:block;width:33px;height:1px;background:var(--lime);box-shadow:0 0 13px var(--lime)}
+.hero-copy{position:relative;z-index:3;width:min(690px,100%)}
+.hero h1{font-size:clamp(78px,13vw,187px);font-weight:1000;letter-spacing:-.11em;line-height:.78;margin:28px 0 25px}
+.hero h1 span{color:var(--lime)}
+.hero h2{font-size:clamp(19px,3.1vw,37px);line-height:1.04;letter-spacing:-.05em;font-weight:800;max-width:550px;margin:0 0 15px}
+.lede{color:#bccacb;line-height:1.7;font-size:clamp(13px,1.5vw,16px);max-width:560px;margin:0}
+.hero-actions,.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:27px}
+.btn{display:inline-flex;justify-content:center;align-items:center;gap:12px;border:1px solid rgba(255,255,255,.23);padding:16px 22px;min-height:55px;border-radius:16px;background:rgba(255,255,255,.07);font-size:12px;font-weight:850;letter-spacing:.02em;transition:transform .23s,border-color .23s,background .23s}
+.btn:hover{transform:translateY(-3px);border-color:rgba(255,255,255,.6)}
+.btn.primary{background:linear-gradient(135deg,#e8f9ae,#b9d677);color:#172326;border-color:#d4ec9c;box-shadow:0 12px 38px rgba(146,185,99,.15)}
+.btn.ghost{background:rgba(18,30,34,.70);-webkit-backdrop-filter:blur(13px);backdrop-filter:blur(13px)}
+.btn svg{width:19px;height:19px;flex:none}
+.hero-stats{display:flex;flex-wrap:wrap;gap:28px;margin-top:41px}
+.stat{border-left:1px solid rgba(236,245,220,.34);padding-left:15px}
+.stat strong{display:block;font-size:20px;letter-spacing:-.05em}
+.stat span{display:block;font:800 9px/1.8 ui-monospace,monospace;letter-spacing:.16em;color:#879da1;text-transform:uppercase}
+.vertical-marker{position:absolute;right:30px;bottom:70px;writing-mode:vertical-rl;color:#9faeb0;font:800 10px ui-monospace,monospace;letter-spacing:.2em;opacity:.65}
+.rule{height:1px;background:linear-gradient(90deg,transparent,rgba(210,236,204,.24),transparent)}
+section{scroll-margin-top:116px}
+.section-pad{padding:104px 0}
+.section-header{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:25px;align-items:end;margin-bottom:35px}
+.kicker{font-size:10px;color:#b5d7a2;letter-spacing:.24em;font-weight:850;text-transform:uppercase}
+.section-header h2,.full-heading{font-size:clamp(38px,6.1vw,78px);font-weight:950;line-height:.99;letter-spacing:-.077em;margin:15px 0 0}
+.section-header p{margin:0;max-width:475px;color:#a4b1b4;line-height:1.7;font-size:15px}
+.highlight{color:var(--lime)}
+.story-grid{display:grid;grid-template-columns:1.18fr .82fr;gap:14px}
+.glass{position:relative;border:1px solid var(--line);border-radius:26px;background:linear-gradient(138deg,rgba(33,50,52,.62),rgba(15,25,29,.89));-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);overflow:hidden}
+.story-main{padding:34px 35px 40px;min-height:366px}
+.story-main:after{content:"01 / 06";position:absolute;bottom:-34px;right:18px;font-size:150px;font-weight:950;letter-spacing:-.12em;color:rgba(222,246,190,.035);pointer-events:none}
+.tiny{font:800 10px ui-monospace,monospace;letter-spacing:.14em;color:var(--copper);text-transform:uppercase}
+.story-main h3{font-size:clamp(26px,3.3vw,44px);line-height:1.05;letter-spacing:-.06em;margin:28px 0 18px;max-width:540px}
+.story-main p,.story-side p{font-size:14px;line-height:1.82;color:#afbdbe;max-width:650px}
+.story-side{padding:29px;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(140deg,rgba(87,110,99,.16),rgba(16,26,31,.91))}
+.story-side .big-number{font-size:clamp(80px,10vw,130px);font-weight:1000;letter-spacing:-.1em;line-height:1;color:var(--lime)}
+.story-side .big-number span{font-size:.34em;letter-spacing:0;color:#bdd0c7}
+.story-side p{margin-bottom:0}
+.feature-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.feature{min-height:195px;padding:25px;transition:transform .25s}
+.feature:hover{transform:translateY(-3px)}
+.feature .symbol{width:43px;height:43px;border-radius:14px;border:1px solid rgba(212,240,171,.18);display:grid;place-items:center;background:rgba(216,240,146,.07);font-size:22px}
+.feature h3{font-size:17px;margin:25px 0 8px;letter-spacing:-.03em}
+.feature p{color:#a5b2b3;font-size:13px;line-height:1.6;margin:0}
+.feature .tag{position:absolute;right:20px;top:25px;border-radius:30px;font-size:9px;padding:6px 9px;letter-spacing:.08em;color:#a5e1cf;border:1px solid rgba(139,218,190,.2)}
+.feature .tag.experimental{color:#f8d39a;border-color:rgba(242,183,114,.24)}
+.route-section{padding-top:45px}
+.route-panel{padding:39px;position:relative;background:radial-gradient(ellipse at 75% 20%,rgba(143,181,128,.11),transparent 65%),linear-gradient(145deg,#17252a,#0c171c)}
+.route-line{display:flex;align-items:center;justify-content:space-between;gap:4px;margin:48px 2px 16px}
+.route-line .place{flex:0 0 auto;position:relative;min-width:100px}
+.place .dot{display:block;width:14px;height:14px;border:3px solid var(--lime);background:#102426;border-radius:50%;box-shadow:0 0 15px rgba(210,241,153,.22);margin-bottom:13px}
+.place b{font-size:13px;display:block}
+.place small{font-size:9px;color:#94a7a5}
+.track-line{height:3px;flex:1;background:repeating-linear-gradient(90deg,var(--lime) 0 12px,rgba(216,240,146,.23) 12px 17px);transform:translateY(-21px);min-width:8px;opacity:.8}
+.route-note{color:#8eaaab;font-size:12px;line-height:1.65}
+.technical{background:linear-gradient(180deg,#080e12,#0c161b 50%,#080e12)}
+.tech-shell{display:grid;grid-template-columns:.95fr 1.05fr;gap:15px}
+.codecard{padding:24px;background:#101b20;border-color:rgba(140,191,171,.22)}
+.codebar{display:flex;align-items:center;justify-content:space-between;color:#8ba3a4;font:800 10px ui-monospace,monospace;letter-spacing:.12em;padding:0 0 17px;border-bottom:1px solid var(--line)}
+.dots{display:flex;gap:6px}.dots i{width:8px;height:8px;border-radius:50%;background:#ef8f7b}.dots i:nth-child(2){background:#e7c56f}.dots i:nth-child(3){background:#bce793}
+pre{margin:24px 0 0;white-space:pre-wrap;word-break:break-word;color:#bdcfcb;font:13px/1.9 ui-monospace,SFMono-Regular,Consolas,monospace}
+pre .comment{color:#698887}pre .key{color:#d7eea6}pre .value{color:#f0bb84}
+.tech-desc{padding:29px 33px}
+.tech-desc h3{font-size:clamp(25px,3vw,38px);letter-spacing:-.05em;margin:14px 0 18px}
+.tech-desc p{color:#aababc;font-size:14px;line-height:1.77}
+.tech-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:24px}
+.tech-tags span{font:800 10px ui-monospace,monospace;letter-spacing:.09em;border:1px solid rgba(204,229,212,.2);color:#b7cfc6;padding:10px 12px;border-radius:10px}
+.roadmap{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.milestone{padding:26px;min-height:243px}
+.milestone .num{font-size:11px;font-weight:900;color:var(--copper);letter-spacing:.16em}
+.milestone .status{float:right;color:#b5e8cd;font:850 9px ui-monospace,monospace;letter-spacing:.09em}
+.milestone .status.future{color:#f0c99b}
+.milestone h3{font-size:20px;letter-spacing:-.04em;margin:56px 0 10px}
+.milestone p{margin:0;color:#a4b2b3;font-size:13px;line-height:1.64}
+.demo-section{padding-bottom:125px}
+.demo-panel{padding:38px;display:grid;grid-template-columns:1.15fr .85fr;gap:45px;align-items:center;background:radial-gradient(ellipse 75% 85% at 100% 0%,rgba(211,233,145,.12),transparent 77%),linear-gradient(135deg,#1c302f,#0a171b)}
+.demo-panel h2{font-size:clamp(36px,5.5vw,67px);letter-spacing:-.075em;line-height:1;margin:15px 0 16px}
+.demo-panel p{color:#b5c8c3;font-size:14px;line-height:1.73;max-width:510px}
+.build-panel{border:1px solid rgba(209,239,188,.23);background:rgba(8,23,22,.55);padding:26px;border-radius:23px;align-self:stretch;display:flex;flex-direction:column;justify-content:center}
+.build-label{font:850 10px ui-monospace,monospace;letter-spacing:.16em;color:#a3c6b3}
+.build-number{font-size:clamp(41px,6vw,66px);font-weight:950;letter-spacing:-.065em;line-height:1.1;margin:12px 0 5px}
+.build-info{font-size:12px;color:#9ab2ad;line-height:1.5}
+.build-panel a{font-size:11px;text-decoration:underline;text-underline-offset:4px;margin-top:15px;color:var(--lime)}
+.download-message{min-height:20px;color:#d6f0b4;font-size:11px;line-height:1.6;margin-top:12px}
+.browser-note{margin-top:17px!important;font-size:11px!important;opacity:.83}
+.site-footer{padding:30px 0 44px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:14px;color:#839a9b;border-top:1px solid var(--line);font:800 10px ui-monospace,monospace;letter-spacing:.08em}
+.site-footer a{color:#c7dab9}
+.scrolltop{position:fixed;z-index:20;right:20px;bottom:24px;display:grid;place-items:center;width:48px;height:48px;border-radius:17px;background:rgba(170,193,178,.15);border:1px solid rgba(226,250,227,.25);-webkit-backdrop-filter:blur(19px);backdrop-filter:blur(19px);box-shadow:0 15px 40px rgba(0,0,0,.3);opacity:0;pointer-events:none;transform:translateY(12px);transition:opacity .25s,transform .25s}
+.scrolltop.show{opacity:1;pointer-events:auto;transform:none}
+.player[hidden]{display:none!important}
+.player{position:fixed;inset:0;z-index:80;display:flex;flex-direction:column;background:#071013}
+.player-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px calc(10px + env(safe-area-inset-top,0px));background:#112127;border-bottom:1px solid #425452;min-height:65px}
+body.in-tg .player-toolbar{padding-top:calc(max(68px,env(safe-area-inset-top)) + 6px)}
+.player-toolbar strong{font-weight:950;letter-spacing:-.03em}
+.player-toolbar small{display:block;font-size:10px;color:#95a9a9}
+.player-tools{display:flex;gap:8px}
+.player-tools button{padding:10px 13px;border-radius:12px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);font-size:12px;font-weight:850}
+.player-frame{border:0;width:100%;flex:1;min-height:0;background:#0f2027}
+.player-hint{padding:7px 15px;background:#132329;color:#b0c7bf;font-size:10px;text-align:center}
+@media(max-width:900px){.navlinks{display:none}.section-header{grid-template-columns:1fr}.feature-grid,.roadmap{grid-template-columns:repeat(2,minmax(0,1fr))}.story-grid,.tech-shell,.demo-panel{grid-template-columns:1fr}}
+@media(max-width:620px){
+ .container{width:calc(100% - 34px)}
+ nav{width:calc(100% - 24px);padding:9px;gap:7px;border-radius:19px}
+ .navbrand img{width:30px;height:30px}.navbrand span{font-size:15px}.navbrand small{font-size:7px}
+ .backlink{font-size:10px;padding:10px}
+ .nav-play{font-size:10px;padding:11px}
+ .hero{min-height:850px;min-height:100svh;padding:172px 0 44px}
+ .hero-visual{height:75svh;min-height:460px}
+ .hero-visual svg{width:150vw;right:-63vw;top:-2%;opacity:.92}
+ .hero-visual:after{background:linear-gradient(90deg,rgba(8,14,18,.36),rgba(8,14,18,.18)),linear-gradient(0deg,#080e12 0%,rgba(8,14,18,.12) 65%)}
+ .hero h1{font-size:clamp(75px,19vw,115px);letter-spacing:-.105em;margin-top:19px}
+ .hero h2{font-size:22px;max-width:350px}
+ .lede{max-width:330px;font-size:13px}
+ .hero-actions{gap:9px}
+ .btn{min-height:51px;padding:14px 15px;font-size:11px}
+ .hero-stats{gap:18px;margin-top:27px}
+ .stat strong{font-size:18px}
+ .vertical-marker{display:none}
+ .section-pad{padding:75px 0}
+ .section-header h2,.full-heading{font-size:clamp(39px,10vw,58px)}
+ .section-header p{font-size:13px}
+ .story-main,.story-side,.route-panel,.codecard,.tech-desc,.demo-panel{padding:24px}
+ .story-main{min-height:0}
+ .story-main h3{margin-top:21px}
+ .feature-grid,.roadmap{grid-template-columns:1fr}
+ .feature,.milestone{min-height:0;padding:22px}
+ .milestone h3{margin-top:27px}
+ .route-line{margin:37px 0 10px}
+ .place{min-width:60px!important}
+ .place b{font-size:10px}
+ .place small{font-size:7px}
+ .route-note{font-size:11px}
+ .track-line{background:linear-gradient(90deg,var(--lime),rgba(216,240,146,.35))}
+ .build-panel{padding:20px}
+ .site-footer{line-height:1.7}
+ .player-toolbar strong{font-size:12px}
+ .player-tools button{padding:8px 9px;font-size:10px}
+ .player-hint{font-size:9px}
+}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="aurora"></div><div class="grain" aria-hidden="true"></div><div class="edge-fade" aria-hidden="true"></div>
+<nav aria-label="Навигация">
+<a class="backlink" href="./index.html" aria-label="Вернуться к проектам"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="m14 5-7 7 7 7"/></svg><span>К проектам</span></a>
+<a class="navbrand" href="./dashbyte.html" aria-label="Студия DashByte"><img src="./assets/DashByte_DB_Official_Vector.svg" alt="" onerror="this.hidden=true"><span>PERM–VL<small>DASHBYTE · GAME LAB</small></span></a>
+<div class="navlinks"><a href="#story">О ПРОЕКТЕ</a><a href="#technology">ТЕХНОЛОГИИ</a><a href="#roadmap">ЭТАПЫ</a></div>
+<button class="nav-play" type="button" data-play>ИГРАТЬ ↗</button>
+</nav>
+<main>
+<section class="hero" id="top">
+<div class="hero-visual" aria-hidden="true">
+<svg viewBox="0 0 1120 780" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="sky" x1="0" x2=".7" y1="0" y2="1"><stop stop-color="#1d343f"/><stop offset=".55" stop-color="#163139"/><stop offset="1" stop-color="#0b171b"/></linearGradient>
+<linearGradient id="train" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#548075"/><stop offset=".46" stop-color="#31564f"/><stop offset="1" stop-color="#132e31"/></linearGradient>
+<linearGradient id="front" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#73998a"/><stop offset="1" stop-color="#1b3233"/></linearGradient>
+<linearGradient id="rail" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#e0bb91"/><stop offset="1" stop-color="#594f48"/></linearGradient>
+<radialGradient id="headlight"><stop stop-color="#fff4ce" stop-opacity=".94"/><stop offset=".22" stop-color="#e4e7bd" stop-opacity=".57"/><stop offset="1" stop-color="#b7f1da" stop-opacity="0"/></radialGradient>
+<filter id="glow"><feGaussianBlur stdDeviation="20"/></filter>
+</defs>
+<rect width="1120" height="780" fill="url(#sky)"/>
+<path d="M0 460L125 337 200 393 335 245 480 376 560 297 715 432 850 290 980 403 1120 309V780H0" fill="#203d40" opacity=".88"/>
+<path d="M0 525L135 459 244 477 377 393 500 488 604 409 747 495 876 408 1120 459V780H0" fill="#13282d"/>
+<g opacity=".4" stroke="#79a9aa"><path d="M78 455v-180m0 40-42-11m42-33 51-25m-51 45-36-39"/><path d="M258 505V295m0 45-48-24m48 2 41-17m-41 77-50-23"/><path d="M985 497V281m0 78-62-33m62-11 41-26"/></g>
+<g opacity=".7" stroke="#698184" stroke-width="2"><path d="M460 60L380 620M680 30L625 620M834 48L830 620"/><path d="M0 219L1120 165M0 247L1120 188"/><path d="M395 132L697 121M689 119L845 115"/></g>
+<g opacity=".4" stroke="#b7c8bf"><path d="M420 214L1110 155M500 170L1070 145"/></g>
+<path d="M0 570L1120 526V780H0" fill="#102328"/>
+<path d="M150 780L622 522 659 522 490 780" fill="#323c3b"/>
+<path d="M385 780L707 522 738 522 744 780" fill="#313738"/>
+<g stroke="url(#rail)" stroke-width="8" fill="none"><path d="M166 780L622 522"/><path d="M495 780L656 522"/><path d="M389 780L708 522"/><path d="M743 780L738 522"/></g>
+<g stroke="#856f5b" stroke-width="10" opacity=".8"><path d="M160 750L505 750M213 711L498 711M280 668L508 668M360 625L526 625M421 591L543 591M483 558L566 558"/></g>
+<ellipse cx="749" cy="655" rx="295" ry="52" fill="#030d11" opacity=".68" filter="url(#glow)"/>
+<g transform="translate(460 292)">
+<path d="M20 138L92 28Q116 13 158 10H344Q377 15 406 45L451 136 469 306 414 352H66L6 304Z" fill="url(#train)" stroke="#91b0a4" stroke-width="5"/>
+<path d="M94 26L165 12 333 14 407 44 422 133H47Z" fill="#3b625b"/>
+<path d="M90 49L180 34V151H45Z" fill="#0d2934" stroke="#9fc1b4" stroke-width="7"/>
+<path d="M208 34H326L392 65 410 151H207Z" fill="#112b38" stroke="#a0beb0" stroke-width="7"/>
+<path d="M99 50L164 40V145L53 145Z" fill="#a8c6bc" opacity=".12"/>
+<path d="M224 42H323L373 70 389 143H218Z" fill="#a8c6bc" opacity=".15"/>
+<path d="M13 182H454L470 258H5Z" fill="#31564e"/>
+<path d="M3 269H471L469 302 440 335H37L4 301Z" fill="#14323c"/>
+<rect x="35" y="266" width="404" height="11" rx="4" fill="#d3ce9d" opacity=".9"/>
+<path d="M75 146H410M49 176H434" stroke="#c3d6c2" stroke-width="5" opacity=".7"/>
+<g fill="#c1deac" font-family="Arial,sans-serif" font-weight="900"><text x="170" y="213" font-size="54" letter-spacing="9">ВЛ10</text></g>
+<circle cx="80" cy="249" r="72" fill="url(#headlight)" opacity=".65"/>
+<circle cx="393" cy="249" r="72" fill="url(#headlight)" opacity=".65"/>
+<circle cx="80" cy="249" r="12" fill="#fff0c9" stroke="#b9c6a0" stroke-width="4"/>
+<circle cx="393" cy="249" r="12" fill="#fff0c9" stroke="#b9c6a0" stroke-width="4"/>
+<rect x="155" y="282" width="168" height="23" rx="5" fill="#071a21" stroke="#71847f"/>
+<g stroke="#d8c298" stroke-width="5"><path d="M167 345l-30 40M306 345l40 40"/></g>
+<path d="M166 376h143" stroke="#718a82" stroke-width="13" stroke-linecap="round"/>
+</g>
+<ellipse cx="805" cy="532" rx="245" ry="115" fill="#9fceba" opacity=".06" filter="url(#glow)"/>
+<rect y="690" width="1120" height="90" fill="#0b1418" opacity=".27"/>
+</svg>
+<div class="horizon"></div>
+</div>
+<div class="container"><div class="hero-copy">
+<div class="eyebrow"><i></i>URALS · RAILWAY SIMULATION · EARLY ACCESS</div>
+<h1>PERM<span>–VL</span></h1>
+<h2>От пермского депо — к большому железнодорожному миру.</h2>
+<p class="lede">Независимый симулятор машиниста на линии Пермь II — Екатеринбург. Локомотивы серии ВЛ, тяжёлые составы, сигналы, смены, уральский характер. Уже можно сыграть в браузерную альфу — большая версия ещё впереди.</p>
+<div class="hero-actions">
+<button class="btn primary" type="button" data-play><svg viewBox="0 0 24 24" fill="currentColor"><path d="m8 4 12 8-12 8V4Z"/></svg> Играть в браузере</button>
+<a class="btn ghost" href="#download"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v13m0 0-5-5m5 5 5-5M4 18v3h16v-3"/></svg> Скачать на телефон</a>
+</div>
+<div class="hero-stats">
+<div class="stat"><strong>10%</strong><span>Готовность проекта</span></div>
+<div class="stat"><strong>α 0.1</strong><span>Публичная сборка</span></div>
+<div class="stat"><strong>HTML / WebGL</strong><span>Игровой прототип</span></div>
+</div>
+</div></div>
+<div class="vertical-marker">PERM II // KUNGUR // YEKATERINBURG — 2026</div>
+</section>
+<div class="rule"></div>
+<section class="section-pad" id="story"><div class="container">
+<div class="section-header"><div><div class="kicker">01 / The vision</div><h2>ЖЕЛЕЗНАЯ ДОРОГА.<br><span class="highlight">СВОЯ ИСТОРИЯ.</span></h2></div><p>PERM–VL родилась из идеи: дать человеку возможность не просто смотреть на поезда, а прожить смену машиниста — от депо до назначения. Без гонки за красивыми обещаниями: строим, испытываем, исправляем.</p></div>
+<div class="story-grid">
+<article class="glass story-main"><span class="tiny">ИДЕЯ / ПЕРМСКИЙ МАРШРУТ</span><h3>Не абстрактная карта. <span class="highlight">Реальный Урал</span> как отправная точка.</h3><p>Основа замысла — железнодорожная линия от Перми II до Екатеринбурга. Игрок выбирает локомотив, работает с тягой и торможением, следит за путями, сигналами и грузом. Цель будущей большой игры — подойти к реальному масштабу маршрута, рельефу, станциям и атмосфере российских железных дорог.</p><p>При этом сегодняшняя браузерная альфа — игровая реконструкция: геометрия пути, станции и окружение ещё не являются точной геодезической копией 1:1.</p></article>
+<aside class="glass story-side"><div><span class="tiny">ЦЕЛЕВОЙ МАСШТАБ МИРА</span><div class="big-number">1:1<span> / цель</span></div></div><div><span class="tiny">ПОЧЕМУ PERM–VL</span><p>Советская тяга, холодные рассветы, тяжёлые грузовые поезда и тот самый путь через Урал. Проект делают из любви к железной дороге, а не по готовому шаблону.</p></div></aside>
+</div></div></section>
+<section class="section-pad" id="features"><div class="container">
+<div class="section-header"><div><div class="kicker">02 / Now in alpha</div><h2>УЖЕ ВНУТРИ<br><span class="highlight">АЛЬФЫ.</span></h2></div><p>Это не обещания будущей полноценной игры. Ниже — системы, которые уже присутствуют в публичном HTML-прототипе. Некоторые работают экспериментально и могут содержать ошибки.</p></div>
+<div class="feature-grid">
+<article class="glass feature"><span class="symbol">⚡</span><span class="tag">ALPHA</span><h3>Тяга и тормоза</h3><p>Управление движением, скорость, масса состава, профиль пути, ограничения и базовая модель торможения.</p></article>
+<article class="glass feature"><span class="symbol">🚂</span><span class="tag">ALPHA</span><h3>Локомотивы</h3><p>ВЛ10, ВЛ8, ВЛ23 и другие представленные в сборке машины; отдельные варианты зависят от игрового прогресса.</p></article>
+<article class="glass feature"><span class="symbol">🚦</span><span class="tag experimental">ЭКСПЕРИМЕНТ</span><h3>Сигналы и движение</h3><p>Боты, блок-участки, маршруты поездов и простая диспетчерская логика. Пока без серверного мультиплеера.</p></article>
+<article class="glass feature"><span class="symbol">📦</span><span class="tag">ALPHA</span><h3>Грузы и экономика</h3><p>Рейсы, задания, сцепка и игровые деньги; развивается модель работы грузового машиниста.</p></article>
+<article class="glass feature"><span class="symbol">🌨️</span><span class="tag experimental">ЭКСПЕРИМЕНТ</span><h3>Уральская атмосфера</h3><p>Смена времени, сезоны, погодные эффекты, карта маршрута, разные камеры и звуковые элементы.</p></article>
+<article class="glass feature"><span class="symbol">💾</span><span class="tag">ALPHA</span><h3>Сохранение</h3><p>Прогресс хранится локально в браузере. Это одиночная игра — ваши данные не синхронизируются через аккаунт.</p></article>
+</div></div></section>
+<section class="route-section" id="route"><div class="container">
+<div class="glass route-panel"><div class="kicker">URAL CORRIDOR / PROTOTYPE MAP</div><h2 style="font-size:clamp(28px,4vw,51px);letter-spacing:-.06em;margin:12px 0">ПЕРМЬ II — ЕКАТЕРИНБУРГ</h2>
+<div class="route-line"><div class="place"><span class="dot"></span><b>Пермь II</b><small>ОТПРАВЛЕНИЕ</small></div><div class="track-line"></div><div class="place"><span class="dot"></span><b>Кунгур</b><small>ПО ПУТИ</small></div><div class="track-line"></div><div class="place"><span class="dot"></span><b>Екатеринбург</b><small>НАПРАВЛЕНИЕ</small></div></div><p class="route-note">Схема отражает направление проекта, а не точное местоположение станций или фактические размеры путевого развития. Реальные ГИС-данные и достоверная инфраструктура — дальнейший этап.</p>
+</div></div></section>
+<section class="section-pad technical" id="technology"><div class="container">
+<div class="section-header"><div><div class="kicker">03 / Built from scratch</div><h2>КАК ЭТО<br><span class="highlight">УСТРОЕНО.</span></h2></div><p>Браузерная версия запускается без установки игрового движка. Это большой самостоятельный документ с игровой логикой, интерфейсом и собственным графическим конвейером.</p></div>
+<div class="tech-shell">
+<div class="glass codecard"><div class="codebar"><span class="dots"><i></i><i></i><i></i></span><span>PERM-VL / SOURCE STRUCTURE</span></div>
+<pre><span class="comment">// Публичная браузерная альфа</span>
+<span class="key">index.html</span>
+ ├─ интерфейс и управление
+ ├─ игровое состояние / физика
+ ├─ локальные ИИ-поезда
+ ├─ сигналы / маршруты
+ ├─ <span class="value">WebGL 1</span> · 3D-рендер
+ └─ localStorage · сохранения
+
+<span class="key">version.json</span>
+ ├─ build: <span class="value">alpha-0.1</span>
+ └─ source: <span class="value">0.12.14</span>
+
+<span class="comment">// Параллельная экспериментальная ветка</span>
+<span class="key">Unreal Engine 5</span>
+ └─ Пермь II → Ферма
+    рельеф · пути · станции
+    <span class="comment">// прототип, не публичный билд</span></pre>
+</div>
+<div class="glass tech-desc"><div class="tiny">НЕЗАВИСИМЫЙ ПРОЕКТ · РАЗРАБОТКА</div><h3>Одна идея.<br>Два направления.</h3><p>Основной публичный прототип написан на HTML, CSS и JavaScript. 3D рисуется через WebGL 1 без Three.js; игровая физика, генерация сцены, боты и управление находятся в коде самой игры. Публикация — GitHub Pages, обновление версии описывается в <code>version.json</code>.</p><p>Отдельно исследуется версия на Unreal Engine 5. Там начали строить участок Пермь II — Ферма с рельефом, станциями и путями. Это технический эксперимент, а не выпущенная замена браузерной альфы.</p><p>Серверного мультиплеера сейчас нет. Если он появится, сигналы, маршруты, сохранения и экономику потребуется надёжно обсчитывать на сервере.</p><div class="tech-tags"><span>HTML / CSS / JS</span><span>WebGL 1</span><span>GitHub Pages</span><span>LOCAL STORAGE</span><span>UNREAL ENGINE 5 / R&D</span></div>
+</div>
+</div></div></section>
+<section class="section-pad" id="roadmap"><div class="container">
+<div class="section-header"><div><div class="kicker">04 / Development log</div><h2>ОТ ПЕРВОГО КОДА<br><span class="highlight">К БОЛЬШОМУ МАРШРУТУ.</span></h2></div><p>Этапы разработки от ранних экспериментов до сегодняшней альфы и дальнейших целей. Отмечаем отдельно, что реально было сделано, а что остаётся задумкой.</p></div>
+<div class="roadmap">
+<article class="glass milestone"><span class="num">01 / НАЧАЛО</span><span class="status">ПРОЙДЕНО</span><h3>Идея и первые рейсы</h3><p>Ранний HTML/JS-прототип: локомотив, маршрут, выбор заданий и идея карьеры машиниста.</p></article>
+<article class="glass milestone"><span class="num">02 / 3D</span><span class="status">ПРОЙДЕНО</span><h3>Браузерный мир</h3><p>Переход к самостоятельному 3D/WebGL-рендеру, камерам, рельсам и управлению на телефоне.</p></article>
+<article class="glass milestone"><span class="num">03 / 02.10.2026</span><span class="status">ОПУБЛИКОВАНО</span><h3>Публичная alpha-0.1</h3><p>Основа: 0.12.14. Репозиторий GitHub, живая браузерная версия, интерфейс, симуляция и локальные сохранения.</p></article>
+<article class="glass milestone"><span class="num">04 / СИСТЕМЫ</span><span class="status">В РАБОТЕ</span><h3>Трафик, сигналы, физика</h3><p>Проверка блокировок, ИИ-поездов, маршрутизации, тормозов, ошибок и стабильности на мобильных устройствах.</p></article>
+<article class="glass milestone"><span class="num">05 / UE5</span><span class="status">ПРОТОТИП</span><h3>Пермь II — Ферма</h3><p>Параллельная сборка участка на Unreal Engine 5. Рельеф и путевое развитие — исследовательский этап.</p></article>
+<article class="glass milestone"><span class="num">06 / ВПЕРЕДИ</span><span class="status future">ПЛАН</span><h3>Большой Урал 1:1</h3><p>Точная география, масштабные станции, живая экономика, реалистичная кабина, звуки и оптимизация.</p></article>
+</div></div></section>
+<section class="section-pad demo-section" id="download"><div class="container">
+<div class="glass demo-panel">
+<div><div class="kicker">05 / Playable now</div><h2>НАЧНИ СВОЮ<br><span class="highlight">СМЕНУ.</span></h2><p>Первая альфа доступна уже сейчас. Нажми «Играть» — симулятор откроется прямо на этой странице, без регистрации. Или скачай исходный HTML-файл последней опубликованной версии на телефон.</p>
+<div class="actions"><button class="btn primary" type="button" data-play><svg viewBox="0 0 24 24" fill="currentColor"><path d="m8 4 12 8-12 8V4Z"/></svg> Играть сейчас</button><button class="btn ghost" type="button" id="downloadHtml"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v13m0 0-5-5m5 5 5-5M4 18v3h16v-3"/></svg> Скачать HTML</button></div>
+<p class="download-message" id="downloadStatus" role="status" aria-live="polite"></p>
+<p class="browser-note">Для Android: скачанный .html открой через файловый менеджер в Chrome. Это не APK. Если встроенный браузер мессенджера блокирует загрузку, ниже есть ZIP-архив исходной версии.</p>
+</div>
+<div class="build-panel"><div class="build-label">LIVE / LATEST PUBLIC BUILD</div><div class="build-number" id="buildNumber">ALPHA 0.1</div><div class="build-info" id="buildDetails">Сборка 0.12.14 · 02.10.2026<br>Браузер / Android / ПК · экспериментальная версия</div>
+<a href="https://maxteilor55-sudo.github.io/perm-vl-alpha/" target="_blank" rel="noopener noreferrer">Открыть игру отдельной вкладкой ↗</a>
+<a href="https://github.com/maxteilor55-sudo/perm-vl-alpha/archive/refs/heads/main.zip">Скачать актуальный ZIP с GitHub ↓</a>
+<a href="https://github.com/maxteilor55-sudo/perm-vl-alpha" target="_blank" rel="noopener noreferrer">Репозиторий и исходный код ↗</a>
+</div>
+</div></div></section>
+</main>
+<div class="container"><footer class="site-footer"><span>© 2026 DASHBYTE · PERM–VL / EXPERIMENTAL RAILWAY SIMULATOR</span><a href="./index.html">ВЕРНУТЬСЯ К ПРОЕКТАМ ↑</a><a href="./dashbyte.html">DIGITAL ATELIER ↗</a></footer></div>
+<button type="button" class="scrolltop" id="scrollTop" aria-label="Наверх"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m5 14 7-7 7 7M12 7v13"/></svg></button>
+<div class="player" id="player" role="dialog" aria-modal="true" aria-label="PERM–VL — игровая альфа" hidden>
+<div class="player-toolbar"><div><strong>PERM–VL / ALPHA</strong><small>Игровая сборка из официального репозитория</small></div><div class="player-tools"><button type="button" id="playerFull">⛶ Экран</button><button type="button" id="playerClose">✕ Закрыть</button></div></div>
+<iframe class="player-frame" id="gameFrame" title="Игра PERM–VL Alpha" allow="fullscreen; autoplay; gamepad" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+<div class="player-hint">На телефоне удобнее горизонтальная ориентация · прогресс хранится в браузере</div>
+</div>
+<script>
+(function(){
+'use strict';
+var GAME='https://maxteilor55-sudo.github.io/perm-vl-alpha/';
+var VERSION=GAME+'version.json';
+var ARCHIVE='https://github.com/maxteilor55-sudo/perm-vl-alpha/archive/refs/heads/main.zip';
+var player=document.getElementById('player');
+var frame=document.getElementById('gameFrame');
+var lastFocus=null;
+var version='alpha-0.1';
+var tg=window.Telegram&&window.Telegram.WebApp;
+if(tg&&tg.platform&&tg.platform!=='unknown'){document.body.classList.add('in-tg');try{tg.ready();tg.expand()}catch(e){}}
+document.querySelectorAll('[data-play]').forEach(function(btn){btn.addEventListener('click',function(){
+ lastFocus=document.activeElement;
+ player.hidden=false;document.body.classList.add('locked');
+ frame.src=GAME;
+ document.getElementById('playerClose').focus({preventScroll:true});
+});});
+function closePlayer(){
+ if(player.hidden)return;
+ player.hidden=true;document.body.classList.remove('locked');
+ frame.removeAttribute('src');
+ if(document.fullscreenElement){document.exitFullscreen().catch(function(){})}
+ if(lastFocus&&lastFocus.focus)lastFocus.focus({preventScroll:true});
+}
+document.getElementById('playerClose').addEventListener('click',closePlayer);
+document.getElementById('playerFull').addEventListener('click',function(){
+ var target=player;
+ if(document.fullscreenElement){document.exitFullscreen().catch(function(){})}
+ else if(target.requestFullscreen){target.requestFullscreen().catch(function(){})}
+});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!player.hidden){e.preventDefault();closePlayer()}});
+var up=document.getElementById('scrollTop');
+function syncTop(){up.classList.toggle('show',window.scrollY>430)}
+window.addEventListener('scroll',syncTop,{passive:true});syncTop();
+up.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'})});
+fetch(VERSION+'?ts='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw Error('No version');return r.json()}).then(function(v){
+ if(!v||!v.build)return;
+ version=String(v.build).replace(/[^a-z0-9.-]/ig,'');
+ document.getElementById('buildNumber').textContent=version.toUpperCase().replace('-',' ');
+ var date=v.updated?String(v.updated).split('-').reverse().join('.'):'';
+ document.getElementById('buildDetails').textContent='Сборка '+(v.source_build||'—')+(date?' · '+date:'')+' · браузерная альфа';
+}).catch(function(){});
+var download=document.getElementById('downloadHtml');
+var status=document.getElementById('downloadStatus');
+download.addEventListener('click',async function(){
+ if(download.disabled)return;
+ download.disabled=true;download.textContent='Подготавливаю файл…';
+ status.textContent='Загружаю последнюю опубликованную сборку из репозитория игры…';
+ try{
+  var response=await fetch(GAME+'index.html?download='+Date.now(),{cache:'no-store'});
+  if(!response.ok)throw Error('Сервер игры недоступен');
+  var source=await response.text();
+  if(source.length<10000||!source.includes('Perm VL Alpha'))throw Error('Получен неполный файл');
+  var blob=new Blob([source],{type:'text/html;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;a.download='PERM-VL-'+version+'.html';
+  document.body.appendChild(a);a.click();a.remove();
+  status.textContent='HTML-файл подготовлен. Открой его в Chrome через папку «Загрузки».';
+  setTimeout(function(){URL.revokeObjectURL(url)},60000);
+ }catch(e){
+  status.textContent='Не удалось получить HTML. Используй ссылку «Скачать актуальный ZIP с GitHub» справа/ниже.';
+ }finally{download.disabled=false;download.textContent='Скачать HTML'}
+});
+})();
+</script>
+</body>
+</html>
