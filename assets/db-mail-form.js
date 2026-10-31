@@ -32,6 +32,7 @@
     event.stopImmediatePropagation();
     if(pending)return;
     if(!form.reportValidity())return;
+    if(!form.querySelector('#db-privacy-consent')?.checked){show('Для отправки заявки нужно отдельное согласие на обработку данных.','error');return;}
     const name=field('name'),contact=field('contact-info'),service=field('service');
     const message=field('message');
     if(!name||!contact){
@@ -45,6 +46,7 @@
       message:message||'Не указано',
       _subject:'Новая заявка с сайта DashByte',
       _template:'table',
+      privacy_consent:'Отдельное согласие на обработку данных для ответа на заявку; политика: '+publicPage.replace(/dashbyte\.html$/,'privacy.html'),
       _honey:'',
       page_url:publicPage,
       _url:publicPage

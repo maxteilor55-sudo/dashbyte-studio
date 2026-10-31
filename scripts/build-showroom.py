@@ -105,8 +105,9 @@ patch_source(
     '<input type="hidden" name="_url" value="">'
     '<input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" '
     'style="position:absolute;left:-10000px;opacity:0;width:1px;height:1px">'
+    '<label class="db-form-consent" for="db-privacy-consent"><input type="checkbox" id="db-privacy-consent" name="privacy_consent" value="Согласен на обработку данных для ответа на заявку" required> <span>Даю <a href="./privacy.html#consent" target="_blank" rel="noopener noreferrer">отдельное согласие на обработку персональных данных</a> для ответа на мою заявку.</span></label>'
     '<button class="cta" style="width:100%" type="submit">Отправить заявку',
-    "mail metadata and spam honeypot"
+    "mail metadata, consent and spam honeypot"
 )
 # Remove the original listener which only copied the form text to clipboard.
 studio,legacy_count=re.subn(
@@ -270,6 +271,7 @@ html.db-direct-showroom.db-telegram-miniapp:not(.db-showroom-stage) #menu-sheet{
 # External assets are shared with the chooser and botanical client preview.
 db_extension='<link rel="stylesheet" href="./assets/db-glass-up.css?v=1">\n<script defer src="./assets/db-glass-up.js?v=1"></script>\n'+db_extension
 db_extension='<link rel="stylesheet" href="./assets/db-mail-form.css?v=1">\n<script defer src="./assets/db-mail-form.js?v=1"></script>\n'+db_extension
+db_extension='<link rel="stylesheet" href="./assets/db-legal.css?v=1">\n<script defer src="./assets/db-legal.js?v=1"></script>\n'+db_extension
 if 'telegram.org/js/telegram-web-app.js' not in studio:
     db_extension='<script src="https://telegram.org/js/telegram-web-app.js"></script>\n'+db_extension
 studio,n=re.subn(r'</head\s*>',lambda m:db_extension+"\n"+m.group(0),
