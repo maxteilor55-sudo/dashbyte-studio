@@ -199,7 +199,7 @@ jobs:
                   cards:Array.from(document.querySelectorAll('.page > .projects > a.project')).map(rect),
                   stage:rect(document.querySelector('.studio-stage')),
                   portal:rect(document.querySelector('.studio-portal')),
-                  video:document.querySelector('#showroom-film source[media*="min-width"]')?.getAttribute('src'),
+                  video:document.getElementById('showroom-film')?.getAttribute('src')||'',
                   viewport:{width:innerWidth,height:innerHeight}
                 };
               });
