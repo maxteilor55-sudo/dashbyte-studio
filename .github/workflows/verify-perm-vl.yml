@@ -1,0 +1,28 @@
+name: Verify PERM-VL page and three-project showroom
+on:
+  push:
+    branches: [main]
+    paths:
+      - index.html
+      - showroom.html
+      - perm-vl.html
+      - scripts/verify-perm-vl.cjs
+      - .github/workflows/verify-perm-vl.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright@1.56.1
+      - name: Test game overlay, mobile/desktop layout and project progress
+        shell: bash
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/perm-vl-server.log 2>&1 &
+          node scripts/verify-perm-vl.cjs

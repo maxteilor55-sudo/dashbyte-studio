@@ -1224,7 +1224,7 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
     stage.style.setProperty('--db-desktop-stage-gap','16px');
     const lastCardBottom=Math.max(...cards.map(card=>card.getBoundingClientRect().bottom+window.scrollY));
     const rowGap=parseFloat(window.getComputedStyle(deck).rowGap)||14;
-    const margin=Math.max(16,Math.ceil(window.innerHeight-lastCardBottom-rowGap+2));
+    const margin=Math.max(16,Math.ceil(window.innerHeight-lastCardBottom-rowGap+30));
     stage.style.setProperty('--db-desktop-stage-gap',margin+'px');
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fit,{once:true});
