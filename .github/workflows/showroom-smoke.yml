@@ -61,10 +61,11 @@ jobs:
               noIframe:!document.querySelector('iframe'),
               fullscreenCalls:window.__fullscreenCalls,
               arsenal:!!document.querySelector('.project[data-project="arsenal"]'),
-              dashbyte:!!document.querySelector('.project[data-project="dashbyte"]')
+              dashbyte:!!document.querySelector('.project[data-project="dashbyte"]'),
+              permvl:!!document.querySelector('.project[data-project="perm-vl"]')
             }));
             console.log('HOME '+JSON.stringify(home));
-            if(home.count!==2||!home.noIframe||!home.arsenal||!home.dashbyte||home.fullscreenCalls<1)throw Error('Chooser unavailable or Telegram fullscreen missing');
+            if(home.count!==3||!home.noIframe||!home.arsenal||!home.dashbyte||!home.permvl||home.fullscreenCalls<1)throw Error('Chooser unavailable or Telegram fullscreen missing');
             await page.locator('.project[data-project="arsenal"]').click({timeout:16000});
             await page.waitForURL(/\/arsenal\.html#tgWebAppVersion/,{timeout:25000});
             await page.locator('.site-header').waitFor({state:'attached',timeout:25000});
@@ -180,7 +181,7 @@ jobs:
             console.log('LATE_TG_AFTER '+JSON.stringify(after));
             if(after.top<76||after.top>150)throw Error('Late Telegram SDK header offset not corrected');
             await late.close();
-            // Desktop UX: two live client projects fully visible without scrolling;
+            // Desktop UX: three live projects fully visible without scrolling;
             // the studio introduction is the next screen, with a narrow gateway.
             const desktop=await browser.newPage({viewport:{width:1536,height:864}});
             await desktop.route('**/*',route=>{
@@ -203,9 +204,9 @@ jobs:
                 };
               });
               console.log('DESKTOP_COVER '+JSON.stringify(ui));
-              if(ui.cards.length!==2||ui.cards.some(c=>c.top<0||c.bottom>height-8||c.width>350||c.height>260)||
+              if(ui.cards.length!==3||ui.cards.some(c=>c.top<0||c.bottom>height-8||c.width>370||c.height>260)||
                  ui.stage.top<height-8||ui.portal.width>430||!ui.video.includes('hero-desktop.mp4')){
-                throw Error('Desktop overview must fit both client cards above fold: '+JSON.stringify(ui));
+                throw Error('Desktop overview must fit all three project cards above fold: '+JSON.stringify(ui));
               }
             }
             await desktop.close();

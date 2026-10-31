@@ -1,9 +1,10 @@
-name: Publish DashByte two-project showroom
+name: Publish DashByte project showroom
 on:
   push:
     branches: [main]
     paths:
       - showroom.html
+      - perm-vl.html
       - scripts/build-showroom.py
       - .github/workflows/publish-showroom.yml
   workflow_dispatch:
@@ -53,8 +54,14 @@ jobs:
           green=(root/'green-collection.html').read_text(encoding='utf-8')
           assert 'gc-back-to-top-controller' not in green
           assert 'gc-footer-up' not in green
-          assert 'САЙТЫ<br><em>В РАЗРАБОТКЕ.</em>' in chooser
-          assert '90%' in chooser and '35%' in chooser
+          assert 'ПРОЕКТЫ<br><em>В РАЗРАБОТКЕ.</em>' in chooser
+          for project, percent in [('arsenal',95),('green-collection',56),('perm-vl',10)]:
+              assert f'data-progress="{percent}"' in chooser,project
+          assert 'href="./perm-vl.html"' in chooser
+          game_page=(root/'perm-vl.html').read_text(encoding='utf-8')
+          assert 'id="gameFrame"' in game_page
+          assert 'id="downloadHtml"' in game_page
+          assert 'https://maxteilor55-sudo.github.io/perm-vl-alpha/' in game_page
           for p in ['assets/hero-mobile.mp4','assets/hero-desktop.mp4','assets/showreel-original.mp4']:
               assert (root/p).exists(),p
           print('Both complete sites verified, canonical studio media intact.')
