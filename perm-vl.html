@@ -6,6 +6,8 @@
 <meta name="theme-color" content="#090f13">
 <meta name="description" content="PERM–VL — независимый железнодорожный симулятор Пермь II — Екатеринбург. История, разработка, дорожная карта, браузерная альфа и скачивание на телефон.">
 <title>PERM–VL — Железнодорожный симулятор / DashByte</title>
+<script>if(location.hash.includes('tgWebApp'))document.documentElement.classList.add('tg-entry');</script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="icon" href="./assets/DashByte_DB_Official_Vector.svg" type="image/svg+xml">
 <style>
 :root{color-scheme:dark;--bg:#080e12;--bg2:#101b21;--white:#f4f5ef;--muted:#99a6a9;--lime:#d8f092;--copper:#eeac78;--mint:#94cbbf;--line:rgba(230,247,242,.13);--glass:rgba(24,35,39,.68);font-family:Inter,"Helvetica Neue",Arial,system-ui,sans-serif}
@@ -21,7 +23,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--lime);outline-offse
 .grain{position:fixed;inset:0;z-index:10;pointer-events:none;opacity:.17;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.19'/%3E%3C/svg%3E")}
 .edge-fade{position:fixed;inset:0 0 auto;height:85px;z-index:14;pointer-events:none;background:linear-gradient(to bottom,rgba(8,14,18,.8),transparent)}
 nav{position:fixed;z-index:30;top:15px;left:50%;transform:translateX(-50%);width:min(1220px,calc(100% - 34px));display:flex;align-items:center;gap:14px;justify-content:space-between;padding:10px 15px;border:1px solid rgba(243,250,246,.20);border-radius:22px;background:rgba(15,26,31,.70);-webkit-backdrop-filter:blur(24px) saturate(1.4);backdrop-filter:blur(24px) saturate(1.4);box-shadow:0 20px 75px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.1)}
-body.in-tg nav{top:calc(max(70px,env(safe-area-inset-top)) + 7px)}
+body.in-tg nav,html.tg-entry nav{top:calc(max(70px,env(safe-area-inset-top)) + 7px)}
 .navbrand{display:flex;align-items:center;gap:11px;min-width:0}
 .navbrand img{width:35px;height:35px;object-fit:contain}
 .navbrand span{font-weight:900;letter-spacing:-.05em;font-size:18px}
@@ -131,7 +133,7 @@ pre .comment{color:#698887}pre .key{color:#d7eea6}pre .value{color:#f0bb84}
 .player[hidden]{display:none!important}
 .player{position:fixed;inset:0;z-index:80;display:flex;flex-direction:column;background:#071013}
 .player-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px calc(10px + env(safe-area-inset-top,0px));background:#112127;border-bottom:1px solid #425452;min-height:65px}
-body.in-tg .player-toolbar{padding-top:calc(max(68px,env(safe-area-inset-top)) + 6px)}
+body.in-tg .player-toolbar,html.tg-entry .player-toolbar{padding-top:calc(max(68px,env(safe-area-inset-top)) + 6px)}
 .player-toolbar strong{font-weight:950;letter-spacing:-.03em}
 .player-toolbar small{display:block;font-size:10px;color:#95a9a9}
 .player-tools{display:flex;gap:8px}
@@ -344,7 +346,13 @@ var frame=document.getElementById('gameFrame');
 var lastFocus=null;
 var version='alpha-0.1';
 var tg=window.Telegram&&window.Telegram.WebApp;
-if(tg&&tg.platform&&tg.platform!=='unknown'){document.body.classList.add('in-tg');try{tg.ready();tg.expand()}catch(e){}}
+if(tg&&tg.platform&&tg.platform!=='unknown'){
+ document.body.classList.add('in-tg');
+ try{
+  tg.ready();tg.expand();
+  if(tg.isVersionAtLeast&&tg.isVersionAtLeast('8.0')&&tg.requestFullscreen&&!tg.isFullscreen)tg.requestFullscreen();
+ }catch(e){}
+}
 document.querySelectorAll('[data-play]').forEach(function(btn){btn.addEventListener('click',function(){
  lastFocus=document.activeElement;
  player.hidden=false;document.body.classList.add('locked');
