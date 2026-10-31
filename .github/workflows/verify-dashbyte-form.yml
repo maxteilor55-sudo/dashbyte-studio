@@ -49,9 +49,11 @@ jobs:
               await form.locator('#contact-info').fill('@example_client');
               await form.locator('#service').selectOption({label:'Разработка сайта'});
               await form.locator('#message').fill('Проверка отправки тестового запроса');
+              if(await form.locator('#db-privacy-consent').isChecked())throw Error('Separate consent must be unchecked initially');
+              await form.locator('#db-privacy-consent').check();
               await form.evaluate(el=>el.requestSubmit());
               await page.waitForFunction(()=>document.querySelector('#form-status').dataset.state==='success',{timeout:15000});
-              if(submitted.length!==1||submitted[0].url!=='https://formsubmit.co/ajax/maxteilor55@gmail.com'||submitted[0].data.name!=='Тестовый клиент'||submitted[0].data.contact!=='@example_client'||submitted[0].data._url!==base+'dashbyte.html'||JSON.stringify(submitted[0].data).includes('SENSITIVE_TEST'))throw Error('Request not sent properly: '+JSON.stringify(submitted));
+              if(submitted.length!==1||submitted[0].url!=='https://formsubmit.co/ajax/maxteilor55@gmail.com'||submitted[0].data.name!=='Тестовый клиент'||submitted[0].data.contact!=='@example_client'||submitted[0].data._url!==base+'dashbyte.html'||!submitted[0].data.privacy_consent.includes('согласие')||JSON.stringify(submitted[0].data).includes('SENSITIVE_TEST'))throw Error('Request not sent properly: '+JSON.stringify(submitted));
               await form.locator('#name').fill('Повторная попытка');
               await form.locator('#contact-info').fill('test@example.org');
               shouldFail=true;

@@ -23,7 +23,7 @@
    const minimal=document.createElement('button');minimal.className='db-cookie-minimal';minimal.type='button';minimal.textContent='Только необходимые';
    const more=document.createElement('a');more.className='db-cookie-details';more.textContent='Прочитать условия ↗';more.href=sitePath.pathname+'#cookies';
    // Preserve native Telegram context only for navigation. Never send launch hash in forms.
-   if(/tgWebApp/i.test(location.hash))more.href+=location.hash.replace(/^#/,'&');
+   // Policy anchors must stay valid also inside Telegram's WebView.
    function close(kind){store(kind);banner.hidden=true;}
    accept.addEventListener('click',()=>close('accepted'));minimal.addEventListener('click',()=>close('necessary'));
    row.append(accept,minimal,more);banner.append(top,p,row);document.body.append(banner);
