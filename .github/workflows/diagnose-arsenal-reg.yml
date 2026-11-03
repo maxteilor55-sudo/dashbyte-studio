@@ -46,3 +46,24 @@ jobs:
           curl -sSIL --connect-timeout 8 --max-time 15 --resolve navesy59.ru:443:31.31.196.248 -o /dev/null -w 'FORCED_HTTPS_STATUS=%{http_code} IP=%{remote_ip} EFFECTIVE=%{url_effective}\n' https://navesy59.ru/
           echo '== TARGET SSL CERTIFICATE INFO =='
           echo | openssl s_client -connect 31.31.196.248:443 -servername navesy59.ru 2>/dev/null | openssl x509 -noout -subject -issuer -dates
+
+          echo '== FAVICON FILE RESPONSE FROM REG.RU =='
+          curl -sSIL --connect-timeout 6 --max-time 12 https://navesy59.ru/favicon.ico | head -n 22
+          echo '== FAVICON AND HEAD MARKUP IN LIVE ARSENAL =='
+          python3 - <<'PY'
+          from urllib.request import urlopen
+          from html.parser import HTMLParser
+          class Parser(HTMLParser):
+            def __init__(self): super().__init__();self.tags=[]
+            def handle_starttag(self,t,attrs):
+              if t in ['link','meta'] and any(k in ['rel','name','property'] and any(x in str(v).lower() for x in ['icon','manifest','theme','og:image']) for k,v in attrs):
+                self.tags.append((t,attrs))
+          for target in ['https://navesy59.ru/','https://navesy59.ru/favicon.ico']:
+            try:
+              resp=urlopen(target, timeout=15)
+              data=resp.read()
+              print('LIVE_RESOURCE',target,'status',resp.status,'bytes',len(data),'type',resp.headers.get('Content-Type'),'head',data[:20])
+              if 'favicon.ico' not in target:
+                p=Parser();p.feed(data[:120000].decode('utf-8','replace'));print('HEAD_LINKS',p.tags[:20])
+            except Exception as ex: print('RESOURCE_ERROR',target,type(ex).__name__,str(ex)[:240])
+          PY
