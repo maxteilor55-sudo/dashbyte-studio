@@ -35,3 +35,22 @@ jobs:
               p=P();p.feed(r.read(170000).decode('utf8','replace'));print("LIVE_META",p.tags[:15])
           except Exception as exc: print('ERROR',type(exc).__name__,str(exc)[:200])
           PY
+
+          echo "ARSENAL_SOURCE_PERFORMANCE_AUDIT"
+          python3 - <<'PY'
+          from pathlib import Path
+          import re,collections
+          s=Path("arsenal.html").read_text(encoding="utf-8")
+          patterns=[
+           ("image_data_uri",r'data:image/[a-zA-Z+.-]+;base64,[A-Za-z0-9+/=]+'),
+           ("video_data_uri",r'data:video/[a-zA-Z+.-]+;base64,[A-Za-z0-9+/=]+'),
+           ("style",r'<style[^>]*>.*?</style>'),
+           ("script",r'<script[^>]*>.*?</script>'),
+           ("img",r'<img\b'),
+           ("loading_lazy",r'loading="lazy"'),
+          ]
+          print("HTML_BYTES",len(s.encode()))
+          for label,rx in patterns:
+            allm=list(re.finditer(rx,s,re.I|re.S))
+            print(label,'count',len(allm),'combined_bytes',sum(m.end()-m.start() for m in allm),'largest',sorted([m.end()-m.start() for m in allm],reverse=True)[:6])
+          PY
