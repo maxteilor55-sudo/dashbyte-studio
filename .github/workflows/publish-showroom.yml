@@ -10,6 +10,8 @@ on:
       - arsenal-privacy.html
       - assets/arsenal-compliance.css
       - assets/arsenal-compliance.js
+      - scripts/package-arsenal.py
+      - assets/arsenal-favicon.svg
       - .github/workflows/publish-showroom.yml
   workflow_dispatch:
 concurrency:
@@ -29,6 +31,10 @@ jobs:
         run: python3 scripts/build-showroom.py
       - name: Apply standalone Arsenal release cleanup and legal links
         run: python3 scripts/upgrade_arsenal.py
+      - name: Prepare complete REG.RU website archive with favicon and privacy page
+        run: |
+          python3 -m pip install --quiet --break-system-packages pillow cairosvg
+          python3 scripts/package-arsenal.py
       - name: Validate required routes and media
         run: |
           python3 - <<'PY'
@@ -51,6 +57,15 @@ jobs:
           assert 'https://t.me/DashByteStudioBot' in arsenal
           assert 'arsenal-privacy.html' in arsenal
           assert (root/'arsenal-privacy.html').exists()
+          from zipfile import ZipFile
+          with ZipFile(root/'arsenal-upload.zip') as z:
+              names=set(z.namelist())
+              for name in ['index.html','favicon.ico','apple-touch-icon.png','arsenal-privacy.html','assets/arsenal-favicon.svg','assets/arsenal-compliance.css','assets/arsenal-compliance.js']:
+                  assert name in names,name
+              result=z.read('index.html').decode('utf-8')
+              assert 'https://t.me/DashByteStudioBot' in result
+              assert 'К выбору проектов' not in result
+              assert 'arsenal-privacy.html' in result
           assert '<iframe' not in chooser
           # Every active document loads exactly one unified control; the
           # previous footer-up implementations must not be reintroduced.
@@ -80,7 +95,7 @@ jobs:
       - name: Commit new showroom without touching bot settings
         run: |
           git diff --check
-          git add index.html showroom.html dashbyte.html arsenal.html showcase.html DashByte_Showroom_v2_0.html
+          git add index.html showroom.html dashbyte.html arsenal.html showcase.html DashByte_Showroom_v2_0.html arsenal-upload.zip
           if git diff --cached --quiet; then
             echo "Already published"
             exit 0

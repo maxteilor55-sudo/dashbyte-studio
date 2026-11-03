@@ -79,10 +79,9 @@ with ZipFile(archive, "w", compression=ZIP_DEFLATED, compresslevel=6) as z:
     z.write(root / 'arsenal-privacy.html', 'arsenal-privacy.html')
     for p in sorted(chosen):
         z.write(p, p.relative_to(root).as_posix())
-    z.writestr("ИНСТРУКЦИЯ.txt", instructions)
 
 print("ARCHIVE",archive.name,"BYTES",archive.stat().st_size)
-print("FILES",len(chosen)+5)
+print("FILES",len(chosen)+4)
 for p in sorted(chosen):
     print("INCLUDED",p.relative_to(root).as_posix(),p.stat().st_size)
 missing=[]

@@ -14,5 +14,5 @@
 #ars-cookie-banner .ars-cookie-only{background:#ffffff13;color:#f2e8db;border:1px solid #ffffff3e}
 #ars-cookie-banner .ars-cookie-more{color:#e8c49c;border:1px solid transparent;background:transparent}
 #ars-cookie-banner button:focus-visible,#ars-cookie-banner a:focus-visible,.ars-legal-links a:focus-visible{outline:2px solid #f4c691;outline-offset:4px}
-@media(max-width:600px){#ars-cookie-banner{padding:16px 17px;border-radius:21px;bottom:calc(14px + env(safe-area-inset-bottom,0px))}#ars-cookie-banner p{font-size:11px}#ars-cookie-banner button{flex:1 1 125px}#ars-cookie-banner .ars-cookie-more{width:100%;justify-content:flex-start;padding-left:2px;min-height:25px}body:has(#ars-cookie-banner:not([hidden])) .db-glass-up{bottom:260px!important}}
+@media(max-width:600px){#ars-cookie-banner{padding:16px 17px;border-radius:21px;bottom:calc(105px + env(safe-area-inset-bottom,0px))}#ars-cookie-banner p{font-size:11px}#ars-cookie-banner button{flex:1 1 125px}#ars-cookie-banner .ars-cookie-more{width:100%;justify-content:flex-start;padding-left:2px;min-height:25px}body:has(#ars-cookie-banner:not([hidden])) .db-glass-up{bottom:260px!important}}
 @media(prefers-reduced-motion:reduce){#ars-cookie-banner{scroll-behavior:auto}}
