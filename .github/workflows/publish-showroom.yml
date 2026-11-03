@@ -6,6 +6,10 @@ on:
       - showroom.html
       - perm-vl.html
       - scripts/build-showroom.py
+      - scripts/upgrade-arsenal.py
+      - arsenal-privacy.html
+      - assets/arsenal-compliance.css
+      - assets/arsenal-compliance.js
       - .github/workflows/publish-showroom.yml
   workflow_dispatch:
 concurrency:
@@ -23,6 +27,8 @@ jobs:
           persist-credentials: true
       - name: Build approved DashByte release and new home screen
         run: python3 scripts/build-showroom.py
+      - name: Apply standalone Arsenal release cleanup and legal links
+        run: python3 scripts/upgrade-arsenal.py
       - name: Validate required routes and media
         run: |
           python3 - <<'PY'
@@ -39,7 +45,12 @@ jobs:
           assert 'db-direct-showroom-start' in studio
           assert 'id="topbar"' in studio
           assert len(arsenal)>1000000
-          assert 'db-arsenal-choice-return-init' in arsenal
+          assert 'db-arsenal-choice-return-init' not in arsenal
+          assert 'db-arsenal-navigation-finish' not in arsenal
+          assert 'К выбору проектов' not in arsenal
+          assert 'https://t.me/DashByteStudioBot' in arsenal
+          assert 'arsenal-privacy.html' in arsenal
+          assert (root/'arsenal-privacy.html').exists()
           assert '<iframe' not in chooser
           # Every active document loads exactly one unified control; the
           # previous footer-up implementations must not be reintroduced.

@@ -11,7 +11,8 @@ from PIL import Image
 root = Path(__file__).resolve().parent.parent
 source = root / "arsenal.html"
 assert source.is_file(), "arsenal.html not found"
-html = source.read_text(encoding="utf-8")
+from upgrade_arsenal import patch
+html = patch(source.read_text(encoding="utf-8"))
 assert "<html" in html.lower() and "</html>" in html.lower()
 assert len(html) > 1_000_000, "Refusing to package truncated client site"
 
@@ -21,7 +22,8 @@ asset_dir = root / "assets"
 files = [p for p in asset_dir.rglob("*") if p.is_file()]
 chosen = set()
 seed = {"arsenal-showcase-v1.css", "arsenal-showcase-v1.js",
-        "db-glass-up.css", "db-glass-up.js", "DashByte_DB_Official_Vector.svg"}
+        "db-glass-up.css", "db-glass-up.js", "DashByte_DB_Official_Vector.svg",
+        "arsenal-compliance.css", "arsenal-compliance.js", "arsenal-favicon.svg"}
 for p in files:
     if p.name.startswith("arsenal-") or p.name in seed:
         chosen.add(p)
@@ -62,21 +64,25 @@ instructions = """
 1. ispmanager → Менеджер файлов → www → navesy59.ru
 2. Сохраните резервную копию существующего index.html, затем удалите шаблонный файл.
 3. Загрузите сюда arsenal-upload.zip и распакуйте архив в ТЕКУЩЕЙ папке.
+   ПОДТВЕРДИТЕ замену старого index.html, если уже установлен сайт.
 4. Убедитесь, что index.html и папка assets лежат непосредственно в www/navesy59.ru.
 5. Проверьте сайт на тестовом адресе, прежде чем менять DNS у Webnames.
-6. После переноса подключите SSL, формы, контакты и настройте редиректы.
+6. Сразу проверьте favicon.ico, arsenal-privacy.html и ссылку в футере на DashByte-бота.
+7. Не оставляйте публично доступные ZIP, backup HTML и служебные txt.
+8. Форма пока демонстрационная — для реальной доставки заявок нужен отдельный обработчик.
 ИСТОЧНИК: опубликованный arsenal.html из репозитория DashByte.
 """.lstrip()
 with ZipFile(archive, "w", compression=ZIP_DEFLATED, compresslevel=6) as z:
     z.writestr("index.html", html)
     z.writestr("favicon.ico", ico_bytes.getvalue())
     z.writestr("apple-touch-icon.png", apple_bytes.getvalue())
+    z.write(root / 'arsenal-privacy.html', 'arsenal-privacy.html')
     for p in sorted(chosen):
         z.write(p, p.relative_to(root).as_posix())
     z.writestr("ИНСТРУКЦИЯ.txt", instructions)
 
 print("ARCHIVE",archive.name,"BYTES",archive.stat().st_size)
-print("FILES",len(chosen)+4)
+print("FILES",len(chosen)+5)
 for p in sorted(chosen):
     print("INCLUDED",p.relative_to(root).as_posix(),p.stat().st_size)
 missing=[]
