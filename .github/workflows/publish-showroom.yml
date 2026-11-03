@@ -60,7 +60,7 @@ jobs:
           from zipfile import ZipFile
           with ZipFile(root/'arsenal-upload.zip') as z:
               names=set(z.namelist())
-              for name in ['index.html','favicon.ico','apple-touch-icon.png','arsenal-privacy.html','assets/arsenal-favicon.svg','assets/arsenal-compliance.css','assets/arsenal-compliance.js']:
+              for name in ['index.html','favicon.ico','apple-touch-icon.png','arsenal-privacy.html','robots.txt','sitemap.xml','assets/arsenal-favicon.svg','assets/arsenal-compliance.css','assets/arsenal-compliance.js']:
                   assert name in names,name
               result=z.read('index.html').decode('utf-8')
               assert 'https://t.me/DashByteStudioBot' in result
