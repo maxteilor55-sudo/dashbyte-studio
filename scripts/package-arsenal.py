@@ -106,13 +106,19 @@ with ZipFile(archive, "w", compression=ZIP_DEFLATED, compresslevel=6) as z:
     z.writestr("favicon.ico", ico_bytes.getvalue())
     z.writestr("apple-touch-icon.png", apple_bytes.getvalue())
     z.write(root / 'arsenal-privacy.html', 'arsenal-privacy.html')
+    z.writestr('robots.txt', 'User-agent: *\nAllow: /\nSitemap: https://navesy59.ru/sitemap.xml\n')
+    z.writestr('sitemap.xml', '<?xml version="1.0" encoding="UTF-8"?>\n'
+      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+      '<url><loc>https://navesy59.ru/</loc></url>'
+      '<url><loc>https://navesy59.ru/arsenal-privacy.html</loc></url>'
+      '</urlset>\n')
     for filename,content in sorted(inline_assets.items()):
         z.writestr(filename, content)
     for p in sorted(chosen):
         z.write(p, p.relative_to(root).as_posix())
 
 print("ARCHIVE",archive.name,"BYTES",archive.stat().st_size)
-print("FILES",len(chosen)+4+len(inline_assets))
+print("FILES",len(chosen)+6+len(inline_assets))
 for p in sorted(chosen):
     print("INCLUDED",p.relative_to(root).as_posix(),p.stat().st_size)
 missing=[]
