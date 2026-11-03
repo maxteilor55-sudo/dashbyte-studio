@@ -55,9 +55,14 @@ jobs:
                 const res=await page.request.get(origin+'/'+f);
                 if(!res.ok())throw Error(f+' returned '+res.status());
               }
-              const pic=page.locator('img[src*="arsenal-photo-"]').first();
-              await pic.scrollIntoViewIfNeeded({timeout:12000});
-              await page.waitForFunction(()=>[...document.images].some(i=>i.src.includes('arsenal-photo-')&&i.complete&&i.naturalWidth>0),{timeout:12000});
+              // Some gallery cards are intentionally hidden until a category is chosen.
+              // Verify extracted images directly without opening or changing gallery state.
+              const photoPaths=await page.locator('img[src*="arsenal-photo-"]').evaluateAll(nodes=>
+                [...new Set(nodes.map(n=>n.getAttribute('src')))].slice(0,4));
+              for(const file of photoPaths){
+                const response=await page.request.get(new URL(file,origin).href);
+                if(!response.ok()||!(response.headers()['content-type']||'').includes('image/'))throw Error('Extracted image failed '+file+': '+response.status());
+              }
               await page.locator('#ars-cookie-banner .ars-cookie-only').click();
               await page.reload({waitUntil:'domcontentloaded'});
               if(await page.locator('#ars-cookie-banner').isVisible())throw Error('Cookie choice not persisted');
