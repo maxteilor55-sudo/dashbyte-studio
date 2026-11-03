@@ -1,0 +1,73 @@
+name: Test Arsenal optimized REG.RU release in browser
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/verify-arsenal-live-release.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser testing dependency
+        run: npm install --no-save playwright@1.56.1
+      - name: Unpack and run offline-hosted production archive
+        shell: bash
+        run: |
+          mkdir -p /tmp/arsenal-preview
+          unzip -q arsenal-upload.zip -d /tmp/arsenal-preview
+          cd /tmp/arsenal-preview
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/arsenal-preview-http.log 2>&1 &
+          cd "$GITHUB_WORKSPACE"
+          node <<'JS'
+          const {chromium}=require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true,executablePath:'/usr/bin/google-chrome',args:['--no-sandbox','--disable-dev-shm-usage']});
+            const origin='http://127.0.0.1:8765';
+            for(const width of [390,1365]){
+              const page=await browser.newPage({viewport:{width,height:850},isMobile:width===390,hasTouch:width===390});
+              const errors=[];
+              await page.route('**/*',route=>route.request().url().startsWith(origin)?route.continue():route.abort());
+              page.on('pageerror',e=>errors.push(e.message));
+              const resp=await page.goto(origin+'/',{waitUntil:'domcontentloaded',timeout:90000});
+              if(resp.status()!==200)throw Error('Failed to load homepage '+resp.status());
+              await page.locator('#ars-cookie-banner').waitFor({state:'visible',timeout:25000});
+              const audit=await page.evaluate(()=>{
+                const body=document.documentElement;
+                const studio=document.getElementById('db-arsenal-studio-link');
+                return {overflow:body.scrollWidth-window.innerWidth,returnMobile:document.querySelectorAll('#db-arsenal-chooser-link').length,returnDesktop:document.querySelectorAll('#db-arsenal-desktop-return').length,bot:studio?.href,legal:document.querySelector('.ars-legal-links a')?.href,inlinePhotos:document.querySelectorAll('img[src^="data:image/"]').length,photos:document.querySelectorAll('img[src*="arsenal-photo-"]').length,og:document.querySelector('meta[property="og:image"]')?.content};
+              });
+              if(audit.overflow>5)throw Error('Horizontal overflow '+JSON.stringify({width,audit}));
+              if(audit.returnMobile||audit.returnDesktop)throw Error('GitHub chooser shortcut still exists');
+              if(audit.bot!=='https://t.me/DashByteStudioBot')throw Error('Wrong studio bot destination '+audit.bot);
+              if(!audit.legal?.includes('arsenal-privacy.html'))throw Error('Policy not linked');
+              if(audit.photos<30)throw Error('Optimization failed; external photos '+audit.photos);
+              if(audit.inlinePhotos>6)throw Error('Too many bulky inline photos: '+audit.inlinePhotos);
+              if(!audit.og?.includes('https://navesy59.ru/'))throw Error('Telegram preview image not defined');
+              for(const f of ['favicon.ico','apple-touch-icon.png','arsenal-privacy.html','robots.txt','sitemap.xml']){
+                const res=await page.request.get(origin+'/'+f);
+                if(!res.ok())throw Error(f+' returned '+res.status());
+              }
+              const pic=page.locator('img[src*="arsenal-photo-"]').first();
+              await pic.scrollIntoViewIfNeeded({timeout:12000});
+              await page.waitForFunction(()=>[...document.images].some(i=>i.src.includes('arsenal-photo-')&&i.complete&&i.naturalWidth>0),{timeout:12000});
+              await page.locator('#ars-cookie-banner .ars-cookie-only').click();
+              await page.reload({waitUntil:'domcontentloaded'});
+              if(await page.locator('#ars-cookie-banner').isVisible())throw Error('Cookie choice not persisted');
+              await page.goto(origin+'/arsenal-privacy.html',{waitUntil:'domcontentloaded'});
+              if(!await page.locator('#owner').count()||!await page.locator('#rights').count())throw Error('Privacy page incomplete');
+              const legOverflow=await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth);
+              if(legOverflow>5)throw Error('Legal page horizontal overflow '+legOverflow);
+              console.log('ARSENAL_RELEASE_PASS',JSON.stringify({width,audit,legOverflow,jsErrors:errors.slice(0,6)}));
+              await page.close();
+            }
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
