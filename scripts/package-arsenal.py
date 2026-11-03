@@ -4,6 +4,8 @@ from pathlib import Path
 from zipfile import ZipFile, ZIP_DEFLATED
 import re
 import io
+import base64
+import hashlib
 
 import cairosvg
 from PIL import Image
@@ -57,6 +59,33 @@ icon_png.save(ico_bytes, format="ICO", sizes=[(16,16),(32,32),(48,48),(64,64),(1
 apple_bytes = io.BytesIO()
 icon_png.resize((180,180), Image.Resampling.LANCZOS).save(apple_bytes, format="PNG")
 
+# Remove bulky inline photo data from the critical HTML document.
+# Store images as content-addressed assets so below-the-fold images load lazily
+# and cached photos are reused across visits. Pixels stay unchanged.
+inline_assets = {}
+photo_mimes = {"image/png":"png", "image/jpeg":"jpg", "image/jpg":"jpg",
+               "image/webp":"webp", "image/gif":"gif", "image/avif":"avif"}
+inline_pattern = re.compile(r"data:image/(?:png|jpeg|jpg|webp|gif|avif);base64,[A-Za-z0-9+/=]+", re.I)
+def move_photo(match):
+    uri=match.group(0)
+    mime,encoded=uri.split(",",1)
+    kind=mime.split(";")[0].lower()
+    suffix=photo_mimes.get(kind)
+    if not suffix:return uri
+    try:
+        payload=base64.b64decode(encoded,validate=True)
+    except Exception:
+        return uri
+    if len(payload)<2048:return uri
+    filename="assets/arsenal-photo-"+hashlib.sha256(payload).hexdigest()[:16]+"."+suffix
+    inline_assets[filename]=payload
+    return "./"+filename
+original_html_size=len(html.encode("utf-8"))
+html=inline_pattern.sub(move_photo,html)
+print("HTML_OPTIMIZATION",original_html_size,"TO",len(html.encode("utf-8")),
+      "INLINE_PHOTOS_EXTERNALIZED",len(inline_assets),
+      "PHOTO_PAYLOAD_BYTES",sum(map(len,inline_assets.values())))
+
 # Full HTML is the document root on REG.RU; not the chooser at GitHub Pages.
 archive = root / "arsenal-upload.zip"
 instructions = """
@@ -77,17 +106,19 @@ with ZipFile(archive, "w", compression=ZIP_DEFLATED, compresslevel=6) as z:
     z.writestr("favicon.ico", ico_bytes.getvalue())
     z.writestr("apple-touch-icon.png", apple_bytes.getvalue())
     z.write(root / 'arsenal-privacy.html', 'arsenal-privacy.html')
+    for filename,content in sorted(inline_assets.items()):
+        z.writestr(filename, content)
     for p in sorted(chosen):
         z.write(p, p.relative_to(root).as_posix())
 
 print("ARCHIVE",archive.name,"BYTES",archive.stat().st_size)
-print("FILES",len(chosen)+4)
+print("FILES",len(chosen)+4+len(inline_assets))
 for p in sorted(chosen):
     print("INCLUDED",p.relative_to(root).as_posix(),p.stat().st_size)
 missing=[]
 for match in re.finditer(r"""(?:src|href|poster)\s*=\s*["']((?:\./)?assets/[^"'?#]+)""",html,re.I):
     name=match.group(1).removeprefix("./")
-    if not (root/name).is_file():
+    if not (root/name).is_file() and name not in inline_assets:
         missing.append(name)
 if missing:
     print("WARNING: missing local assets:",sorted(set(missing))[:20])
