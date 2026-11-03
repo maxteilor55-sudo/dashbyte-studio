@@ -6,7 +6,7 @@ on:
       - showroom.html
       - perm-vl.html
       - scripts/build-showroom.py
-      - scripts/upgrade-arsenal.py
+      - scripts/upgrade_arsenal.py
       - arsenal-privacy.html
       - assets/arsenal-compliance.css
       - assets/arsenal-compliance.js
@@ -28,7 +28,7 @@ jobs:
       - name: Build approved DashByte release and new home screen
         run: python3 scripts/build-showroom.py
       - name: Apply standalone Arsenal release cleanup and legal links
-        run: python3 scripts/upgrade-arsenal.py
+        run: python3 scripts/upgrade_arsenal.py
       - name: Validate required routes and media
         run: |
           python3 - <<'PY'
