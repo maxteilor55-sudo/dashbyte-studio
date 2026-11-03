@@ -1,0 +1,35 @@
+name: Build Arsenal REG.RU deployment ZIP
+on:
+  push:
+    branches: [main]
+    paths:
+      - arsenal.html
+      - assets/**
+      - scripts/package-arsenal.py
+      - .github/workflows/package-arsenal.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Prepare static site files for ispmanager
+        run: python3 scripts/package-arsenal.py
+      - name: Commit downloadable ZIP
+        run: |
+          git add arsenal-upload.zip
+          if git diff --cached --quiet; then
+            echo 'Archive already matches current sources.'
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "build: refresh Arsenal standalone hosting archive"
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
