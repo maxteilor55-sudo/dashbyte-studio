@@ -1,0 +1,37 @@
+name: Check real Arsenal favicon on REG.RU
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/check-arsenal-live-favicon.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Inspect public icon and TLS
+        shell: bash
+        run: |
+          set +e
+          for url in https://navesy59.ru/favicon.ico https://navesy59.ru/assets/arsenal-favicon.svg https://navesy59.ru/arsenal-privacy.html; do
+            echo "REQUESTED $url"
+            curl -sSIL --max-time 12 --connect-timeout 7 -o /dev/null -w 'STATUS=%{http_code} TYPE=%{content_type} IP=%{remote_ip}\n' "$url"
+          done
+          echo "HTML_META_FROM_LIVE"
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from urllib.request import urlopen
+          class P(HTMLParser):
+            tags=[]
+            def handle_starttag(self,tag,attrs):
+              a=dict(attrs)
+              if tag=='link' and a.get('rel','') in ['icon','apple-touch-icon']:self.tags.append((tag,a))
+              if tag=='meta' and a.get('property','').startswith('og:'):self.tags.append((tag,a))
+          try:
+            with urlopen("https://navesy59.ru/",timeout=15) as r:
+              p=P();p.feed(r.read(170000).decode('utf8','replace'));print("LIVE_META",p.tags[:15])
+          except Exception as exc: print('ERROR',type(exc).__name__,str(exc)[:200])
+          PY
