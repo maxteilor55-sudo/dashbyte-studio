@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Арсенал — буква А">
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#41372f"/><stop offset="0.58" stop-color="#242320"/><stop offset="1" stop-color="#151515"/></linearGradient>
+ <linearGradient id="bronze" x1="0" y1="0" x2="0.85" y2="1"><stop offset="0" stop-color="#e0bd91"/><stop offset="0.57" stop-color="#c69b6e"/><stop offset="1" stop-color="#b18760"/></linearGradient>
+</defs>
+<rect x="7" y="7" width="498" height="498" rx="114" fill="url(#bg)"/>
+<rect x="17" y="17" width="478" height="478" rx="105" fill="none" stroke="#b08e6e" stroke-width="6" stroke-opacity=".82"/>
+<path d="M145 394 L234 111 Q242 91 259 91 Q276 91 284 111 L369 394 L312 394 L289 307 L223 307 L199 394 Z M238 260 L276 260 L257 179 Z" fill="url(#bronze)" fill-rule="evenodd"/>
+</svg>
