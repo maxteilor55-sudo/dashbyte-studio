@@ -69,7 +69,7 @@ inline_pattern = re.compile(r"data:image/(?:png|jpeg|jpg|webp|gif|avif);base64,[
 def move_photo(match):
     uri=match.group(0)
     mime,encoded=uri.split(",",1)
-    kind=mime.split(";")[0].lower()
+    kind=mime.split(";")[0].lower().removeprefix("data:")
     suffix=photo_mimes.get(kind)
     if not suffix:return uri
     try:
@@ -82,6 +82,8 @@ def move_photo(match):
     return "./"+filename
 original_html_size=len(html.encode("utf-8"))
 html=inline_pattern.sub(move_photo,html)
+if inline_pattern.search(source.read_text(encoding="utf-8")) and not inline_assets:
+    raise RuntimeError("Failed to externalize inline photos")
 print("HTML_OPTIMIZATION",original_html_size,"TO",len(html.encode("utf-8")),
       "INLINE_PHOTOS_EXTERNALIZED",len(inline_assets),
       "PHOTO_PAYLOAD_BYTES",sum(map(len,inline_assets.values())))
