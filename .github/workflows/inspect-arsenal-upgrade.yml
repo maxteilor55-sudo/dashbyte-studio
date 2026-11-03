@@ -1,0 +1,39 @@
+name: Inspect Arsenal live design and dependencies
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/inspect-arsenal-upgrade.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Review current Arsenal HTML, links, scripts and actual MAX/TG endpoints
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('arsenal.html').read_text()
+          print('FILE SIZE',len(s),'HEAD',repr(s[:420]))
+          patterns=[
+            r'К выбору проектов',r'Вернуться к проектам',r'Все проекты',r'назад к проектам',
+            r'(?:ДИЗАЙН И РАЗРАБОТКА|Дизайн и разработка|DashByte)',
+            r'политик[иае]',r'конфиденциальност',r'cookies?',r'персональн',
+            r'(<form\b|type="submit"|обратн. связ|оставить заявку)',
+            r'https?://t\.me/[^\s"<>]+',r'https?://max\.ru/[^\s"<>]+',
+            r'https?://github\.io/[^\s"<>]+',
+            r'<link[^>]+>',r'<script[^>]+src=',r'©',r'логотип',
+          ]
+          for p in patterns:
+            mm=list(re.finditer(p,s,re.I))
+            print('\nMATCH',repr(p),'COUNT',len(mm))
+            for m in mm[:8]:
+              print('AT',m.start(),re.sub(r'\s+',' ',s[max(0,m.start()-200):m.end()+360])[:700])
+          print('\nBOTTOM',re.sub(r'\s+',' ',s[-4000:])[:4000])
+          print('\nFILES',[(f.as_posix(),f.stat().st_size) for f in Path('assets').glob('*') if 'arsenal' in f.name or f.name.startswith('db-')])
+          PY
