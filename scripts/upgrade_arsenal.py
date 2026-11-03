@@ -9,9 +9,9 @@ from pathlib import Path
 BOT = "https://t.me/DashByteStudioBot"
 HEAD = '''<!-- ARSENAL: actual public domain metadata and icons -->
 <link rel="canonical" href="https://navesy59.ru/">
-<link rel="icon" href="./favicon.ico?v=20261103b" sizes="any" type="image/x-icon">
-<link rel="icon" href="./assets/arsenal-favicon.svg?v=20261103b" type="image/svg+xml">
-<link rel="apple-touch-icon" href="./apple-touch-icon.png?v=20261103b" sizes="180x180">
+<link rel="icon" href="./favicon.ico?v=20261103c" sizes="any" type="image/x-icon">
+<link rel="icon" href="./assets/arsenal-favicon.svg?v=20261103c" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png?v=20261103c" sizes="180x180">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Арсенал">
 <meta property="og:locale" content="ru_RU">
@@ -20,8 +20,8 @@ HEAD = '''<!-- ARSENAL: actual public domain metadata and icons -->
 <meta property="og:description" content="Изготовление и монтаж навесов, гаражей, лестниц, ограждений и металлоконструкций в Перми и Пермском крае.">
 <meta property="og:image" content="https://navesy59.ru/assets/arsenal-frame-updated-20261030.webp">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="stylesheet" href="./assets/arsenal-compliance.css?v=20261103b">
-<script defer src="./assets/arsenal-compliance.js?v=20261103b"></script>
+<link rel="stylesheet" href="./assets/arsenal-compliance.css?v=20261103c">
+<script defer src="./assets/arsenal-compliance.js?v=20261103c"></script>
 '''
 FOOTER = '''<nav class="ars-legal-links" aria-label="Правовые документы">
 <a href="./arsenal-privacy.html">Политика конфиденциальности</a>

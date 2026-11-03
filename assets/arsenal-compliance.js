@@ -27,6 +27,16 @@ const ready=()=>{
   notice.hidden=!!saved;
   const reopen=document.querySelector('.ars-legal-links a[href$="#cookies"]');
   if(reopen)reopen.setAttribute('aria-label','Прочитать политику cookies');
+  // Within Telegram, open the DashByte bot in Telegram instead of a web-browser tab.
+  // Ordinary browsers retain the normal accessible https://t.me/ link.
+  const studio=document.getElementById('db-arsenal-studio-link');
+  studio?.addEventListener('click',event=>{
+    const webApp=window.Telegram?.WebApp;
+    if(typeof webApp?.openTelegramLink==='function'){
+      event.preventDefault();
+      webApp.openTelegramLink('https://t.me/DashByteStudioBot');
+    }
+  });
   // Optimize decoding and deferred fetching of below-the-fold gallery images,
   // without changing the hero or the approved animation logic.
   document.querySelectorAll('#gallery-grid img,.service-card img').forEach(img=>{

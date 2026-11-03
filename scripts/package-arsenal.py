@@ -82,6 +82,24 @@ def move_photo(match):
     return "./"+filename
 original_html_size=len(html.encode("utf-8"))
 html=inline_pattern.sub(move_photo,html)
+
+# Apply native lazy-loading in markup BEFORE the browser parses the page.
+# Doing it after DOMContentLoaded is too late: eager image fetches already start.
+# The critical hero uses a separate image with fetchpriority=high and stays eager.
+def optimize_photo_img(match):
+    tag=match.group(0)
+    if "arsenal-photo-" not in tag or re.search(r'fetchpriority\\s*=\\s*["\\']high',tag,re.I):
+        return tag
+    additions=[]
+    if not re.search(r'\\bloading\\s*=',tag,re.I):
+        additions.append('loading="lazy"')
+    if not re.search(r'\\bdecoding\\s*=',tag,re.I):
+        additions.append('decoding="async"')
+    if not additions:
+        return tag
+    ending='/>' if tag.endswith('/>') else '>'
+    return tag[:-len(ending)]+' '+' '.join(additions)+ending
+html=re.sub(r'<img\\b[^>]*>',optimize_photo_img,html,flags=re.I|re.S)
 if inline_pattern.search(source.read_text(encoding="utf-8")) and not inline_assets:
     raise RuntimeError("Failed to externalize inline photos")
 print("HTML_OPTIMIZATION",original_html_size,"TO",len(html.encode("utf-8")),
