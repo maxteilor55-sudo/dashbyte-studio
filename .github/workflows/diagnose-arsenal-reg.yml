@@ -1,0 +1,34 @@
+name: Diagnostic Arsenal REG.RU website before DNS switchover
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/diagnose-arsenal-reg.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Test hosted Arsenal without changing public DNS
+        shell: bash
+        run: |
+          set +e
+          echo '== HTTP HEADERS ON TARGET SERVER =='
+          curl -sS --max-time 15 --connect-timeout 8 --resolve navesy59.ru:80:31.31.196.248 -D /tmp/httpheaders -o /tmp/arsenal_html http://navesy59.ru/
+          echo "HTTP_RESULT=$?"
+          head -n 15 /tmp/httpheaders
+          echo "HTML_SIZE=$(wc -c < /tmp/arsenal_html)"
+          echo '== EXPECTED CONTENT =='
+          grep -o -i -m2 -E 'АРСЕНАЛ|Arsenal|DashByte' /tmp/arsenal_html | head -n 8
+          echo '== STATIC ASSETS HEADERS =='
+          curl -sS --max-time 15 --connect-timeout 8 --resolve navesy59.ru:80:31.31.196.248 -I http://navesy59.ru/assets/db-glass-up.js | head -n 14
+          echo '== HTTPS TARGET DIAGNOSTIC =='
+          curl -ksS --max-time 15 --connect-timeout 8 --resolve navesy59.ru:443:31.31.196.248 -D /tmp/httpsheaders -o /tmp/arsenal_tls_html https://navesy59.ru/
+          echo "HTTPS_RESULT=$?"
+          head -n 15 /tmp/httpsheaders
+          if test -f /tmp/arsenal_tls_html; then echo "HTTPS_HTML_SIZE=$(wc -c < /tmp/arsenal_tls_html)"; fi
+          echo '== HTTPS CERTIFICATE VALIDITY =='
+          curl -sS --max-time 15 --connect-timeout 8 --resolve navesy59.ru:443:31.31.196.248 -o /dev/null https://navesy59.ru/
+          echo "HTTPS_CERT_RESULT=$?"
