@@ -32,3 +32,17 @@ jobs:
           echo '== HTTPS CERTIFICATE VALIDITY =='
           curl -sS --max-time 15 --connect-timeout 8 --resolve navesy59.ru:443:31.31.196.248 -o /dev/null https://navesy59.ru/
           echo "HTTPS_CERT_RESULT=$?"
+
+          echo '== PUBLIC DNS FROM GOOGLE/CF/OS =='
+          dig +short navesy59.ru A @8.8.8.8
+          dig +short navesy59.ru A @1.1.1.1
+          dig +short navesy59.ru AAAA @8.8.8.8
+          dig +short www.navesy59.ru A @8.8.8.8
+          echo '== PUBLIC HTTPS =='
+          curl -sSvL --connect-timeout 8 --max-time 15 -o /dev/null -w 'PUBLIC_HTTPS_STATUS=%{http_code} IP=%{remote_ip} EFFECTIVE=%{url_effective}\n' https://navesy59.ru/ 2>&1 | tail -n 19
+          echo '== PUBLIC HTTP REDIRECT =='
+          curl -sSIL --connect-timeout 8 --max-time 15 -o /dev/null -w 'HTTP_STATUS=%{http_code} IP=%{remote_ip} EFFECTIVE=%{url_effective}\n' http://navesy59.ru/
+          echo '== FORCED NEW SERVER TRUST CHECK =='
+          curl -sSIL --connect-timeout 8 --max-time 15 --resolve navesy59.ru:443:31.31.196.248 -o /dev/null -w 'FORCED_HTTPS_STATUS=%{http_code} IP=%{remote_ip} EFFECTIVE=%{url_effective}\n' https://navesy59.ru/
+          echo '== TARGET SSL CERTIFICATE INFO =='
+          echo | openssl s_client -connect 31.31.196.248:443 -servername navesy59.ru 2>/dev/null | openssl x509 -noout -subject -issuer -dates
