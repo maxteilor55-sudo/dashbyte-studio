@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - .github/workflows/verify-arsenal-live-release.yml
+      - arsenal-upload.zip
   workflow_dispatch:
 permissions:
   contents: read
