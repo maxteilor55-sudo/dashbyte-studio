@@ -88,18 +88,18 @@ html=inline_pattern.sub(move_photo,html)
 # The critical hero uses a separate image with fetchpriority=high and stays eager.
 def optimize_photo_img(match):
     tag=match.group(0)
-    if "arsenal-photo-" not in tag or re.search(r'fetchpriority\\s*=\\s*["\\']high',tag,re.I):
+    if "arsenal-photo-" not in tag or 'fetchpriority="high"' in tag.lower():
         return tag
     additions=[]
-    if not re.search(r'\\bloading\\s*=',tag,re.I):
+    if 'loading=' not in tag.lower():
         additions.append('loading="lazy"')
-    if not re.search(r'\\bdecoding\\s*=',tag,re.I):
+    if 'decoding=' not in tag.lower():
         additions.append('decoding="async"')
     if not additions:
         return tag
     ending='/>' if tag.endswith('/>') else '>'
     return tag[:-len(ending)]+' '+' '.join(additions)+ending
-html=re.sub(r'<img\\b[^>]*>',optimize_photo_img,html,flags=re.I|re.S)
+html=re.sub(r'<img\b[^>]*>',optimize_photo_img,html,flags=re.I|re.S)
 if inline_pattern.search(source.read_text(encoding="utf-8")) and not inline_assets:
     raise RuntimeError("Failed to externalize inline photos")
 print("HTML_OPTIMIZATION",original_html_size,"TO",len(html.encode("utf-8")),
