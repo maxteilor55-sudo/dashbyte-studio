@@ -21,6 +21,31 @@ jobs:
             echo "REQUESTED $url"
             curl -sSIL --max-time 12 --connect-timeout 7 -o /dev/null -w 'STATUS=%{http_code} TYPE=%{content_type} IP=%{remote_ip}\n' "$url"
           done
+          echo "LIVE_RELEASE_CONTENT_AUDIT"
+          python3 - <<'PY'
+          import urllib.request
+          targets = [
+              ('root', 'https://navesy59.ru/'),
+              ('privacy', 'https://navesy59.ru/arsenal-privacy.html'),
+              ('favicon', 'https://navesy59.ru/favicon.ico'),
+              ('svg_icon', 'https://navesy59.ru/assets/arsenal-favicon.svg'),
+          ]
+          for name, url in targets:
+              try:
+                  req = urllib.request.Request(url, headers={'User-Agent': 'DashByte-Release-Audit/1.0'})
+                  with urllib.request.urlopen(req, timeout=15) as res:
+                      blob = res.read(2000000)
+                      body = blob.decode('utf-8', 'replace') if name in ('root', 'privacy', 'svg_icon') else ''
+                      marks = {'old_chooser': 'К выбору проектов' in body,
+                               'legal_link': 'arsenal-privacy.html' in body,
+                               'studio_bot': 't.me/DashByteStudioBot' in body,
+                               'fav_svg': 'arsenal-favicon.svg' in body}
+                      print('LIVE_AUDIT', name, 'status', res.status,
+                            'type', res.headers.get('Content-Type'),
+                            'bytes_read', len(blob), 'markers', marks)
+              except Exception as error:
+                  print('LIVE_AUDIT_ERROR', name, type(error).__name__, str(error)[:300])
+          PY
           echo "HTML_META_FROM_LIVE"
           python3 - <<'PY'
           from html.parser import HTMLParser
