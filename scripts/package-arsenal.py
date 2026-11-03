@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Build a ready-to-upload standalone Arsenal web hosting archive."""
 from pathlib import Path
-from zipfile import ZipFile, ZIP_DEFLATED
+from zipfile import ZipFile, ZIP_DEFLATED, ZipInfo
 import re
 import io
 import base64
@@ -103,19 +103,26 @@ instructions = """
 8. Форма пока демонстрационная — для реальной доставки заявок нужен отдельный обработчик.
 ИСТОЧНИК: опубликованный arsenal.html из репозитория DashByte.
 """.lstrip()
+def add_public_file(z, name, data):
+    info=ZipInfo(name)
+    info.create_system=3
+    info.external_attr=0o100644 << 16
+    info.compress_type=ZIP_DEFLATED
+    z.writestr(info, data)
+
 with ZipFile(archive, "w", compression=ZIP_DEFLATED, compresslevel=6) as z:
-    z.writestr("index.html", html)
-    z.writestr("favicon.ico", ico_bytes.getvalue())
-    z.writestr("apple-touch-icon.png", apple_bytes.getvalue())
+    add_public_file(z, "index.html", html)
+    add_public_file(z, "favicon.ico", ico_bytes.getvalue())
+    add_public_file(z, "apple-touch-icon.png", apple_bytes.getvalue())
     z.write(root / 'arsenal-privacy.html', 'arsenal-privacy.html')
-    z.writestr('robots.txt', 'User-agent: *\nAllow: /\nSitemap: https://navesy59.ru/sitemap.xml\n')
-    z.writestr('sitemap.xml', '<?xml version="1.0" encoding="UTF-8"?>\n'
+    add_public_file(z, 'robots.txt', 'User-agent: *\nAllow: /\nSitemap: https://navesy59.ru/sitemap.xml\n')
+    add_public_file(z, 'sitemap.xml', '<?xml version="1.0" encoding="UTF-8"?>\n'
       '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
       '<url><loc>https://navesy59.ru/</loc></url>'
       '<url><loc>https://navesy59.ru/arsenal-privacy.html</loc></url>'
       '</urlset>\n')
     for filename,content in sorted(inline_assets.items()):
-        z.writestr(filename, content)
+        add_public_file(z, filename, content)
     for p in sorted(chosen):
         z.write(p, p.relative_to(root).as_posix())
 
