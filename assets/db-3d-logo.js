@@ -35,7 +35,7 @@
   'uniform float uTime;',
   'void main(){',
   'vec3 n=normalize(vNormal);',
-  'float flat=smoothstep(.88,.98,vFace);',
+  'float faceMask=smoothstep(.88,.98,vFace);',
   'vec3 key=normalize(vec3(-.62,.76,.45));',
   'vec3 kicker=normalize(vec3(.87,.26,.47));',
   'float diffuse=.67+.23*abs(dot(n,key))+.10*abs(dot(n,kicker));',
@@ -53,7 +53,7 @@
   'vec3 polished=vec3(.43,.49,.56)*edgeLight;',
   'polished+=vec3(.78,.83,.91)*(stripA*.75+stripB*.88+stripC*.54+glint*.30);',
   'polished+=vec3(.17,.21,.26)*pow(1.0-abs(n.z),2.1);',
-  'vec3 metal=mix(polished,satin,flat);',
+  'vec3 metal=mix(polished,satin,faceMask);',
   '// Both matte faces and polished edges are opaque, like real machined metal.',
   'gl_FragColor=vec4(clamp(metal,0.0,1.0),1.0);',
   '}'
