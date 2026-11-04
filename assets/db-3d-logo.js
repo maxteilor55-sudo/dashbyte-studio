@@ -26,7 +26,7 @@
   'n=vec3(n.x,n.y*cx-n.z*sx,n.y*sx+n.z*cx);',
   'vNormal=normalize(n);vUV=aUV;vFace=abs(aNormal.z);',
   '// Orthographic camera: fixed center and size, regardless of object depth or gesture.',
-  'gl_Position=vec4(p.x*1.07/uRatio,p.y*1.07,-p.z*.29,1.0);',
+  'gl_Position=vec4(p.x*1.10/uRatio,p.y*1.10,-p.z*.29,1.0);',
   '}'
  ].join('\n');
  const fragmentSource=[
@@ -34,28 +34,42 @@
   'varying vec3 vNormal;varying vec2 vUV;varying float vFace;',
   'uniform float uTime;',
   'void main(){',
-  'vec3 n=normalize(vNormal);',
+  'vec3 normalDir=normalize(vNormal);',
   'float faceMask=smoothstep(.88,.98,vFace);',
-  'vec3 key=normalize(vec3(-.62,.76,.45));',
-  'vec3 kicker=normalize(vec3(.87,.26,.47));',
-  'float diffuse=.67+.23*abs(dot(n,key))+.10*abs(dot(n,kicker));',
-  '// Front AND back: bead-blasted satin steel, never transparent or mirror-glossy.',
-  'float fineGrain=sin(vUV.x*126.0)*sin(vUV.y*113.0)*.009;',
-  'vec3 satin=vec3(.57,.605,.655)*diffuse+vec3(fineGrain);',
-  'satin+=vec3(.025,.027,.032)*pow(abs(dot(n,key)),6.0);',
-  '// Extruded sidewalls: cool polished steel with narrow specular light strips.',
-  'float stripA=pow(max(dot(n,normalize(vec3(-.76,.62,.22))),0.0),26.0);',
-  'float stripB=pow(max(dot(n,normalize(vec3(.84,.38,.25))),0.0),37.0);',
-  'float stripC=pow(max(dot(n,normalize(vec3(.15,-.84,.52))),0.0),49.0);',
-  'vec3 moving=normalize(vec3(cos(uTime*.19),.40+sin(uTime*.12)*.17,.43));',
-  'float glint=pow(max(dot(n,moving),0.0),57.0);',
-  'float edgeLight=.38+.37*abs(dot(n,key))+.22*abs(dot(n,kicker));',
-  'vec3 polished=vec3(.43,.49,.56)*edgeLight;',
-  'polished+=vec3(.78,.83,.91)*(stripA*.75+stripB*.88+stripC*.54+glint*.30);',
-  'polished+=vec3(.17,.21,.26)*pow(1.0-abs(n.z),2.1);',
-  'vec3 metal=mix(polished,satin,faceMask);',
-  '// Both matte faces and polished edges are opaque, like real machined metal.',
-  'gl_FragColor=vec4(clamp(metal,0.0,1.0),1.0);',
+  '// Slowly crossfade through four studio-light colors, without abrupt flashes.',
+  'float cycle=mod(uTime*.20,4.0);',
+  'float crossfade=fract(cycle);',
+  'crossfade=crossfade*crossfade*(3.0-2.0*crossfade);',
+  'vec3 coral=vec3(1.0,.18,.29);',
+  'vec3 violet=vec3(.68,.26,1.0);',
+  'vec3 cobalt=vec3(.13,.43,1.0);',
+  'vec3 aqua=vec3(.08,.88,.78);',
+  'vec3 lightColor;',
+  'if(cycle<1.0)lightColor=mix(coral,violet,crossfade);',
+  'else if(cycle<2.0)lightColor=mix(violet,cobalt,crossfade);',
+  'else if(cycle<3.0)lightColor=mix(cobalt,aqua,crossfade);',
+  'else lightColor=mix(aqua,coral,crossfade);',
+  'vec3 keyLight=normalize(vec3(-.62,.76,.45));',
+  'vec3 bounceLight=normalize(vec3(.87,.26,.47));',
+  'vec3 movingLight=normalize(vec3(.53*cos(uTime*.31),.47+.12*sin(uTime*.17),.72));',
+  'float bodyLit=.32+.46*abs(dot(normalDir,keyLight))+.17*abs(dot(normalDir,bounceLight));',
+  '// Front and back: almost-black bead-blasted metal, with subtle colorful bounce.',
+  'float grain=sin(vUV.x*126.0)*sin(vUV.y*113.0)*.004;',
+  'vec3 matteBlack=vec3(.029,.032,.039)+vec3(.041,.046,.052)*bodyLit+vec3(grain);',
+  'float wideBounce=pow(max(dot(normalDir,movingLight),0.0),2.0);',
+  'matteBlack+=lightColor*(.035+.15*wideBounce);',
+  '// Dark graphite sidewalls with precise glossy rim highlights.',
+  'float chromeA=pow(max(dot(normalDir,normalize(vec3(-.76,.62,.22))),0.0),26.0);',
+  'float chromeB=pow(max(dot(normalDir,normalize(vec3(.84,.38,.25))),0.0),37.0);',
+  'float chromeC=pow(max(dot(normalDir,normalize(vec3(.15,-.84,.52))),0.0),49.0);',
+  'float movingGlint=pow(max(dot(normalDir,movingLight),0.0),32.0);',
+  'float reflection=chromeA*.80+chromeB*.96+chromeC*.58+movingGlint*.55;',
+  'vec3 polishedBlack=vec3(.077,.088,.105)+vec3(.12,.14,.17)*abs(dot(normalDir,keyLight));',
+  'polishedBlack+=vec3(.28,.30,.33)*(chromeA*.60+chromeB*.70+chromeC*.42);',
+  'polishedBlack+=lightColor*(reflection*.67+.065);',
+  'vec3 finalMetal=mix(polishedBlack,matteBlack,faceMask);',
+  '// Opaque black aluminum; original vector extrusion and 2-axis camera are unchanged.',
+  'gl_FragColor=vec4(clamp(finalMetal,0.0,1.0),1.0);',
   '}'
  ].join('\n');
  function compile(type,code){
@@ -182,7 +196,7 @@
   stage.dataset.meshFaces=String(mesh.faces);
   stage.dataset.faceSource='original-vector-triangles';
   stage.dataset.geometryVersion='authentic-vector-solid-v1';
-  stage.dataset.material='machined-matte-polished-steel-v2';
+  stage.dataset.material='black-satin-polished-colorlight-v3';
   stage.dataset.cameraMode='fixed-scale-no-auto-fit';
   stage.dataset.projection='orthographic';
   stage.dataset.rotation='two-axis-free';
