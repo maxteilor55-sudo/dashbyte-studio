@@ -1,4 +1,4 @@
-/* Official DashByte DB: real vector-extruded metal. Exact three SVG paths; true triangulated faces and smooth side polygons, no raster masking. */
+/* Official DashByte DB: true vector-extruded frosted glass. Exact three SVG paths; true triangulated faces and smooth side polygons, no raster masking. */
 (function(){
  'use strict';
  const stage=document.getElementById('db3dStage');
@@ -23,38 +23,42 @@
   'vec3 n=vec3(aNormal.x*cy+aNormal.z*sy,aNormal.y,-aNormal.x*sy+aNormal.z*cy);',
   'n=vec3(n.x,n.y*cx-n.z*sx,n.y*sx+n.z*cx);',
   'vNormal=normalize(n);vUV=aUV;vFace=abs(aNormal.z);',
-  'float perspective=3.8/(3.8-p.z);',
-  'gl_Position=vec4(p.x*1.04*perspective/uRatio,p.y*1.04*perspective,-p.z*.29,1.0);',
+  '// Orthographic camera: the projected size and center never depend on model depth.',
+  'gl_Position=vec4(p.x*1.04/uRatio,p.y*1.04,-p.z*.29,1.0);',
   '}'
  ].join('\n');
  const fragmentSource=[
-  'precision highp float;',
-  'varying vec3 vNormal;varying vec2 vUV;varying float vFace;',
-  'uniform float uTime;',
-  'void main(){',
-  'vec3 n=normalize(vNormal);',
-  'vec3 keyDir=normalize(vec3(-.57,.74,.42));',
-  'vec3 fillDir=normalize(vec3(.88,.18,.44));',
-  'float key=max(dot(n,keyDir),0.0);',
-  'float fill=max(dot(n,fillDir),0.0);',
-  'float front=smoothstep(.92,.985,vFace);',
-  '// Liquid-glass front: neutral smoky milky translucency, soft frosted light.',
-  'vec3 frosted=vec3(.81,.83,.87)*(.82+.13*key+.08*fill);',
-  'float faceGlow=pow(max(dot(n,normalize(vec3(-.45,.44,.77))),0.0),10.0);',
-  'frosted+=vec3(.09,.10,.12)*faceGlow*.55;',
-  '// Refractive-looking perimeter: bright grazing reflections and glass thickness.',
-  'float stripA=pow(max(dot(n,normalize(vec3(-.72,.64,.24))),0.0),19.0);',
-  'float stripB=pow(max(dot(n,normalize(vec3(.81,.35,.29))),0.0),27.0);',
-  'float fresnel=pow(1.0-abs(n.z),1.5);',
-  'vec3 sweep=normalize(vec3(cos(uTime*.26),.45+sin(uTime*.19)*.19,.27));',
-  'float caustic=pow(max(dot(n,sweep),0.0),36.0);',
-  'vec3 glassEdge=vec3(.40,.45,.52)+vec3(.17,.20,.23)*(.45*key+.25*fill);',
-  'glassEdge+=vec3(.66,.73,.81)*(stripA*.85+stripB*.63+caustic*.28);',
-  'glassEdge+=vec3(.12,.19,.26)*fresnel;',
-  'vec3 material=mix(glassEdge,frosted,front);',
-  'float alpha=mix(.91,.83,front);',
-  'gl_FragColor=vec4(clamp(material,0.0,1.0),alpha);',
-  '}'
+  "precision highp float;",
+  "varying vec3 vNormal;",
+  "varying vec2 vUV;",
+  "varying float vFace;",
+  "uniform float uTime;",
+  "void main(){",
+  " vec3 n=normalize(vNormal);",
+  " vec3 viewDir=vec3(0.0,0.0,1.0);",
+  " float grazing=pow(1.0-abs(dot(n,viewDir)),2.0);",
+  " float face=smoothstep(0.89,0.99,vFace);",
+  " // Cool, light-transmitting frosted glass, not painted metal.",
+  " vec3 keyDir=normalize(vec3(-0.62,0.78,0.49));",
+  " vec3 softDir=normalize(vec3(0.91,0.27,0.38));",
+  " float key=max(dot(n,keyDir),0.0);",
+  " float fill=max(dot(n,softDir),0.0);",
+  " float sky=clamp(n.y*0.5+0.5,0.0,1.0);",
+  " vec3 milk=vec3(0.66,0.71,0.78)+(vec3(0.13,0.14,0.15)*sky);",
+  " milk+=(0.16*key+0.08*fill)*vec3(0.87,0.92,1.0);",
+  " // Thickness gives the side surfaces a cooler, denser glass appearance.",
+  " vec3 thickness=vec3(0.32,0.43,0.53)+(0.20*key+0.11*fill)*vec3(0.80,0.89,1.0);",
+  " float edgeKey=pow(max(dot(n,normalize(vec3(-0.77,0.52,0.36))),0.0),22.0);",
+  " float edgeFill=pow(max(dot(n,normalize(vec3(0.83,0.37,0.30))),0.0),26.0);",
+  " float opticalSweep=pow(max(dot(n,normalize(vec3(cos(uTime*0.31),0.65,sin(uTime*0.23)*0.42+0.45))),0.0),40.0);",
+  " // Small blue/white wavelength shifts at glancing edges suggest refraction.",
+  " vec3 rim=vec3(0.20,0.32,0.43)*grazing;",
+  " rim+=vec3(0.67,0.81,0.98)*(edgeKey*0.78+edgeFill*0.58+opticalSweep*0.20);",
+  " vec3 material=mix(thickness,milk,face)+rim;",
+  " material+=vec3(0.035,0.050,0.075)*sin(vUV.x*3.0+vUV.y*5.0);",
+  " float alpha=mix(0.80,0.73,face)+grazing*0.11;",
+  " gl_FragColor=vec4(clamp(material,0.0,1.0),clamp(alpha,0.0,0.94));",
+  "}"
  ].join('\n');
 
  function compile(type,code){

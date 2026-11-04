@@ -1,146 +1,137 @@
-/* DASHBYTE / Liquid Glass Atelier v1 — based on the approved Arsenal V9 header.
-   All four project surfaces are actual backdrop-blurred translucent glass.
-   Accent colours illuminate the EDGE, never turn the panel into an opaque tile.
-   Keep existing layout, links, artwork, readiness percentages and safe areas. */
+/* DASHBYTE / LIQUID GLASS ATELIER v2
+   Arsenal-inspired frosted optical glass, not solid theme-coloured tiles.
+   One backdrop-filter per card: Android Telegram GPU-friendly.
+   Preserve project layout, all four links, PIN, progress and illustrations. */
 
-/* Shared material: airy smoothed-glass surface, high-edge specular highlights. */
 .page > .projects > a.project.arthur,
 .page > .projects > a.project.green-collection,
 .page > .projects > a.project.perm-vl,
 .page > .projects > a.project.arsenal{
-  --db-glass-accent: 196, 196, 208;
-  position:relative!important;
-  isolation:isolate!important;
-  overflow:hidden!important;
-  border:1px solid rgba(var(--db-glass-accent),.42)!important;
-  background:rgba(26,28,36,.14)!important;
-  background-image:none!important;
-  -webkit-backdrop-filter:blur(18px) saturate(118%) brightness(1.04)!important;
-  backdrop-filter:blur(18px) saturate(118%) brightness(1.04)!important;
-  box-shadow:
-    0 17px 40px rgba(3,5,10,.31),
-    0 4px 27px rgba(var(--db-glass-accent),.095),
-    inset 0 1px 0 rgba(255,255,255,.42),
-    inset 1px 0 0 rgba(255,255,255,.13),
-    inset -1px 0 0 rgba(var(--db-glass-accent),.16),
-    inset 0 -1px 0 rgba(255,255,255,.075)!important;
-  transition:transform .32s cubic-bezier(.2,.7,.2,1),border-color .28s,box-shadow .28s!important;
+ --db-glass-accent:190,200,213;
+ position:relative!important;
+ isolation:isolate!important;
+ overflow:hidden!important;
+ background-color:rgba(38,43,54,.12)!important;
+ background-image:
+   radial-gradient(ellipse 100% 57% at 10% -30%,rgba(246,251,255,.19),transparent 82%),
+   linear-gradient(140deg,rgba(224,232,244,.135) 0%,rgba(127,141,159,.065) 37%,rgba(15,20,30,.13) 100%)!important;
+ border:1px solid rgba(var(--db-glass-accent),.48)!important;
+ -webkit-backdrop-filter:blur(26px) saturate(128%) brightness(1.06)!important;
+ backdrop-filter:blur(26px) saturate(128%) brightness(1.06)!important;
+ box-shadow:
+   0 20px 43px rgba(0,2,9,.27),
+   0 0 25px rgba(var(--db-glass-accent),.075),
+   inset 0 1px 0 rgba(255,255,255,.56),
+   inset 1px 0 0 rgba(255,255,255,.19),
+   inset -1px 0 0 rgba(var(--db-glass-accent),.27),
+   inset 0 -1px 0 rgba(255,255,255,.13)!important;
+ transition:transform .34s cubic-bezier(.2,.75,.2,1),border-color .3s,box-shadow .3s!important;
 }
-.page > .projects > a.project.arthur{--db-glass-accent:249,99,113}
-.page > .projects > a.project.green-collection{--db-glass-accent:166,212,144}
-.page > .projects > a.project.perm-vl{--db-glass-accent:112,168,218}
-.page > .projects > a.project.arsenal{--db-glass-accent:209,171,137}
+.page > .projects > a.project.arthur{--db-glass-accent:247,107,125}
+.page > .projects > a.project.green-collection{--db-glass-accent:177,220,158}
+.page > .projects > a.project.perm-vl{--db-glass-accent:113,181,234}
+.page > .projects > a.project.arsenal{--db-glass-accent:218,178,136}
 
-/* Arsenal's diffuse backdrop optics carried over to EACH existing inner pane. */
+/* The matte is a transparent structural gradient; blurring only the card
+   avoids stacking multiple expensive GPU filters in a Telegram WebView. */
 .page > .projects > a.project > .arthur-matte,
 .page > .projects > a.project > .gc-card-matte,
 .page > .projects > a.project > .pv-card-matte,
 .page > .projects > a.project > .arsenal-matte-pane{
-  position:absolute!important;
-  inset:0!important;
-  z-index:0!important;
-  display:block!important;
-  pointer-events:none!important;
-  border-radius:inherit!important;
-  opacity:1!important;
-  background:
-    radial-gradient(ellipse 120% 80% at 6% -30%,rgba(255,255,255,.19),transparent 63%),
-    radial-gradient(ellipse 95% 74% at 110% 8%,rgba(var(--db-glass-accent),.14),transparent 78%),
-    linear-gradient(144deg,rgba(195,203,214,.13) 0%,rgba(64,68,78,.24) 42%,rgba(11,14,22,.37) 100%)!important;
-  -webkit-backdrop-filter:blur(34px) saturate(.83) contrast(.94)!important;
-  backdrop-filter:blur(34px) saturate(.83) contrast(.94)!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.15),inset 0 -1px 0 rgba(255,255,255,.055)!important;
+ position:absolute!important;inset:0!important;z-index:0!important;
+ display:block!important;border-radius:inherit!important;pointer-events:none!important;
+ opacity:1!important;
+ background:
+   radial-gradient(ellipse 92% 65% at 5% -9%,rgba(255,255,255,.21),transparent 80%),
+   radial-gradient(ellipse 70% 85% at 113% 8%,rgba(var(--db-glass-accent),.17),transparent 79%),
+   linear-gradient(157deg,rgba(200,210,225,.10) 0%,rgba(44,54,69,.13) 52%,rgba(9,14,22,.33) 100%)!important;
+ -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 -1px 0 rgba(255,255,255,.055)!important;
 }
-/* Physically plausible glancing light and gently darkened glass foot.
-   This remains transparent: the moving cinema background is still visible. */
+/* Broad diffuse reflection plus a slim spectral glint through top-left.
+   Each card is neutral glass with only the edge picking up its brand colour. */
 .page > .projects > a.project.arthur::before,
 .page > .projects > a.project.green-collection::before,
 .page > .projects > a.project.perm-vl::before,
 .page > .projects > a.project.arsenal::before{
-  content:""!important;
-  position:absolute!important;inset:0!important;
-  z-index:1!important;pointer-events:none!important;
-  background:
-    linear-gradient(166deg,rgba(255,255,255,.20) 0%,rgba(255,255,255,.045) 17%,transparent 40%,rgba(255,255,255,.028) 66%,rgba(255,255,255,.075) 100%),
-    radial-gradient(ellipse 72% 54% at 100% 0%,rgba(var(--db-glass-accent),.19),transparent 80%)!important;
-  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+ content:""!important;position:absolute!important;inset:0!important;
+ z-index:1!important;pointer-events:none!important;
+ background:
+   linear-gradient(150deg,rgba(255,255,255,.27) 0%,rgba(255,255,255,.075) 8%,transparent 29%,rgba(255,255,255,.027) 72%,rgba(255,255,255,.09) 100%),
+   radial-gradient(ellipse 82% 35% at 99% 0%,rgba(var(--db-glass-accent),.21),transparent 88%)!important;
+ -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
 }
 .page > .projects > a.project.arthur::after,
 .page > .projects > a.project.green-collection::after,
 .page > .projects > a.project.perm-vl::after,
 .page > .projects > a.project.arsenal::after{
-  content:""!important;inset:0!important;position:absolute!important;
-  pointer-events:none!important;z-index:1!important;
-  background:linear-gradient(180deg,rgba(9,12,17,.01) 2%,rgba(9,12,17,.07) 37%,rgba(9,12,17,.22) 68%,rgba(7,9,14,.45) 100%)!important;
+ content:""!important;position:absolute!important;inset:0!important;
+ z-index:1!important;pointer-events:none!important;
+ background:linear-gradient(180deg,rgba(5,9,15,0) 0%,rgba(7,11,18,.04) 39%,rgba(5,8,14,.15) 66%,rgba(5,8,14,.34) 100%)!important;
 }
-/* Keep text above the optical stack; preserve custom project artwork. */
 .page > .projects > a.project .project-head,
-.page > .projects > a.project .project-body{
-  position:relative!important;z-index:4!important;
-}
+.page > .projects > a.project .project-body{position:relative!important;z-index:4!important}
 .page > .projects > a.project .art,
 .page > .projects > a.project .pv-card-art,
-.page > .projects > a.project .gc-art{
-  pointer-events:none!important;
-  z-index:2!important;
-}
-.page > .projects > a.project.arthur .art{opacity:.38!important}
-.page > .projects > a.project.green-collection .gc-art{opacity:.35!important}
-.page > .projects > a.project.perm-vl .pv-card-art{opacity:.42!important}
-.page > .projects > a.project.arsenal .art{opacity:.33!important}
+.page > .projects > a.project .gc-art{pointer-events:none!important;z-index:2!important}
+.page > .projects > a.project.arthur .art{opacity:.28!important}
+.page > .projects > a.project.green-collection .gc-art{opacity:.29!important}
+.page > .projects > a.project.perm-vl .pv-card-art{opacity:.30!important}
+.page > .projects > a.project.arsenal .art{opacity:.27!important}
 .page > .projects > a.project .category{
-  -webkit-backdrop-filter:blur(14px) saturate(120%)!important;
-  backdrop-filter:blur(14px) saturate(120%)!important;
-  background:rgba(10,13,19,.24)!important;
-  border-color:rgba(var(--db-glass-accent),.31)!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.12)!important;
+ background:rgba(21,27,37,.24)!important;
+ border-color:rgba(var(--db-glass-accent),.32)!important;
+ -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.16)!important;
 }
 .page > .projects > a.project .project-label,
 .page > .projects > a.project h2,
 .page > .projects > a.project .project-link{
-  text-shadow:0 2px 17px rgba(4,5,10,.52)!important;
+ text-shadow:0 2px 14px rgba(0,0,0,.63),0 0 30px rgba(0,0,0,.21)!important;
 }
 .page > .projects > a.project:hover{
-  border-color:rgba(var(--db-glass-accent),.73)!important;
-  box-shadow:0 23px 53px rgba(1,3,8,.36),0 0 34px rgba(var(--db-glass-accent),.14),inset 0 1px 0 rgba(255,255,255,.52)!important;
+ border-color:rgba(var(--db-glass-accent),.78)!important;
+ box-shadow:0 24px 55px rgba(0,3,9,.35),0 0 32px rgba(var(--db-glass-accent),.15),inset 0 1px 0 rgba(255,255,255,.69)!important;
 }
-/* The 3D preview and its parent receive the same colourless optical shell.
-   No change to logo geometry, position or gesture targets. */
+.page > .projects > a.project:focus-visible{
+ outline:2px solid rgba(var(--db-glass-accent),.94)!important;outline-offset:3px!important;
+}
+/* The solid DB mesh lives in this clear frosted viewport. WebGL gives its
+   surfaces transparent ice/silver reflections; CSS blurs the live film behind. */
 .db3d-stage{
-  background:linear-gradient(125deg,rgba(220,222,230,.10),rgba(29,33,44,.12) 47%,rgba(17,18,25,.21))!important;
-  border-color:rgba(255,255,255,.28)!important;
-  -webkit-backdrop-filter:blur(19px) saturate(118%) brightness(1.04)!important;
-  backdrop-filter:blur(19px) saturate(118%) brightness(1.04)!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.30),0 16px 37px rgba(0,0,0,.20)!important;
+ background:
+  radial-gradient(ellipse 100% 130% at -10% 0%,rgba(251,253,255,.15),transparent 75%),
+  linear-gradient(128deg,rgba(215,226,240,.12),rgba(42,49,64,.075) 54%,rgba(14,18,28,.18))!important;
+ border:1px solid rgba(255,255,255,.38)!important;
+ -webkit-backdrop-filter:blur(20px) saturate(122%) brightness(1.07)!important;
+ backdrop-filter:blur(20px) saturate(122%) brightness(1.07)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.49),inset 1px 0 0 rgba(255,255,255,.14),0 17px 38px rgba(0,0,0,.22)!important;
 }
 .db3d-stage .db3d-viewport{
-  overflow:hidden!important;
-  border:1px solid rgba(255,214,229,.47)!important;
-  background:linear-gradient(150deg,rgba(223,225,235,.13),rgba(40,43,55,.075) 46%,rgba(15,18,26,.14))!important;
-  -webkit-backdrop-filter:blur(19px) saturate(119%) brightness(1.05)!important;
-  backdrop-filter:blur(19px) saturate(119%) brightness(1.05)!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.38),inset 0 -1px 0 rgba(255,255,255,.07),0 0 21px rgba(248,101,153,.08)!important;
+ overflow:hidden!important;
+ border:1px solid rgba(245,244,255,.59)!important;
+ background:radial-gradient(ellipse at 55% 29%,rgba(244,249,255,.15),transparent 83%),linear-gradient(158deg,rgba(232,242,251,.15),rgba(47,54,72,.06) 61%,rgba(14,18,28,.18))!important;
+ -webkit-backdrop-filter:blur(20px) saturate(128%) brightness(1.07)!important;
+ backdrop-filter:blur(20px) saturate(128%) brightness(1.07)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.56),inset 1px 0 0 rgba(255,255,255,.17),inset 0 -1px 0 rgba(255,255,255,.15),0 0 23px rgba(252,138,181,.11)!important;
 }
 .db3d-stage .db3d-light{
-  background:radial-gradient(ellipse at 34% 27%,rgba(236,244,255,.14),transparent 72%),radial-gradient(ellipse at 82% 80%,rgba(250,121,171,.14),transparent 75%)!important;
-  filter:blur(9px)!important;
+ background:radial-gradient(ellipse at 23% 14%,rgba(246,251,255,.26),transparent 70%),radial-gradient(ellipse at 93% 89%,rgba(245,146,192,.13),transparent 78%)!important;
+ filter:blur(10px)!important;
 }
-@media (min-width:1024px){
-  .page>.intro>.db3d-stage{
-    background:transparent!important;border-color:transparent!important;
-    -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
-    box-shadow:none!important;
-  }
+@media(min-width:1024px){
+ .page>.intro>.db3d-stage{
+   border:0!important;background:transparent!important;box-shadow:none!important;
+   -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+ }
 }
 @supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
-  .page > .projects > a.project.arthur,
-  .page > .projects > a.project.green-collection,
-  .page > .projects > a.project.perm-vl,
-  .page > .projects > a.project.arsenal{
-    background:rgba(35,39,49,.78)!important;
-  }
+ .page > .projects > a.project.arthur,
+ .page > .projects > a.project.green-collection,
+ .page > .projects > a.project.perm-vl,
+ .page > .projects > a.project.arsenal{background:rgba(43,48,60,.83)!important}
+ .db3d-stage .db3d-viewport{background:rgba(37,41,54,.8)!important}
 }
-/* Reduced motion changes transitions, not translucency or accessibility. */
-@media (prefers-reduced-motion:reduce){
+@media(prefers-reduced-motion:reduce){
  .page > .projects > a.project{transition:none!important}
 }
