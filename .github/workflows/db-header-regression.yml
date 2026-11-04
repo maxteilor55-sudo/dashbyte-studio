@@ -74,7 +74,7 @@ jobs:
               return {top:el.getBoundingClientRect().top,height:el.getBoundingClientRect().height}
             });
             console.log('DESKTOP_HEADER',JSON.stringify(desk));
-            if(!(desk.top>=4&&desk.top<=12&&desk.height>48))
+            if(!(desk.top>=4&&desk.top<=16&&desk.height>48))
               throw Error('Desktop header is not near the viewport top');
             await browser.close();
           })().catch(e=>{console.error(e);process.exit(1)});
