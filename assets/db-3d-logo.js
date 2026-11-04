@@ -8,13 +8,13 @@
  const source=stage.querySelector('.db3d-source');
  const reduced=window.matchMedia('(prefers-reduced-motion:reduce)');
  let gl=null,program=null,buffer=null,texture=null,sideStart=0,sideCount=0;
- let uYaw,uPitch,uRatio,uTime,uFit,locPos,locNorm,locUV;
+ let uYaw,uPitch,uRatio,uTime,locPos,locNorm,locUV;
  let active=true,raf=0,lastFrame=0,dragging=false,lastX=0,lastY=0,hasInteracted=false;
  let yaw=.14,pitch=-.08,targetYaw=.14,targetPitch=-.08,inertiaYaw=0,inertiaPitch=0,lastManual=0;
 
  const vertexSource=[
   'attribute vec3 aPosition;attribute vec3 aNormal;attribute vec2 aUV;',
-  'uniform float uYaw;uniform float uPitch;uniform float uRatio;uniform float uFit;',
+  'uniform float uYaw;uniform float uPitch;uniform float uRatio;',
   'varying vec3 vNormal;varying vec2 vUV;varying float vFace;',
   'void main(){',
   'float cy=cos(uYaw),sy=sin(uYaw),cx=cos(uPitch),sx=sin(uPitch);',
@@ -24,33 +24,36 @@
   'n=vec3(n.x,n.y*cx-n.z*sx,n.y*sx+n.z*cx);',
   'vNormal=normalize(n);vUV=aUV;vFace=abs(aNormal.z);',
   'float perspective=3.8/(3.8-p.z);',
-  'gl_Position=vec4(p.x*1.34*perspective/uRatio*uFit,p.y*1.34*perspective*uFit,-p.z*.29,1.0);',
+  'gl_Position=vec4(p.x*1.21*perspective/uRatio,p.y*1.21*perspective,-p.z*.29,1.0);',
   '}'
  ].join('\n');
  const fragmentSource=[
-  'precision highp float;varying vec3 vNormal;varying vec2 vUV;varying float vFace;',
+  'precision highp float;',
+  'varying vec3 vNormal;varying vec2 vUV;varying float vFace;',
   'uniform float uTime;',
   'void main(){',
   'vec3 n=normalize(vNormal);',
-  'float key=max(dot(n,normalize(vec3(-.45,.78,.52))),0.0);',
-  'float fill=max(dot(n,normalize(vec3(.79,.16,.47))),0.0);',
-  '// Signed geometry normals identify the untouched vector front/back surfaces.',
-  '// Matte grey faces: diffuse studio light only, no sparkling coating.',
-  'float diffuse=.76+.17*key+.07*fill;',
-  'vec3 matte=vec3(.68,.69,.71)*diffuse;',
-  'matte+=vec3(.014)*pow(max(dot(n,normalize(vec3(.1,.38,.92))),0.0),6.0);',
-  '// The real extruded SVG perimeter has polished metallic sidewalls.',
-  '// Broad environment panels + sharp moving strip lights follow the normal.',
-  'float panelA=pow(max(dot(n,normalize(vec3(-.75,.62,.12))),0.0),13.0);',
-  'float panelB=pow(max(dot(n,normalize(vec3(.82,.32,.18))),0.0),22.0);',
-  'float hairline=pow(max(dot(n,normalize(vec3(-.15,-.95,.26))),0.0),42.0);',
-  'vec3 movingLight=normalize(vec3(cos(uTime*.26),.45+sin(uTime*.19)*.2,.18));',
-  'float glint=pow(max(dot(n,movingLight),0.0),32.0);',
-  'vec3 polished=vec3(.26,.28,.32)+vec3(.28,.30,.33)*(.50*key+.25*fill);',
-  'polished+=vec3(.67,.71,.77)*(panelA*.82+panelB*.60+hairline*.42+glint*.23);',
-  'float face=smoothstep(.90,.98,vFace);',
-  'vec3 material=mix(polished,matte,face);',
-  'gl_FragColor=vec4(clamp(material,0.0,1.0),1.0);',
+  'vec3 keyDir=normalize(vec3(-.57,.74,.42));',
+  'vec3 fillDir=normalize(vec3(.88,.18,.44));',
+  'float key=max(dot(n,keyDir),0.0);',
+  'float fill=max(dot(n,fillDir),0.0);',
+  'float front=smoothstep(.92,.985,vFace);',
+  '// Liquid-glass front: neutral smoky milky translucency, soft frosted light.',
+  'vec3 frosted=vec3(.54,.58,.64)*(.77+.18*key+.08*fill);',
+  'float faceGlow=pow(max(dot(n,normalize(vec3(-.45,.44,.77))),0.0),10.0);',
+  'frosted+=vec3(.16,.18,.22)*faceGlow*.55;',
+  '// Refractive-looking perimeter: bright grazing reflections and glass thickness.',
+  'float stripA=pow(max(dot(n,normalize(vec3(-.72,.64,.24))),0.0),19.0);',
+  'float stripB=pow(max(dot(n,normalize(vec3(.81,.35,.29))),0.0),27.0);',
+  'float fresnel=pow(1.0-abs(n.z),1.5);',
+  'vec3 sweep=normalize(vec3(cos(uTime*.26),.45+sin(uTime*.19)*.19,.27));',
+  'float caustic=pow(max(dot(n,sweep),0.0),36.0);',
+  'vec3 glassEdge=vec3(.29,.39,.49)+vec3(.18,.22,.25)*(.45*key+.25*fill);',
+  'glassEdge+=vec3(.54,.66,.78)*(stripA*.85+stripB*.63+caustic*.28);',
+  'glassEdge+=vec3(.12,.19,.26)*fresnel;',
+  'vec3 material=mix(glassEdge,frosted,front);',
+  'float alpha=mix(.88,.78,front);',
+  'gl_FragColor=vec4(clamp(material,0.0,1.0),alpha);',
   '}'
  ].join('\n');
 
@@ -165,7 +168,6 @@
   uYaw=gl.getUniformLocation(program,'uYaw');
   uPitch=gl.getUniformLocation(program,'uPitch');
   uRatio=gl.getUniformLocation(program,'uRatio');
-  uFit=gl.getUniformLocation(program,'uFit');
   uTime=gl.getUniformLocation(program,'uTime');
   buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
   gl.bufferData(gl.ARRAY_BUFFER,mesh.vertices,gl.STATIC_DRAW);
@@ -179,35 +181,21 @@
   stage.dataset.meshFaces=String(mesh.faces);
   stage.dataset.faceSource='original-vector-triangles';
   stage.dataset.geometryVersion='authentic-vector-solid-v1';
-  stage.dataset.material='matte-grey-polished-edges-v2';
+  stage.dataset.material='arsenal-liquid-glass-webgl-v1';
+  stage.dataset.cameraMode='fixed-scale-no-auto-fit';
   stage.dataset.rotation='two-axis-free';
   gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LESS);
-  gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);gl.disable(gl.BLEND);
+  gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);
+  gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
   resize();draw();stage.dataset.renderer='webgl';start();
  }
- // The approved front view stays at its original scale. When the viewer tilts
- // the object far up/down, fit the rotated 3D bounding box inside the small
- // Telegram preview so no corner can get clipped. Geometry is untouched.
- function projectionFit(){
-  const cy=Math.cos(yaw),sy=Math.sin(yaw),cx=Math.cos(pitch),sx=Math.sin(pitch);
-  const ratio=Math.max(.7,canvas.width/canvas.height);
-  let extent=0;
-  for(const x of [-.8,.8])for(const y of [-.8*522/762,.8*522/762])
-   for(const z of [-.118,.118]){
-    const rx=x*cy+z*sy,rz=-x*sy+z*cy;
-    const ry=y*cx-rz*sx,depth=y*sx+rz*cx;
-    const persp=3.8/(3.8-depth);
-    extent=Math.max(extent,Math.abs(rx*1.34*persp/ratio),Math.abs(ry*1.34*persp));
-   }
-  return Math.min(1,.925/Math.max(extent,.001));
- }
+ // Constant optical size for every rotation: never zoom or refit the object.
  function draw(){
   if(!gl||!program)return;
   resize();gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
   gl.useProgram(program);
   gl.uniform1f(uYaw,yaw);gl.uniform1f(uPitch,pitch);
   gl.uniform1f(uRatio,Math.max(.7,canvas.width/canvas.height));
-  gl.uniform1f(uFit,projectionFit());
   gl.uniform1f(uTime,performance.now()*.001);
   stage.dataset.poseYaw=String(yaw.toFixed(4));
   stage.dataset.posePitch=String(pitch.toFixed(4));
