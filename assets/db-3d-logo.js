@@ -26,7 +26,7 @@
   'n=vec3(n.x,n.y*cx-n.z*sx,n.y*sx+n.z*cx);',
   'vNormal=normalize(n);vUV=aUV;',
   'float perspective=2.8/(2.8-p.z);',
-  'gl_Position=vec4(p.x*1.52*perspective/uRatio,p.y*1.52*perspective,-p.z*.23,1.0);',
+  'gl_Position=vec4(p.x*1.36*perspective/uRatio,p.y*1.36*perspective,-p.z*.23,1.0);',
   '}'
  ].join('\n');
  const fragmentSource=[
@@ -48,8 +48,8 @@
   'gl_FragColor=vec4(min(metal,vec3(1.0)),a);',
   '}else{',
   'float light=clamp(.35+.47*key+.19*fill,0.0,1.0);',
-  'vec3 edge=mix(vec3(.21,.095,.16),vec3(.77,.44,.54),light);',
-  'edge+=glint*vec3(.24,.12,.17);',
+  'vec3 edge=mix(vec3(.31,.28,.34),vec3(.88,.76,.81),light);',
+  'edge+=glint*vec3(.19,.12,.14);',
   'gl_FragColor=vec4(min(edge,vec3(1.0)),1.0);',
   '}',
   '}'
@@ -69,28 +69,129 @@
   if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;gl.viewport(0,0,w,h)}
  }
  function makeGeometry(image){
-  const W=196,H=134;
+  // Weld the thin decorative strokes of the official vector into ONE solid
+  // extrusion. The previous implementation extruded every SVG slit separately,
+  // producing dozens of floating ribs when the monogram was turned sideways.
+  const W=224,H=154,N=W*H;
   const mask=document.createElement('canvas');
   mask.width=W;mask.height=H;
   const ctx=mask.getContext('2d',{willReadFrequently:true});
   if(!ctx)throw Error('2D context unavailable');
   ctx.clearRect(0,0,W,H);ctx.drawImage(image,0,0,W,H);
   const pixels=ctx.getImageData(0,0,W,H).data;
-  const opaque=(i,j)=>i>=0&&j>=0&&i<W&&j<H&&pixels[(j*W+i)*4+3]>92;
-  const aspect=762/522,X=.80,Y=X/aspect,Z=.125;
-  const posX=i=>((i/W)*2-1)*X, posY=j=>(1-(j/H)*2)*Y;
+  const original=new Uint8Array(N);
+  for(let k=0;k<N;k++)original[k]=pixels[k*4+3]>92?1:0;
+
+  function morph(input,r,expand){
+   const output=new Uint8Array(N);
+   for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    let value=expand?0:1;
+    search:for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){
+     if(dx*dx+dy*dy>r*r)continue;
+     const xx=x+dx,yy=y+dy;
+     if(xx<0||xx>=W||yy<0||yy>=H)continue;
+     const occupied=input[yy*W+xx]===1;
+     if(expand?occupied:!occupied){value=expand?1:0;break search}
+    }
+    output[y*W+x]=value;
+   }
+   return output;
+  }
+  // Rounded morphological closing seals hairline gaps without changing the
+  // approved outer DB silhouette into a rectangular plaque.
+  const solid=morph(morph(original,4,true),4,false);
+  const queue=new Int32Array(N);
+  const eachNeighbor=(k,visit)=>{
+   const x=k%W,y=(k/W)|0;
+   if(x>0)visit(k-1);if(x<W-1)visit(k+1);
+   if(y>0)visit(k-W);if(y<H-1)visit(k+W);
+  };
+
+  // Clear tiny internal pinholes. Retain the large, intentional letter counters.
+  const seen=new Uint8Array(N);
+  for(let seed=0;seed<N;seed++){
+   if(solid[seed]||seen[seed])continue;
+   let head=0,tail=1,touchesEdge=false;
+   queue[0]=seed;seen[seed]=1;
+   while(head<tail){
+    const k=queue[head++],x=k%W,y=(k/W)|0;
+    if(!x||!y||x===W-1||y===H-1)touchesEdge=true;
+    eachNeighbor(k,n=>{if(!solid[n]&&!seen[n]){seen[n]=1;queue[tail++]=n}});
+   }
+   if(!touchesEdge&&tail<260)for(let q=0;q<tail;q++)solid[queue[q]]=1;
+  }
+
+  function components(){
+   const marked=new Uint8Array(N),groups=[];
+   for(let seed=0;seed<N;seed++){
+    if(!solid[seed]||marked[seed])continue;
+    let head=0,tail=1;queue[0]=seed;marked[seed]=1;
+    while(head<tail){
+     const k=queue[head++];
+     eachNeighbor(k,n=>{if(solid[n]&&!marked[n]){marked[n]=1;queue[tail++]=n}});
+    }
+    groups.push(Array.from(queue.subarray(0,tail)));
+   }
+   return groups.sort((a,b)=>b.length-a.length);
+  }
+  // On unusual browsers/resolutions, still guarantee a single connected body:
+  // weld any residual islands to the main metal mass by the shortest bridge.
+  const islands=components();
+  if(!islands.length)throw Error('Empty DB silhouette');
+  if(islands.length>1){
+   const joined=new Uint8Array(N);
+   for(const k of islands[0])joined[k]=1;
+   for(let groupIndex=1;groupIndex<islands.length;groupIndex++){
+    const group=islands[groupIndex],visited=new Uint8Array(N);
+    const previous=new Int32Array(N);previous.fill(-1);
+    let head=0,tail=0,hit=-1;
+    for(const k of group){queue[tail++]=k;visited[k]=1}
+    while(head<tail&&hit<0){
+     const k=queue[head++];
+     if(joined[k]){hit=k;break}
+     eachNeighbor(k,n=>{if(!visited[n]){visited[n]=1;previous[n]=k;queue[tail++]=n}});
+    }
+    if(hit<0)throw Error('Cannot weld DB geometry');
+    for(let k=hit;k>=0;k=previous[k]){
+     const x=k%W,y=(k/W)|0;
+     for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
+      const xx=x+dx,yy=y+dy;
+      if(xx>=0&&xx<W&&yy>=0&&yy<H)solid[yy*W+xx]=joined[yy*W+xx]=1;
+     }
+    }
+    for(const k of group)joined[k]=1;
+   }
+  }
+
+  const imageData=ctx.createImageData(W,H);
+  for(let k=0;k<N;k++){
+   const p=k*4;
+   imageData.data[p]=255;imageData.data[p+1]=255;imageData.data[p+2]=255;
+   imageData.data[p+3]=solid[k]?255:0;
+  }
+  ctx.putImageData(imageData,0,0);
+  const textureCanvas=document.createElement('canvas');
+  textureCanvas.width=512;textureCanvas.height=350;
+  const tc=textureCanvas.getContext('2d');
+  if(!tc)throw Error('Texture canvas unavailable');
+  tc.imageSmoothingEnabled=true;
+  tc.drawImage(mask,0,0,512,350);
+
+  const aspect=762/522,X=.80,Y=X/aspect,Z=.17;
+  const posX=i=>((i/W)*2-1)*X,posY=j=>(1-(j/H)*2)*Y;
   const data=[];
   function put(x,y,z,nx,ny,nz,u,v){data.push(x,y,z,nx,ny,nz,u,v)}
   function tri(a,b,c,n){
    for(const p of [a,b,c])put(p[0],p[1],p[2],n[0],n[1],n[2],p[3]||0,p[4]||0);
   }
-  // Full textured planes: the SVG alpha makes interior holes transparent.
-  function plane(z,nz){
+  function plane(z,front){
    const tl=[-X,Y,z,0,1],tr=[X,Y,z,1,1],br=[X,-Y,z,1,0],bl=[-X,-Y,z,0,0];
-   tri(tl,bl,br,[0,0,nz]);tri(tl,br,tr,[0,0,nz]);
+   if(front){tri(tl,bl,br,[0,0,1]);tri(tl,br,tr,[0,0,1])}
+   else{tri(tl,br,bl,[0,0,-1]);tri(tl,tr,br,[0,0,-1])}
   }
-  plane(Z,1);plane(-Z,-1);
+  plane(Z,true);plane(-Z,false);
   const wallStart=data.length/8;
+  const opaque=(i,j)=>i>=0&&j>=0&&i<W&&j<H&&solid[j*W+i]===1;
   function wall(i1,j1,i2,j2,nx,ny){
     const a=[posX(i1),posY(j1),Z],b=[posX(i2),posY(j2),Z];
     const c=[posX(i2),posY(j2),-Z],d=[posX(i1),posY(j1),-Z];
@@ -103,7 +204,8 @@
    if(!opaque(i-1,j))wall(i,j+1,i,j,-1,0);
    if(!opaque(i+1,j))wall(i+1,j,i+1,j+1,1,0);
   }
-  return {vertices:new Float32Array(data),start:wallStart,count:data.length/8-wallStart};
+  return {vertices:new Float32Array(data),start:wallStart,count:data.length/8-wallStart,
+          textureCanvas: textureCanvas,parts:components().length};
  }
  function setup(){
   gl=canvas.getContext('webgl',{alpha:true,antialias:true,powerPreference:'low-power',premultipliedAlpha:false});
@@ -125,6 +227,7 @@
   uTex=gl.getUniformLocation(program,'uTex');
   const mesh=makeGeometry(source);
   sideStart=mesh.start;sideCount=mesh.count;
+  stage.dataset.meshParts=String(mesh.parts);
   buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
   gl.bufferData(gl.ARRAY_BUFFER,mesh.vertices,gl.STATIC_DRAW);
   const stride=8*4;
@@ -134,8 +237,7 @@
    gl.vertexAttribPointer(index,size,gl.FLOAT,false,stride,offset);
   }
   // Higher-resolution alpha texture on visible front and back surfaces.
-  const imgCanvas=document.createElement('canvas');imgCanvas.width=512;imgCanvas.height=350;
-  const ctx=imgCanvas.getContext('2d');ctx.drawImage(source,0,0,512,350);
+  const imgCanvas=mesh.textureCanvas;
   texture=gl.createTexture();gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,texture);
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);
   gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,imgCanvas);
@@ -146,7 +248,7 @@
   gl.uniform1i(uTex,0);
   gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);
   gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
-  gl.disable(gl.CULL_FACE);
+  gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);
   resize();draw();
   stage.dataset.renderer='webgl';
   start();
