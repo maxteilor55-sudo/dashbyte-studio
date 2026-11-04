@@ -35,28 +35,27 @@
   'uniform float uTime;',
   'void main(){',
   'vec3 n=normalize(vNormal);',
-  'vec3 keyDir=normalize(vec3(-.56,.74,.42));',
-  'vec3 fillDir=normalize(vec3(.83,.25,.49));',
-  'float key=abs(dot(n,keyDir));',
-  'float fill=abs(dot(n,fillDir));',
-  'float face=smoothstep(.91,.99,vFace);',
-  'float grazing=pow(1.0-abs(n.z),1.65);',
-  '// Frosted translucent mineral glass, not opaque chrome: diffuse pearl on both faces.',
-  'vec3 milk=vec3(.74,.79,.87)*(.89+.13*key+.065*fill);',
-  'float satin=pow(max(dot(n,normalize(vec3(-.36,.57,.74))),0.0),12.0);',
-  'milk+=vec3(.095,.105,.125)*satin;',
-  '// Edge thickness, polished glancing reflections and a very slow optical shimmer.',
-  'float stripA=pow(max(dot(n,normalize(vec3(-.72,.64,.28))),0.0),19.0);',
-  'float stripB=pow(max(dot(n,normalize(vec3(.82,.37,.32))),0.0),24.0);',
-  'vec3 moving=normalize(vec3(cos(uTime*.23),.47+sin(uTime*.17)*.16,.48));',
-  'float caustic=pow(max(dot(n,moving),0.0),39.0);',
-  'vec3 rim=vec3(.42,.51,.63)+vec3(.14,.17,.19)*(.6*key+.25*fill);',
-  'rim+=vec3(.48,.56,.66)*(stripA*.66+stripB*.57+caustic*.24);',
-  'rim+=vec3(.12,.17,.22)*grazing;',
-  'vec3 glass=mix(rim,milk,face);',
-  '// Front is misty translucent; the sides preserve depth with luminous edges.',
-  'float alpha=mix(.76,.84,face);',
-  'gl_FragColor=vec4(clamp(glass,0.0,1.0),alpha);',
+  'float flat=smoothstep(.88,.98,vFace);',
+  'vec3 key=normalize(vec3(-.62,.76,.45));',
+  'vec3 kicker=normalize(vec3(.87,.26,.47));',
+  'float diffuse=.67+.23*abs(dot(n,key))+.10*abs(dot(n,kicker));',
+  '// Front AND back: bead-blasted satin steel, never transparent or mirror-glossy.',
+  'float fineGrain=sin(vUV.x*126.0)*sin(vUV.y*113.0)*.009;',
+  'vec3 satin=vec3(.57,.605,.655)*diffuse+vec3(fineGrain);',
+  'satin+=vec3(.025,.027,.032)*pow(abs(dot(n,key)),6.0);',
+  '// Extruded sidewalls: cool polished steel with narrow specular light strips.',
+  'float stripA=pow(max(dot(n,normalize(vec3(-.76,.62,.22))),0.0),26.0);',
+  'float stripB=pow(max(dot(n,normalize(vec3(.84,.38,.25))),0.0),37.0);',
+  'float stripC=pow(max(dot(n,normalize(vec3(.15,-.84,.52))),0.0),49.0);',
+  'vec3 moving=normalize(vec3(cos(uTime*.19),.40+sin(uTime*.12)*.17,.43));',
+  'float glint=pow(max(dot(n,moving),0.0),57.0);',
+  'float edgeLight=.38+.37*abs(dot(n,key))+.22*abs(dot(n,kicker));',
+  'vec3 polished=vec3(.43,.49,.56)*edgeLight;',
+  'polished+=vec3(.78,.83,.91)*(stripA*.75+stripB*.88+stripC*.54+glint*.30);',
+  'polished+=vec3(.17,.21,.26)*pow(1.0-abs(n.z),2.1);',
+  'vec3 metal=mix(polished,satin,flat);',
+  '// Both matte faces and polished edges are opaque, like real machined metal.',
+  'gl_FragColor=vec4(clamp(metal,0.0,1.0),1.0);',
   '}'
  ].join('\n');
  function compile(type,code){
@@ -183,7 +182,7 @@
   stage.dataset.meshFaces=String(mesh.faces);
   stage.dataset.faceSource='original-vector-triangles';
   stage.dataset.geometryVersion='authentic-vector-solid-v1';
-  stage.dataset.material='arsenal-liquid-glass-webgl-v1';
+  stage.dataset.material='machined-matte-polished-steel-v2';
   stage.dataset.cameraMode='fixed-scale-no-auto-fit';
   stage.dataset.projection='orthographic';
   stage.dataset.rotation='two-axis-free';

@@ -68,7 +68,7 @@ const assert=require('node:assert/strict');
    assert.equal(state.faceSource,'original-vector-triangles','Front and reverse must use true SVG triangles, not raster alpha planes');
    assert.equal(state.geometryVersion,'authentic-vector-solid-v1','Must use the new exact vector solid');
    assert.equal(state.meshFaces,502,'Exact official DB silhouette should have 502 front triangles');
-   assert.equal(state.material,'arsenal-liquid-glass-webgl-v1','Frosted liquid glass WebGL shader is required');
+   assert.equal(state.material,'machined-matte-polished-steel-v2','Matte front/back and polished edges must use the steel material');
    assert.equal(state.cameraMode,'fixed-scale-no-auto-fit','Zooming/auto fit during rotation is forbidden');
    assert.equal(state.projection,'orthographic','Projection must never vary the model scale with rotation or depth');
    assert.equal(state.rotation,'two-axis-free','Full two-axis 3D rotation must be enabled');
