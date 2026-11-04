@@ -24,7 +24,7 @@
   'n=vec3(n.x,n.y*cx-n.z*sx,n.y*sx+n.z*cx);',
   'vNormal=normalize(n);vUV=aUV;vFace=abs(aNormal.z);',
   'float perspective=3.8/(3.8-p.z);',
-  'gl_Position=vec4(p.x*1.09*perspective/uRatio,p.y*1.09*perspective,-p.z*.29,1.0);',
+  'gl_Position=vec4(p.x*1.04*perspective/uRatio,p.y*1.04*perspective,-p.z*.29,1.0);',
   '}'
  ].join('\n');
  const fragmentSource=[
