@@ -29,6 +29,9 @@ const assert=require('node:assert/strict');
     faceSource:stage.dataset.faceSource,
     geometryVersion:stage.dataset.geometryVersion,
     meshFaces:Number(stage.dataset.meshFaces),
+    material:stage.dataset.material,
+    rotation:stage.dataset.rotation,
+    touchAction:getComputedStyle(object).touchAction,
 
 
     webglSupported:supported,
@@ -56,15 +59,20 @@ const assert=require('node:assert/strict');
    assert.equal(state.faceSource,'original-vector-triangles','Front and reverse must use true SVG triangles, not raster alpha planes');
    assert.equal(state.geometryVersion,'authentic-vector-solid-v1','Must use the new exact vector solid');
    assert.equal(state.meshFaces,502,'Exact official DB silhouette should have 502 front triangles');
+   assert.equal(state.material,'matte-grey-polished-edges','Approved matte faces / reflective edges material missing');
+   assert.equal(state.rotation,'two-axis-free','Full two-axis 3D rotation must be enabled');
    
    
    assert(state.canvasPixels[0]>0&&state.canvasPixels[1]>0,'No WebGL drawing surface');
   }else assert.equal(state.renderer,'fallback','No-WebGL fallback must be visible');
-  if(isMobile)assert(Math.max(...state.cardBottoms)<=state.viewport+3,'Four cards must remain above fold');
+  if(isMobile){
+   assert(Math.max(...state.cardBottoms)<=state.viewport+3,'Four cards must remain above fold');
+   assert.equal(state.touchAction,'none','Vertical touch gestures must reach the 3D model instead of scrolling the page');
+  }
   return {page,failures};
  }
  async function checkVisualPoses(page){
-  const shots=[['front',0,0],['angled',0.46,-0.15],['side',Math.PI/2,0],['back',Math.PI,0]];
+  const shots=[['front',0,0],['angled',0.46,-0.15],['side',Math.PI/2,0],['back',Math.PI,0],['top',0,Math.PI/2],['bottom',0,-Math.PI/2],['diagonal',1.1,-.9]];
   for(const [name,yaw,pitch] of shots){
    const captured=await page.evaluate(([y,p])=>{
     if(!window.__db3dTestPose?.(y,p))return {ok:false};
@@ -98,13 +106,25 @@ const assert=require('node:assert/strict');
  try{
   const mobile=await pageFor({width:390,height:844},true);
   if(await mobile.page.locator('#db3dStage').getAttribute('data-renderer')==='webgl')await checkVisualPoses(mobile.page);
+  const beforeTouch=await mobile.page.evaluate(()=>{
+   const s=document.querySelector('#db3dStage');
+   return {yaw:Number(s.dataset.poseYaw),pitch:Number(s.dataset.posePitch)};
+  });
   await mobile.page.evaluate(()=>{
    const v=document.getElementById('db3dViewport');
-   for(const [type,x] of [['pointerdown',150],['pointermove',198],['pointerup',198]]){
-    v.dispatchEvent(new PointerEvent(type,{bubbles:true,pointerId:1,pointerType:'touch',button:0,clientX:x,clientY:400}));
+   for(const [type,x,y] of [['pointerdown',150,400],['pointermove',500,750],['pointerup',500,750]]){
+    v.dispatchEvent(new PointerEvent(type,{bubbles:true,pointerId:1,pointerType:'touch',button:0,clientX:x,clientY:y}));
    }
   });
+  await mobile.page.waitForTimeout(750);
+  const afterTouch=await mobile.page.evaluate(()=>{
+   const s=document.querySelector('#db3dStage');
+   return {yaw:Number(s.dataset.poseYaw),pitch:Number(s.dataset.posePitch)};
+  });
   assert.equal(await mobile.page.locator('#db3dStage').getAttribute('data-interacted'),'true','Touch movement must rotate logo');
+  assert(Math.abs(afterTouch.yaw-beforeTouch.y)>Math.PI,'A swipe must rotate fully beyond 180 degrees horizontally');
+  assert(Math.abs(afterTouch.pitch-beforeTouch.pitch)>Math.PI,'A swipe must rotate fully beyond 180 degrees vertically');
+  console.log('MOBILE_FREE_3D '+JSON.stringify({beforeTouch,afterTouch}));
   assert.equal(mobile.failures.length,0,'Mobile JS errors: '+mobile.failures.join('; '));
   await mobile.page.close();
 
@@ -112,13 +132,16 @@ const assert=require('node:assert/strict');
   const rect=await desktop.page.locator('#db3dViewport').boundingBox();
   await desktop.page.mouse.move(rect.x+rect.width*.4,rect.y+rect.height*.45);
   await desktop.page.mouse.down();
-  await desktop.page.mouse.move(rect.x+rect.width*.75,rect.y+rect.height*.44,{steps:6});
+  await desktop.page.mouse.move(rect.x+rect.width*.75,rect.y+rect.height*.82,{steps:6});
   await desktop.page.mouse.up();
   assert.equal(await desktop.page.locator('#db3dStage').getAttribute('data-interacted'),'true','Mouse movement must rotate logo');
+  await desktop.page.waitForTimeout(350);
+  const desktopPose=await desktop.page.evaluate(()=>({yaw:Number(document.querySelector('#db3dStage').dataset.poseYaw),pitch:Number(document.querySelector('#db3dStage').dataset.posePitch)}));
+  assert(Math.abs(desktopPose.yaw-.14)>.25&&Math.abs(desktopPose.pitch+.08)>.25,'Mouse drag must rotate BOTH axes');
   await desktop.page.locator('#db3dViewport').focus();
   await desktop.page.keyboard.press('ArrowLeft');
   assert.equal(desktop.failures.length,0,'Desktop JS errors: '+desktop.failures.join('; '));
   await desktop.page.close();
-  console.log('PASS: original 502-triangle DB vector, metal extrusion, front/side/back visual poses, touch and mouse.');
+  console.log('PASS: exact 502-triangle DB geometry, matte faces, polished edges, full 360 touch and two-axis mouse rotation.');
  }finally{await browser.close()}
 })().catch(err=>{console.error(err);process.exit(1)});
