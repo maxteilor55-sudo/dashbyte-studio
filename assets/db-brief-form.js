@@ -13,7 +13,13 @@
  const alternative=overlay.querySelector('#dbBriefAlternative');
  const copyButton=overlay.querySelector('#dbBriefCopy');
  const telegramLink=overlay.querySelector('#dbBriefTelegram');
- const initialButton=submit.innerHTML;
+ let initialButton=submit.innerHTML;
+ if(!window.DASHBYTE_LEADS_ENDPOINT){
+   const label=submit.querySelector('span');
+   if(label)label.textContent='ПОДГОТОВИТЬ ЗАЯВКУ';
+   initialButton=submit.innerHTML;
+   status.textContent='После заполнения подготовим сообщение для отправки в Telegram.';
+ }
  let active=false,submitting=false,previousFocus=null,closeTimer=0,latestDraft='';
  const tg=()=>window.Telegram&&window.Telegram.WebApp;
  const escapeLine=s=>String(s||'').trim().slice(0,1400);

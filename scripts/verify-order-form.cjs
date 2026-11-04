@@ -39,7 +39,7 @@ const {chromium}=require('playwright');
     await page.locator('#dbBriefCompany').fill('Тест ООО');
     await page.locator('#dbBriefContact').fill('@testbuyer');
     await page.locator('#dbBriefMessage').fill('Нужен сайт и логотип');
-    await page.locator('[name="service"][value="Логотип"]').check();
+    await page.locator('.db-brief-service-picker label').filter({hasText:'Логотип'}).click();
     await page.locator('[name="privacy"]').check();
     await page.locator('.db-brief-submit[type="submit"]').click();
     const after=await page.evaluate(()=>({
