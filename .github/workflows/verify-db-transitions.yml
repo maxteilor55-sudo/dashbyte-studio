@@ -7,6 +7,12 @@ on:
       - arthur.html
       - dashbyte.html
       - arsenal.html
+      - green-collection.html
+      - perm-vl.html
+      - privacy.html
+      - arsenal-privacy.html
+      - showcase.html
+      - showroom.html
       - assets/db-route-transition.js
       - assets/db-route-transition.css
       - scripts/verify-db-transitions.cjs
