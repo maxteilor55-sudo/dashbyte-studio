@@ -336,6 +336,16 @@
  });
  if('ResizeObserver' in window)new ResizeObserver(()=>{if(gl){resize();draw();start()}}).observe(viewport);
  else window.addEventListener('resize',()=>{if(gl){resize();draw();start()}},{passive:true});
+ // Visual-regression-only pose setter: available exclusively with ?db3dtest=1.
+ // Production visitor interaction and animation are otherwise untouched.
+ if(new URLSearchParams(location.search).has('db3dtest')){
+  window.__db3dTestPose=function(nextYaw,nextPitch){
+   if(!gl||!Number.isFinite(nextYaw)||!Number.isFinite(nextPitch))return false;
+   yaw=targetYaw=nextYaw;pitch=targetPitch=nextPitch;
+   inertiaYaw=0;inertiaPitch=0;lastManual=performance.now();
+   draw();return true;
+  };
+ }
  reduced.addEventListener?.('change',start);
  canvas.addEventListener('webglcontextlost',e=>{
   e.preventDefault();cancelAnimationFrame(raf);raf=0;gl=null;stage.dataset.renderer='fallback';
