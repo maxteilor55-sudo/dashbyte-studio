@@ -12,6 +12,7 @@
  const success=overlay.querySelector('#dbBriefSuccess');
  const alternative=overlay.querySelector('#dbBriefAlternative');
  const copyButton=overlay.querySelector('#dbBriefCopy');
+ const draftArea=overlay.querySelector('#dbBriefDraft');
  const telegramLink=overlay.querySelector('#dbBriefTelegram');
  let initialButton=submit.innerHTML;
  if(!window.DASHBYTE_LEADS_ENDPOINT){
@@ -75,10 +76,17 @@
  }
  copyButton.addEventListener('click',copyDraft);
  telegramLink.addEventListener('click',async e=>{
-   // Telegram handles opening; never mark request as sent by simply opening a chat.
-   await copyDraft();
+   // Prevent navigation BEFORE awaiting clipboard; otherwise Android can switch
+   // to Telegram before the draft text was successfully copied.
+   e.preventDefault();
+   const copied=await copyDraft();
+   if(!copied)return;
    const url='https://t.me/Reelog';
-   if(tg()?.openTelegramLink){e.preventDefault();try{tg().openTelegramLink(url)}catch(err){window.open(url,'_blank','noopener')}}
+   try{
+     if(tg()?.openTelegramLink)tg().openTelegramLink(url);
+     else location.assign(url);
+   }catch(err){location.assign(url)}
+   // Opening a chat is NOT proof of sending a lead.
  });
  form.addEventListener('input',()=>{if(status.dataset.state==='error')feedback('Опиши задачу — мы свяжемся с тобой для уточнения деталей.')});
  form.addEventListener('submit',async e=>{
@@ -91,6 +99,7 @@
    const data={name:pick('name'),company:pick('company'),service:pick('service'),contact:pick('contact'),message:pick('message'),privacy:true,website:''};
    if(!data.name||!data.contact||!data.service){feedback('Укажи имя, услугу и способ связи.','error');return}
    latestDraft=getMessage();
+   if(draftArea)draftArea.value=latestDraft;
    alternative.hidden=true;
    const endpoint=String(window.DASHBYTE_LEADS_ENDPOINT||'').trim();
    const initData=tg()?.initData||'';

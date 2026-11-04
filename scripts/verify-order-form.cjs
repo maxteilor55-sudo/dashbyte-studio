@@ -46,9 +46,10 @@ const {chromium}=require('playwright');
       fallback:!document.getElementById('dbBriefAlternative').hidden,
       success:!document.getElementById('dbBriefSuccess').hidden,
       message:document.getElementById('dbBriefStatus').textContent,
-      selected:document.querySelector('input[name="service"]:checked').value
+      selected:document.querySelector('input[name="service"]:checked').value,
+      draft:document.getElementById('dbBriefDraft').value
     }));
-    if(!after.fallback||after.success||after.selected!=='Логотип')
+    if(!after.fallback||after.success||after.selected!=='Логотип'||!after.draft.includes('Покупатель тест'))
       throw Error('Unsafe success or missing manual fallback: '+JSON.stringify({size,after}));
     await page.locator('.db-brief-close').click();
     await page.waitForFunction(()=>document.getElementById('dbBriefModal').hidden,{timeout:3000});
