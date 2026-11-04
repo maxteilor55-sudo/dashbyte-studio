@@ -64,9 +64,12 @@ const {chromium}=require('playwright');
  const menuShown=await page.locator('#db-arsenal-bot-mobile-return').isVisible();
  if(!toggle.button||!menuShown)throw Error('Arsenal hamburger does not reveal the project link: '+JSON.stringify({toggle,menuShown}));
  await exit('#db-arsenal-bot-mobile-return','/');
- await open('green-collection.html'); 
- const greenBack=await page.evaluate(()=>document.querySelectorAll('.gc-projects-link').length);
- if(!greenBack)throw Error('Green Collection project menu return missing');
+ // The Green Collection page is intentionally PIN-gated. Simulate a valid
+ // authorized dashboard session before checking its internal menu.
+ await page.evaluate(()=>sessionStorage.setItem('db_gc_authorized_at',String(Date.now())));
+ await open('green-collection.html');
+ const greenBack=await page.evaluate(()=>({links:document.querySelectorAll('.gc-projects-link').length,authorized:document.documentElement.classList.contains('gc-authorized')}));
+ if(!greenBack.authorized||greenBack.links<1)throw Error('Green Collection project menu return missing: '+JSON.stringify(greenBack));
  await open('dashbyte.html');
  const studioBack=await page.evaluate(()=>!!document.getElementById('db-chooser-return'));
  if(!studioBack)throw Error('DashByte studio project menu return missing');
