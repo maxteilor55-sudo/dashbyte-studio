@@ -26,7 +26,7 @@
   'n=vec3(n.x,n.y*cx-n.z*sx,n.y*sx+n.z*cx);',
   'vNormal=normalize(n);vUV=aUV;vFace=abs(aNormal.z);',
   '// Orthographic camera: fixed center and size, regardless of object depth or gesture.',
-  'gl_Position=vec4(p.x*1.10/uRatio,p.y*1.10,-p.z*.29,1.0);',
+  'gl_Position=vec4(p.x*1.10/uRatio,p.y*1.10-.07,-p.z*.29,1.0);',
   '}'
  ].join('\n');
  const fragmentSource=[
