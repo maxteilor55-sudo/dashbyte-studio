@@ -26,7 +26,7 @@
   'n=vec3(n.x,n.y*cx-n.z*sx,n.y*sx+n.z*cx);',
   'vNormal=normalize(n);vUV=aUV;vFace=abs(aNormal.z);',
   '// Orthographic camera: fixed center and size, regardless of object depth or gesture.',
-  'gl_Position=vec4(p.x*1.04/uRatio,p.y*1.04,-p.z*.29,1.0);',
+  'gl_Position=vec4(p.x*1.18/uRatio,p.y*1.18,-p.z*.29,1.0);',
   '}'
  ].join('\n');
  const fragmentSource=[
@@ -272,7 +272,8 @@
   stage.dataset.motionPhase='manual';
   inertiaYaw=0;inertiaPitch=0;lastManual=performance.now();
   try{viewport.setPointerCapture(e.pointerId)}catch(_){}
-  viewport.focus({preventScroll:true});start();
+  // Pointer gesture does not force keyboard focus (and never summons a frame).
+  start();
  });
  viewport.addEventListener('pointermove',e=>{
   if(!dragging)return;
