@@ -189,20 +189,70 @@
   plane(Z,true);plane(-Z,false);
   const wallStart=data.length/8;
   const opaque=(i,j)=>i>=0&&j>=0&&i<W&&j<H&&solid[j*W+i]===1;
-  function wall(i1,j1,i2,j2,nx,ny){
-    const a=[posX(i1),posY(j1),Z],b=[posX(i2),posY(j2),Z];
-    const c=[posX(i2),posY(j2),-Z],d=[posX(i1),posY(j1),-Z];
-    tri(a,b,c,[nx,ny,0]);tri(a,c,d,[nx,ny,0]);
+  // Contour extrusion: trace each connected boundary as a closed loop.
+  // Each loop uses smoothed vertices and interpolated edge normals. This
+  // removes the visible horizontal/vertical pixel strips seen in WebGL.
+  const edges=[],outgoing=new Map();
+  function boundary(ax,ay,bx,by,dir){
+   const id=edges.length;
+   edges.push({ax,ay,bx,by,dir,used:false});
+   const key=ay*(W+1)+ax;
+   if(!outgoing.has(key))outgoing.set(key,[]);
+   outgoing.get(key).push(id);
   }
   for(let j=0;j<H;j++)for(let i=0;i<W;i++){
    if(!opaque(i,j))continue;
-   if(!opaque(i,j-1))wall(i,j,i+1,j,0,1);
-   if(!opaque(i,j+1))wall(i+1,j+1,i,j+1,0,-1);
-   if(!opaque(i-1,j))wall(i,j+1,i,j,-1,0);
-   if(!opaque(i+1,j))wall(i+1,j,i+1,j+1,1,0);
+   if(!opaque(i,j-1))boundary(i,j,i+1,j,0);
+   if(!opaque(i+1,j))boundary(i+1,j,i+1,j+1,1);
+   if(!opaque(i,j+1))boundary(i+1,j+1,i,j+1,2);
+   if(!opaque(i-1,j))boundary(i,j+1,i,j,3);
   }
+  let contourCount=0,unclosed=0;
+  for(let seed=0;seed<edges.length;seed++){
+   if(edges[seed].used)continue;
+   const first=edges[seed],startKey=first.ay*(W+1)+first.ax;
+   const loop=[];let current=seed;
+   while(!edges[current].used){
+    const e=edges[current];e.used=true;
+    loop.push([(e.ax+e.bx)*.5,(e.ay+e.by)*.5]);
+    const nextKey=e.by*(W+1)+e.bx;
+    const options=(outgoing.get(nextKey)||[]).filter(id=>!edges[id].used);
+    if(!options.length){
+     if(nextKey!==startKey)unclosed++;
+     break;
+    }
+    // Prefer clockwise turns to avoid joining two diagonally touching holes.
+    const priority=[1,0,3,2];
+    let best=options[0],bestRank=4;
+    for(const candidate of options){
+     const turn=(edges[candidate].dir-e.dir+4)%4;
+     const rank=priority.indexOf(turn);
+     if(rank<bestRank){best=candidate;bestRank=rank}
+    }
+    current=best;
+   }
+   if(loop.length<3)continue;
+   contourCount++;
+   const normals=loop.map((p,i)=>{
+    const prev=loop[(i+loop.length-1)%loop.length];
+    const next=loop[(i+1)%loop.length];
+    const dx=next[0]-prev[0],dy=next[1]-prev[1];
+    const mag=Math.hypot(dx,dy)||1;
+    return [dy/mag,dx/mag];
+   });
+   function vertex(point,normal,z){
+    put(posX(point[0]),posY(point[1]),z,normal[0],normal[1],0,0,0);
+   }
+   for(let i=0;i<loop.length;i++){
+    const j=(i+1)%loop.length;
+    const p=loop[i],q=loop[j],np=normals[i],nq=normals[j];
+    vertex(p,np,Z);vertex(q,nq,Z);vertex(q,nq,-Z);
+    vertex(p,np,Z);vertex(q,nq,-Z);vertex(p,np,-Z);
+   }
+  }
+  if(!contourCount||unclosed)throw Error('Invalid 3D logo contour topology');
   return {vertices:new Float32Array(data),start:wallStart,count:data.length/8-wallStart,
-          textureCanvas: textureCanvas,parts:components().length};
+          textureCanvas:textureCanvas,parts:components().length,contours:contourCount,edgeCount:edges.length};
  }
  function setup(){
   gl=canvas.getContext('webgl',{alpha:true,antialias:true,powerPreference:'low-power',premultipliedAlpha:false,preserveDrawingBuffer:true});
@@ -226,7 +276,9 @@
   sideStart=mesh.start;sideCount=mesh.count;
   stage.dataset.meshParts=String(mesh.parts);
   stage.dataset.faceSource='original-svg-unmodified';
-  stage.dataset.geometryVersion='contour-v4-slim';
+  stage.dataset.geometryVersion='contour-v5-smooth';
+  stage.dataset.contours=String(mesh.contours);
+  stage.dataset.edges=String(mesh.edgeCount);
   buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
   gl.bufferData(gl.ARRAY_BUFFER,mesh.vertices,gl.STATIC_DRAW);
   const stride=8*4;
@@ -274,6 +326,8 @@
     targetYaw+=(nearest-targetYaw)*Math.min(.019,dt*.00045);
    }
    targetYaw+=inertiaYaw*dt;targetPitch+=inertiaPitch*dt;
+   // A physical showroom turntable, not a full flip that shows a blank slab.
+   targetYaw=Math.max(-.92,Math.min(.92,targetYaw));
    targetPitch=Math.max(-.38,Math.min(.38,targetPitch));
    const drag=Math.pow(.88,dt/16);
    inertiaYaw*=drag;inertiaPitch*=drag;
@@ -303,7 +357,8 @@
   if(!dragging)return;
   const dx=e.clientX-lastX,dy=e.clientY-lastY;
   lastX=e.clientX;lastY=e.clientY;
-  targetYaw+=dx*.009;targetPitch=Math.max(-.38,Math.min(.38,targetPitch+dy*.005));
+  targetYaw=Math.max(-.92,Math.min(.92,targetYaw+dx*.009));
+  targetPitch=Math.max(-.38,Math.min(.38,targetPitch+dy*.005));
   inertiaYaw=Math.max(-.008,Math.min(.008,dx*.00018));
   inertiaPitch=Math.max(-.003,Math.min(.003,dy*.00007));
   lastManual=performance.now();stage.dataset.interacted='true';
@@ -317,8 +372,8 @@
   if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home'].includes(e.key))return;
   e.preventDefault();stage.dataset.interacted='true';
   if(e.key==='Home'){targetYaw=.14;targetPitch=-.08}
-  if(e.key==='ArrowLeft')targetYaw-=.2;
-  if(e.key==='ArrowRight')targetYaw+=.2;
+  if(e.key==='ArrowLeft')targetYaw=Math.max(-.92,targetYaw-.2);
+  if(e.key==='ArrowRight')targetYaw=Math.min(.92,targetYaw+.2);
   if(e.key==='ArrowUp')targetPitch=Math.max(-.38,targetPitch-.12);
   if(e.key==='ArrowDown')targetPitch=Math.min(.38,targetPitch+.12);
   lastManual=performance.now();start();
