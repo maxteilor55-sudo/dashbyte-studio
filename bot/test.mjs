@@ -94,3 +94,43 @@ test('/myid replies with private chat identifier',async()=>{
    assert.match(sent[0].text,/765432/);
  }finally{globalThis.fetch=real}
 });
+
+
+test('modern Telegram initData with signature passes HMAC, and modified signature is rejected',async()=>{
+ const {createHmac}=await import('node:crypto');
+ const now=Math.floor(Date.now()/1000);
+ const params=new URLSearchParams();
+ params.set('auth_date',String(now));
+ params.set('user',JSON.stringify({id:998877,first_name:'Тест',username:'testbuyer'}));
+ params.set('signature','telegram-third-party-signature-example');
+ const dataCheckString=[...params.entries()]
+   .sort(([a],[b])=>a.localeCompare(b))
+   .map(([key,value])=>key+'='+value).join('\n');
+ const derivedKey=createHmac('sha256','WebAppData').update(env.TELEGRAM_BOT_TOKEN).digest();
+ params.set('hash',createHmac('sha256',derivedKey).update(dataCheckString).digest('hex'));
+ const body={name:'Тест',company:'Мастерская',service:'Создание сайта',
+   contact:'@testbuyer',message:'Выбранные услуги (2): Создание сайта, Логотип',
+   privacy:true,website:'',initData:params.toString()};
+ const url='https://example.workers.dev/api/lead';
+ const headers={Origin:'https://maxteilor55-sudo.github.io','content-type':'application/json'};
+ const envWithOwner={...env,TELEGRAM_OWNER_CHAT_ID:'123456789'};
+ const originalFetch=globalThis.fetch;let count=0;
+ globalThis.fetch=async(url,options)=>{
+   count++;
+   const payload=JSON.parse(options.body);
+   assert.equal(payload.chat_id,'123456789');
+   assert.match(payload.text,/Создание сайта, Логотип/);
+   return new Response(JSON.stringify({ok:true,result:{message_id:5}}),{status:200,headers:{'content-type':'application/json'}});
+ };
+ try{
+   const good=await bot.fetch(new Request(url,{method:'POST',headers,body:JSON.stringify(body)}),envWithOwner);
+   assert.equal(good.status,200,'current Telegram initData must validate with signature field');
+   assert.equal((await good.json()).ok,true);
+   assert.equal(count,1);
+   params.set('signature','changed-signature');
+   const badBody={...body,initData:params.toString()};
+   const bad=await bot.fetch(new Request(url,{method:'POST',headers,body:JSON.stringify(badBody)}),envWithOwner);
+   assert.equal(bad.status,401,'modified signature must invalidate the HMAC');
+   assert.equal(count,1,'invalid data must not send a Telegram message');
+ }finally{globalThis.fetch=originalFetch}
+});

@@ -119,7 +119,7 @@ async function verifiedTelegramUser(token,raw){
   const now=Math.floor(Date.now()/1000);
   if(!Number.isInteger(auth)||auth>now+120||now-auth>86400)return null;
   const fields=[...params.entries()]
-    .filter(([k])=>k!=='hash'&&k!=='signature')
+    .filter(([k])=>k!=='hash') // HMAC covers signature too when Telegram supplies it
     .sort(([a],[b])=>a.localeCompare(b))
     .map(([k,v])=>k+'='+v).join('\n');
   const encoder=new TextEncoder();
