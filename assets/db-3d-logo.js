@@ -1,6 +1,4 @@
-/* DashByte signature — preserve every pixel of the user's original PNG-traced
-   APPROVED SVG on both faces. The sidewalls are thin, subtle and follow
-   the actual contour instead of turning the mark into a thick white slab. */
+/* Official DashByte DB: real vector-extruded metal. Exact three SVG paths; true triangulated faces and smooth side polygons, no raster masking. */
 (function(){
  'use strict';
  const stage=document.getElementById('db3dStage');
@@ -17,7 +15,7 @@
  const vertexSource=[
   'attribute vec3 aPosition;attribute vec3 aNormal;attribute vec2 aUV;',
   'uniform float uYaw;uniform float uPitch;uniform float uRatio;',
-  'varying vec2 vUV;varying vec3 vNormal;',
+  'varying vec3 vNormal;varying vec2 vUV;',
   'void main(){',
   'float cy=cos(uYaw),sy=sin(uYaw),cx=cos(uPitch),sx=sin(uPitch);',
   'vec3 p=vec3(aPosition.x*cy+aPosition.z*sy,aPosition.y,-aPosition.x*sy+aPosition.z*cy);',
@@ -25,33 +23,26 @@
   'vec3 n=vec3(aNormal.x*cy+aNormal.z*sy,aNormal.y,-aNormal.x*sy+aNormal.z*cy);',
   'n=vec3(n.x,n.y*cx-n.z*sx,n.y*sx+n.z*cx);',
   'vNormal=normalize(n);vUV=aUV;',
-  'float perspective=3.6/(3.6-p.z);',
-  'gl_Position=vec4(p.x*1.26*perspective/uRatio,p.y*1.26*perspective,-p.z*.23,1.0);',
+  'float perspective=3.8/(3.8-p.z);',
+  'gl_Position=vec4(p.x*1.34*perspective/uRatio,p.y*1.34*perspective,-p.z*.29,1.0);',
   '}'
  ].join('\n');
  const fragmentSource=[
-  'precision mediump float;varying vec2 vUV;varying vec3 vNormal;',
-  'uniform sampler2D uTex;uniform float uMode;',
+  'precision highp float;varying vec3 vNormal;varying vec2 vUV;',
   'void main(){',
   'vec3 n=normalize(vNormal);',
-  'float key=max(dot(n,normalize(vec3(-.39,.78,.56))),0.0);',
-  'float fill=max(dot(n,normalize(vec3(.74,-.1,.66))),0.0);',
-  'float glint=pow(max(dot(n,normalize(vec3(.18,.58,.8))),0.0),18.0);',
-  'if(uMode<.5){',
-  'float a=texture2D(uTex,vUV).a;',
-  'if(a<.07)discard;',
-  'float stripe=.025*sin(vUV.x*25.0+vUV.y*2.5);',
-  'float light=clamp(.26+.47*key+.21*fill+stripe,0.0,1.0);',
-  'vec3 metal=mix(vec3(.31,.30,.35),vec3(.92,.88,.93),light);',
-  'metal+=vec3(.21,.16,.21)*glint;',
-  'metal=mix(metal,vec3(.99,.38,.57),pow(1.0-abs(n.z),3.0)*.24);',
-  'gl_FragColor=vec4(min(metal,vec3(1.0)),a);',
-  '}else{',
-  'float light=clamp(.35+.47*key+.19*fill,0.0,1.0);',
-  'vec3 edge=mix(vec3(.27,.23,.28),vec3(.72,.64,.70),light);',
-  'edge+=glint*vec3(.19,.12,.14);',
-  'gl_FragColor=vec4(min(edge,vec3(1.0)),1.0);',
-  '}',
+  'float key=max(dot(n,normalize(vec3(-.35,.73,.62))),0.0);',
+  'float fill=max(dot(n,normalize(vec3(.87,.07,.48))),0.0);',
+  'float spec=pow(max(dot(n,normalize(vec3(-.25,.61,.76))),0.0),30.0);',
+  'float face=abs(n.z);',
+  'float light=clamp(.33+.48*key+.24*fill,0.0,1.0);',
+  'vec3 silver=mix(vec3(.36,.30,.36),vec3(.98,.91,.96),light);',
+  'silver+=spec*vec3(.22,.17,.21);',
+  'vec3 edge=mix(vec3(.25,.20,.27),vec3(.74,.58,.67),clamp(.27+.52*key+.17*fill,0.0,1.0));',
+  'edge+=spec*vec3(.11,.10,.12);',
+  'vec3 metal=mix(edge,silver,smoothstep(.3,.8,face));',
+  'float brush=.008*sin(vUV.y*138.0+vUV.x*4.0);',
+  'gl_FragColor=vec4(min(metal+vec3(brush),vec3(1.0)),1.0);',
   '}'
  ].join('\n');
 
@@ -68,250 +59,127 @@
   const h=Math.max(1,Math.round(viewport.clientHeight*dpr));
   if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;gl.viewport(0,0,w,h)}
  }
- function makeGeometry(image){
-  // Weld the thin decorative strokes of the official vector into ONE solid
-  // extrusion. The previous implementation extruded every SVG slit separately,
-  // producing dozens of floating ribs when the monogram was turned sideways.
-  const W=384,H=264,N=W*H;
-  const mask=document.createElement('canvas');
-  mask.width=W;mask.height=H;
-  const ctx=mask.getContext('2d',{willReadFrequently:true});
-  if(!ctx)throw Error('2D context unavailable');
-  ctx.clearRect(0,0,W,H);ctx.drawImage(image,0,0,W,H);
-  const pixels=ctx.getImageData(0,0,W,H).data;
-  const original=new Uint8Array(N);
-  for(let k=0;k<N;k++)original[k]=pixels[k*4+3]>112?1:0;
-
-  function morph(input,r,expand){
-   const output=new Uint8Array(N);
-   for(let y=0;y<H;y++)for(let x=0;x<W;x++){
-    let value=expand?0:1;
-    search:for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){
-     if(dx*dx+dy*dy>r*r)continue;
-     const xx=x+dx,yy=y+dy;
-     if(xx<0||xx>=W||yy<0||yy>=H)continue;
-     const occupied=input[yy*W+xx]===1;
-     if(expand?occupied:!occupied){value=expand?1:0;break search}
+ async function makeGeometry(){
+  // The approved SVG has three real polygon paths: the detail bar, D and B.
+  // Build EXACT vector triangles, not blurred PNG alpha or per-pixel strips.
+  const response=await fetch(source.currentSrc||source.src,{cache:'force-cache'});
+  if(!response.ok)throw Error('Cannot load the official SVG geometry');
+  const xml=await response.text();
+  const d=xml.match(/\sd="([^"]+)"/)?.[1];
+  if(!d)throw Error('Official DB vector path missing');
+  const groups=[...d.matchAll(/M\s*([^Z]+)Z/g)].map(m=>{
+    return [...m[1].matchAll(/(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)/g)]
+      .map(pair=>[Number(pair[1]),Number(pair[2])]);
+  });
+  if(groups.length!==3||groups.some(points=>points.length<10))throw Error('Official DB geometry has changed');
+  function triangulate(coords){
+    const p=coords.map(([x,y])=>[x,-y]);
+    const orient=(a,b,c)=>(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);
+    const signed=p.reduce((sum,a,i)=>{const b=p[(i+1)%p.length];return sum+a[0]*b[1]-b[0]*a[1]},0);
+    const ids=Array.from({length:p.length},(_,i)=>i);
+    if(signed<0)ids.reverse();
+    const output=[];
+    while(ids.length>3){
+      let cut=-1;
+      for(let k=0;k<ids.length;k++){
+        const a=ids[(k+ids.length-1)%ids.length],b=ids[k],c=ids[(k+1)%ids.length];
+        if(orient(p[a],p[b],p[c])<=1e-5)continue;
+        let blocked=false;
+        for(const id of ids){
+          if(id===a||id===b||id===c)continue;
+          const q=p[id];
+          if(orient(p[a],p[b],q)>=-1e-7&&orient(p[b],p[c],q)>=-1e-7&&orient(p[c],p[a],q)>=-1e-7){
+            blocked=true;break;
+          }
+        }
+        if(blocked)continue;
+        cut=k;output.push(a,b,c);break;
+      }
+      if(cut<0)throw Error('Official DB path cannot be triangulated');
+      ids.splice(cut,1);
     }
-    output[y*W+x]=value;
-   }
-   return output;
+    output.push(...ids);
+    return output;
   }
-  // Rounded morphological closing seals hairline gaps without changing the
-  // approved outer DB silhouette into a rectangular plaque.
-  const solid=morph(morph(original,2,true),2,false);
-  const queue=new Int32Array(N);
-  const eachNeighbor=(k,visit)=>{
-   const x=k%W,y=(k/W)|0;
-   if(x>0)visit(k-1);if(x<W-1)visit(k+1);
-   if(y>0)visit(k-W);if(y<H-1)visit(k+W);
-  };
-
-  // Clear tiny internal pinholes. Retain the large, intentional letter counters.
-  const seen=new Uint8Array(N);
-  for(let seed=0;seed<N;seed++){
-   if(solid[seed]||seen[seed])continue;
-   let head=0,tail=1,touchesEdge=false;
-   queue[0]=seed;seen[seed]=1;
-   while(head<tail){
-    const k=queue[head++],x=k%W,y=(k/W)|0;
-    if(!x||!y||x===W-1||y===H-1)touchesEdge=true;
-    eachNeighbor(k,n=>{if(!solid[n]&&!seen[n]){seen[n]=1;queue[tail++]=n}});
-   }
-   if(!touchesEdge&&tail<260)for(let q=0;q<tail;q++)solid[queue[q]]=1;
-  }
-
-  function components(){
-   const marked=new Uint8Array(N),groups=[];
-   for(let seed=0;seed<N;seed++){
-    if(!solid[seed]||marked[seed])continue;
-    let head=0,tail=1;queue[0]=seed;marked[seed]=1;
-    while(head<tail){
-     const k=queue[head++];
-     eachNeighbor(k,n=>{if(solid[n]&&!marked[n]){marked[n]=1;queue[tail++]=n}});
+  const values=[],X=.8,Y=X*522/762,Z=.118;
+  const point=(q,z)=>[2*X*(q[0]/762-.5),2*Y*(.5-q[1]/522),z];
+  function put(p,n){values.push(p[0],p[1],p[2],n[0],n[1],n[2],p[0],p[1])}
+  function triangle(a,b,c,n){put(a,n);put(b,n);put(c,n)}
+  let faceTriangles=0;
+  for(const coords of groups){
+    const indices=triangulate(coords);
+    faceTriangles+=indices.length/3;
+    for(let i=0;i<indices.length;i+=3){
+      const a=point(coords[indices[i]],Z),b=point(coords[indices[i+1]],Z),c=point(coords[indices[i+2]],Z);
+      const cross=(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);
+      if(cross>0){
+        triangle(a,b,c,[0,0,1]);
+        triangle([a[0],a[1],-Z],[c[0],c[1],-Z],[b[0],b[1],-Z],[0,0,-1]);
+      }else{
+        triangle(a,c,b,[0,0,1]);
+        triangle([a[0],a[1],-Z],[b[0],b[1],-Z],[c[0],c[1],-Z],[0,0,-1]);
+      }
     }
-    groups.push(Array.from(queue.subarray(0,tail)));
-   }
-   return groups.sort((a,b)=>b.length-a.length);
-  }
-  // On unusual browsers/resolutions, still guarantee a single connected body:
-  // weld any residual islands to the main metal mass by the shortest bridge.
-  const islands=components();
-  if(!islands.length)throw Error('Empty DB silhouette');
-  if(islands.length>1){
-   const joined=new Uint8Array(N);
-   for(const k of islands[0])joined[k]=1;
-   for(let groupIndex=1;groupIndex<islands.length;groupIndex++){
-    const group=islands[groupIndex],visited=new Uint8Array(N);
-    const previous=new Int32Array(N);previous.fill(-1);
-    let head=0,tail=0,hit=-1;
-    for(const k of group){queue[tail++]=k;visited[k]=1}
-    while(head<tail&&hit<0){
-     const k=queue[head++];
-     if(joined[k]){hit=k;break}
-     eachNeighbor(k,n=>{if(!visited[n]){visited[n]=1;previous[n]=k;queue[tail++]=n}});
+    // True, continuous side polygons along each original vector segment.
+    let ring=coords.map(q=>point(q,Z));
+    const signed=ring.reduce((sum,a,i)=>{const b=ring[(i+1)%ring.length];return sum+a[0]*b[1]-b[0]*a[1]},0);
+    if(signed<0)ring=ring.reverse();
+    const normals=ring.map((p,i)=>{
+      const a=ring[(i+ring.length-1)%ring.length],b=ring[(i+1)%ring.length];
+      const dx=b[0]-a[0],dy=b[1]-a[1],length=Math.hypot(dx,dy)||1;
+      return [dy/length,-dx/length,0];
+    });
+    for(let i=0;i<ring.length;i++){
+      const j=(i+1)%ring.length,A=ring[i],B=ring[j],nA=normals[i],nB=normals[j];
+      const a=[A[0],A[1],Z],b=[B[0],B[1],Z];
+      const a2=[A[0],A[1],-Z],b2=[B[0],B[1],-Z];
+      put(a,nA);put(a2,nA);put(b2,nB);
+      put(a,nA);put(b2,nB);put(b,nB);
     }
-    if(hit<0)throw Error('Cannot weld DB geometry');
-    for(let k=hit;k>=0;k=previous[k]){
-     const x=k%W,y=(k/W)|0;
-     for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
-      const xx=x+dx,yy=y+dy;
-      if(xx>=0&&xx<W&&yy>=0&&yy<H)solid[yy*W+xx]=joined[yy*W+xx]=1;
-     }
-    }
-    for(const k of group)joined[k]=1;
-   }
   }
-
-  // CRITICAL: Side walls can have a welded silhouette, but the visible faces
-  // must be the exact, untouched approved artwork. NEVER draw the closed mask
-  // onto the front/back texture or the thin branded cuts disappear.
-  const textureCanvas=document.createElement('canvas');
-  textureCanvas.width=1024;textureCanvas.height=702;
-  const tc=textureCanvas.getContext('2d');
-  if(!tc)throw Error('Texture canvas unavailable');
-  tc.imageSmoothingEnabled=true;
-  tc.clearRect(0,0,1024,702);
-  tc.drawImage(image,0,0,1024,702);
-
-  const aspect=762/522,X=.80,Y=X/aspect,Z=.115; // precise front outline, modest solid-metal depth
-  const posX=i=>((i/W)*2-1)*X,posY=j=>(1-(j/H)*2)*Y;
-  const data=[];
-  function put(x,y,z,nx,ny,nz,u,v){data.push(x,y,z,nx,ny,nz,u,v)}
-  function tri(a,b,c,n){
-   for(const p of [a,b,c])put(p[0],p[1],p[2],n[0],n[1],n[2],p[3]||0,p[4]||0);
-  }
-  function plane(z,front){
-   const tl=[-X,Y,z,front?0:1,1],tr=[X,Y,z,front?1:0,1],br=[X,-Y,z,front?1:0,0],bl=[-X,-Y,z,front?0:1,0];
-   if(front){tri(tl,bl,br,[0,0,1]);tri(tl,br,tr,[0,0,1])}
-   else{tri(tl,br,bl,[0,0,-1]);tri(tl,tr,br,[0,0,-1])}
-  }
-  plane(Z,true);plane(-Z,false);
-  const wallStart=data.length/8;
-  const opaque=(i,j)=>i>=0&&j>=0&&i<W&&j<H&&solid[j*W+i]===1;
-  // Contour extrusion: trace each connected boundary as a closed loop.
-  // Each loop uses smoothed vertices and interpolated edge normals. This
-  // removes the visible horizontal/vertical pixel strips seen in WebGL.
-  const edges=[],outgoing=new Map();
-  function boundary(ax,ay,bx,by,dir){
-   const id=edges.length;
-   edges.push({ax,ay,bx,by,dir,used:false});
-   const key=ay*(W+1)+ax;
-   if(!outgoing.has(key))outgoing.set(key,[]);
-   outgoing.get(key).push(id);
-  }
-  for(let j=0;j<H;j++)for(let i=0;i<W;i++){
-   if(!opaque(i,j))continue;
-   if(!opaque(i,j-1))boundary(i,j,i+1,j,0);
-   if(!opaque(i+1,j))boundary(i+1,j,i+1,j+1,1);
-   if(!opaque(i,j+1))boundary(i+1,j+1,i,j+1,2);
-   if(!opaque(i-1,j))boundary(i,j+1,i,j,3);
-  }
-  let contourCount=0,unclosed=0;
-  for(let seed=0;seed<edges.length;seed++){
-   if(edges[seed].used)continue;
-   const first=edges[seed],startKey=first.ay*(W+1)+first.ax;
-   const loop=[];let current=seed;
-   while(!edges[current].used){
-    const e=edges[current];e.used=true;
-    loop.push([(e.ax+e.bx)*.5,(e.ay+e.by)*.5]);
-    const nextKey=e.by*(W+1)+e.bx;
-    const options=(outgoing.get(nextKey)||[]).filter(id=>!edges[id].used);
-    if(!options.length){
-     if(nextKey!==startKey)unclosed++;
-     break;
-    }
-    // Prefer clockwise turns to avoid joining two diagonally touching holes.
-    const priority=[1,0,3,2];
-    let best=options[0],bestRank=4;
-    for(const candidate of options){
-     const turn=(edges[candidate].dir-e.dir+4)%4;
-     const rank=priority.indexOf(turn);
-     if(rank<bestRank){best=candidate;bestRank=rank}
-    }
-    current=best;
-   }
-   if(loop.length<40)continue; // avoid extruding insignificant SVG pinholes
-   contourCount++;
-   const normals=loop.map((p,i)=>{
-    const prev=loop[(i+loop.length-1)%loop.length];
-    const next=loop[(i+1)%loop.length];
-    const dx=next[0]-prev[0],dy=next[1]-prev[1];
-    const mag=Math.hypot(dx,dy)||1;
-    return [dy/mag,dx/mag];
-   });
-   function vertex(point,normal,z){
-    put(posX(point[0]),posY(point[1]),z,normal[0],normal[1],0,0,0);
-   }
-   for(let i=0;i<loop.length;i++){
-    const j=(i+1)%loop.length;
-    const p=loop[i],q=loop[j],np=normals[i],nq=normals[j];
-    vertex(p,np,Z);vertex(q,nq,Z);vertex(q,nq,-Z);
-    vertex(p,np,Z);vertex(q,nq,-Z);vertex(p,np,-Z);
-   }
-  }
-  if(!contourCount||unclosed)throw Error('Invalid 3D logo contour topology');
-  return {vertices:new Float32Array(data),start:wallStart,count:data.length/8-wallStart,
-          textureCanvas:textureCanvas,parts:components().length,contours:contourCount,edgeCount:edges.length};
+  if(faceTriangles!==502)throw Error('DB vector triangulation must preserve all 502 faces');
+  return {vertices:new Float32Array(values),pieces:groups.length,faces:faceTriangles};
  }
- function setup(){
-  gl=canvas.getContext('webgl',{alpha:true,antialias:true,powerPreference:'low-power',premultipliedAlpha:false,preserveDrawingBuffer:true});
-  if(!gl)throw Error('WebGL is not supported');
+ async function setup(){
+  const mesh=await makeGeometry();
+  const next=canvas.getContext('webgl',{alpha:true,antialias:true,powerPreference:'low-power',
+     premultipliedAlpha:false,preserveDrawingBuffer:true});
+  if(!next)throw Error('WebGL is not supported');
+  gl=next;
   const vs=compile(gl.VERTEX_SHADER,vertexSource);
   const fs=compile(gl.FRAGMENT_SHADER,fragmentSource);
-  program=gl.createProgram();gl.attachShader(program,vs);gl.attachShader(program,fs);
-  gl.linkProgram(program);
+  program=gl.createProgram();gl.attachShader(program,vs);gl.attachShader(program,fs);gl.linkProgram(program);
   if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));
-  gl.deleteShader(vs);gl.deleteShader(fs);
-  gl.useProgram(program);
+  gl.deleteShader(vs);gl.deleteShader(fs);gl.useProgram(program);
   locPos=gl.getAttribLocation(program,'aPosition');
   locNorm=gl.getAttribLocation(program,'aNormal');
   locUV=gl.getAttribLocation(program,'aUV');
   uYaw=gl.getUniformLocation(program,'uYaw');
   uPitch=gl.getUniformLocation(program,'uPitch');
   uRatio=gl.getUniformLocation(program,'uRatio');
-  uMode=gl.getUniformLocation(program,'uMode');
-  uTex=gl.getUniformLocation(program,'uTex');
-  const mesh=makeGeometry(source);
-  sideStart=mesh.start;sideCount=mesh.count;
-  stage.dataset.meshParts=String(mesh.parts);
-  stage.dataset.faceSource='original-svg-unmodified';
-  stage.dataset.geometryVersion='contour-v6-brand-first';
-  stage.dataset.contours=String(mesh.contours);
-  stage.dataset.edges=String(mesh.edgeCount);
   buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
   gl.bufferData(gl.ARRAY_BUFFER,mesh.vertices,gl.STATIC_DRAW);
-  const stride=8*4;
   for(const [index,size,offset] of [[locPos,3,0],[locNorm,3,12],[locUV,2,24]]){
-   if(index<0)continue;
-   gl.enableVertexAttribArray(index);
-   gl.vertexAttribPointer(index,size,gl.FLOAT,false,stride,offset);
+    if(index<0)continue;
+    gl.enableVertexAttribArray(index);
+    gl.vertexAttribPointer(index,size,gl.FLOAT,false,32,offset);
   }
-  // Higher-resolution alpha texture on visible front and back surfaces.
-  const imgCanvas=mesh.textureCanvas;
-  texture=gl.createTexture();gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,texture);
-  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);
-  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,imgCanvas);
-  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
-  gl.uniform1i(uTex,0);
-  gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);
-  gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
-  gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);
-  resize();draw();
-  stage.dataset.renderer='webgl';
-  start();
+  sideCount=mesh.vertices.length/8;
+  stage.dataset.meshParts=String(mesh.pieces);
+  stage.dataset.meshFaces=String(mesh.faces);
+  stage.dataset.faceSource='original-vector-triangles';
+  stage.dataset.geometryVersion='authentic-vector-solid-v1';
+  gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LESS);
+  gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);gl.disable(gl.BLEND);
+  resize();draw();stage.dataset.renderer='webgl';start();
  }
  function draw(){
-  if(!gl)return;
+  if(!gl||!program)return;
   resize();gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
   gl.useProgram(program);
   gl.uniform1f(uYaw,yaw);gl.uniform1f(uPitch,pitch);
   gl.uniform1f(uRatio,Math.max(.7,canvas.width/canvas.height));
-  gl.uniform1f(uMode,1);gl.drawArrays(gl.TRIANGLES,sideStart,sideCount);
-  gl.uniform1f(uMode,0);gl.drawArrays(gl.TRIANGLES,0,12);
+  gl.drawArrays(gl.TRIANGLES,0,sideCount);
  }
  function start(){if(!gl||!active||document.hidden||raf)return;lastFrame=0;raf=requestAnimationFrame(frame)}
  function frame(t){
@@ -321,13 +189,13 @@
    if(!reduced.matches&&t-lastManual>1250){
     // Gentle showroom motion stays almost face-on so the original DB mark
     // remains legible instead of turning into a side-on abstract sculpture.
-    const desired=.14+Math.sin(t*.00030)*.16;
+    const desired=.12+Math.sin(t*.00028)*.16;
     const nearest=desired+Math.round((targetYaw-desired)/(Math.PI*2))*Math.PI*2;
     targetYaw+=(nearest-targetYaw)*Math.min(.019,dt*.00045);
    }
    targetYaw+=inertiaYaw*dt;targetPitch+=inertiaPitch*dt;
    // A physical showroom turntable, not a full flip that shows a blank slab.
-   targetYaw=Math.max(-.46,Math.min(.46,targetYaw));
+   targetYaw=Math.max(-.54,Math.min(.54,targetYaw));
    targetPitch=Math.max(-.38,Math.min(.38,targetPitch));
    const drag=Math.pow(.88,dt/16);
    inertiaYaw*=drag;inertiaPitch*=drag;
@@ -340,7 +208,7 @@
  }
  function init(){
   if(!source.naturalWidth){stage.dataset.renderer='fallback';return}
-  try{setup()}catch(err){stage.dataset.renderer='fallback';gl=null}
+  setup().catch(err=>{console.error('DashByte 3D vector model',err);stage.dataset.renderer='fallback';gl=null})
  }
  if(source.complete)init();else{
   source.addEventListener('load',init,{once:true});
@@ -357,7 +225,7 @@
   if(!dragging)return;
   const dx=e.clientX-lastX,dy=e.clientY-lastY;
   lastX=e.clientX;lastY=e.clientY;
-  targetYaw=Math.max(-.46,Math.min(.46,targetYaw+dx*.008));
+  targetYaw=Math.max(-.54,Math.min(.54,targetYaw+dx*.008));
   targetPitch=Math.max(-.38,Math.min(.38,targetPitch+dy*.005));
   inertiaYaw=Math.max(-.008,Math.min(.008,dx*.00018));
   inertiaPitch=Math.max(-.003,Math.min(.003,dy*.00007));
@@ -372,8 +240,8 @@
   if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home'].includes(e.key))return;
   e.preventDefault();stage.dataset.interacted='true';
   if(e.key==='Home'){targetYaw=.14;targetPitch=-.08}
-  if(e.key==='ArrowLeft')targetYaw=Math.max(-.46,targetYaw-.15);
-  if(e.key==='ArrowRight')targetYaw=Math.min(.46,targetYaw+.15);
+  if(e.key==='ArrowLeft')targetYaw=Math.max(-.54,targetYaw-.15);
+  if(e.key==='ArrowRight')targetYaw=Math.min(.54,targetYaw+.15);
   if(e.key==='ArrowUp')targetPitch=Math.max(-.38,targetPitch-.12);
   if(e.key==='ArrowDown')targetPitch=Math.min(.38,targetPitch+.12);
   lastManual=performance.now();start();
