@@ -67,58 +67,87 @@
    if(u.pathname===location.pathname && u.search===location.search)return false;
    return true;
  }
- // Arsenal is served from GitHub Pages inside DashByte Bot, but its standalone
- // production site lives on REG.RU. Do NOT add the project shortcut to navesy59.ru.
+ // One standalone return to the showroom on every project page.
+ // The old links stay in the DOM for existing page scripts, but disappear
+ // visually from the native glass header and mobile drawer.
  function installProjectReturn(){
-  var file=location.pathname.split('/').pop().toLowerCase();
-  if(!/^(arsenal|dashbyte|green-collection|perm-vl|arthur)\.html$/.test(file))return;
-  if(file==='arsenal.html'&&/^(?:www\.)?navesy59\.ru$/i.test(location.hostname))return;
-  if(document.querySelector('.db-project-return'))return;
-  var header=file==='dashbyte.html'?document.getElementById('topbar'):
-    file==='arsenal.html'||file==='green-collection.html'?document.querySelector('header.site-header'):
-    file==='perm-vl.html'?document.querySelector('nav[aria-label="Навигация"]'):
-    document.querySelector('main.shell nav.top');
-  if(!header)return;
-  var anchor=file==='perm-vl.html'?header.querySelector('a.backlink'):
-    file==='arthur.html'?header.querySelector('a.back'):null;
-  if(!anchor)anchor=document.createElement('a');
-  anchor.classList.add('db-project-return');
-  anchor.href='./';
-  anchor.setAttribute('aria-label','Вернуться к проектам DashByte');
-  anchor.innerHTML='<span class="db-project-return-icon" aria-hidden="true">←</span><span>Вернуться к проектам</span>';
-  if(file==='green-collection.html')anchor.classList.add('db-project-return-light');
-  if(file==='arsenal.html')anchor.classList.add('db-project-return-bronze');
-  if(file==='perm-vl.html')anchor.classList.add('db-project-return-rail');
-  if(file==='arthur.html'){
-    anchor.classList.add('db-project-return-inline');
-    header.insertAdjacentElement('afterend',anchor);
-    return;
-  }
-  document.body.appendChild(anchor);
-  var scheduled=false;
-  function position(){
-    scheduled=false;
-    if(!anchor.isConnected)return;
-    var bounds=header.getBoundingClientRect();
-    var tg=window.Telegram&&window.Telegram.WebApp;
-    var telegram=!!(tg&&tg.platform&&tg.platform!=='unknown')||/tgWebApp/i.test(location.hash);
-    var mobile=innerWidth<=820;
-    var safe=telegram&&mobile?132:mobile?17:15;
-    var y=Math.max(safe,Math.min(innerHeight-54,bounds.bottom+9));
-    var x=Math.max(12,Math.min(bounds.left+4,innerWidth-210));
-    anchor.style.setProperty('--db-project-top',Math.round(y)+'px');
-    anchor.style.setProperty('--db-project-left',Math.round(x)+'px');
-  }
-  function schedule(){
-    if(scheduled)return;scheduled=true;
-    requestAnimationFrame(position);
-  }
-  position();
-  window.addEventListener('scroll',schedule,{passive:true});
-  window.addEventListener('resize',schedule,{passive:true});
-  window.addEventListener('pageshow',schedule,{passive:true});
-  header.addEventListener('transitionend',schedule);
-  if(window.ResizeObserver){var ob=new ResizeObserver(schedule);ob.observe(header)}
+   var page=location.pathname.split('/').pop().toLowerCase();
+   if(!/^(?:dashbyte|arsenal|green-collection|perm-vl|arthur|showcase|privacy|arsenal-privacy)\.html$/.test(page))return;
+   // Never overlay the independent client's production Arsenal website.
+   if((page==='arsenal.html'||page==='arsenal-privacy.html')&&/^(?:www\.)?navesy59\.ru$/i.test(location.hostname))return;
+   var button=document.getElementById('db-projects-shortcut');
+   var oldLinks=document.querySelectorAll(
+     '#db-arsenal-bot-mobile-return,#db-arsenal-bot-desktop-return,'+
+     '.gc-projects-link,header a[href],nav a[href],#mobile-menu a[href],.mobile-menu a[href],.nav-links a[href]'
+   );
+   oldLinks.forEach(function(a){
+     if(a.id==='db-projects-shortcut')return;
+     var words=((a.textContent||'')+' '+(a.getAttribute('aria-label')||'')).trim();
+     if(!/\b(?:к\s+(?:выбору\s+)?проектам|все\s+проекты|вернуться\s+к\s+проектам|к\s+выбору\s+проектов)\b/i.test(words))return;
+     var u;try{u=new URL(a.getAttribute('href')||'',location.href)}catch(e){return}
+     if(u.origin!==location.origin||!/\/(?:index\.html)?$/i.test(u.pathname))return;
+     a.style.setProperty('display','none','important');
+     a.setAttribute('aria-hidden','true');
+     a.setAttribute('data-db-projects-retired','true');
+     a.tabIndex=-1;
+   });
+   if(!button){
+     button=document.createElement('a');
+     button.id='db-projects-shortcut';
+     button.href='./index.html';
+     button.setAttribute('aria-label','Вернуться к проектам DashByte');
+     button.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m14 5-7 7 7 7"/></svg><span>Вернуться к проектам</span>';
+     document.body.appendChild(button);
+   }
+   document.documentElement.setAttribute('data-db-project-page',page.replace('.html',''));
+   var header=document.querySelector('.site-header,header.nav,nav[aria-label="Навигация"],header.topbar,.topbar,.shell > .top,header');
+   if(!header){
+     button.classList.add('db-projects-shortcut--fixed');
+     button.style.setProperty('--db-projects-top','112px');
+     return;
+   }
+   var css=getComputedStyle(header);
+   var fixed=css.position==='fixed'||css.position==='sticky';
+   if(!fixed){
+     button.classList.remove('db-projects-shortcut--fixed');
+     button.classList.add('db-projects-shortcut--inline');
+     header.insertAdjacentElement('afterend',button);
+     return;
+   }
+   button.classList.remove('db-projects-shortcut--inline');
+   button.classList.add('db-projects-shortcut--fixed');
+   if(button.parentElement!==document.body)document.body.appendChild(button);
+   function layout(){
+     var s=getComputedStyle(header);
+     var rect=header.getBoundingClientRect();
+     var top=parseFloat(s.top);
+     // Ignore animation transforms: the button stays visible even while the
+     // main glass menu fades or slides away on first paint.
+     var headerBottom=Number.isFinite(top)?top+header.offsetHeight:rect.bottom;
+     var tg=window.Telegram&&window.Telegram.WebApp;
+     var safe=0;
+     if(tg&&tg.platform&&tg.platform!=='unknown'){
+       safe=Math.max(Number(tg.safeAreaInset&&tg.safeAreaInset.top)||0,
+                     Number(tg.contentSafeAreaInset&&tg.contentSafeAreaInset.top)||0);
+     }
+     var y=Math.max(headerBottom+10,safe+58,18);
+     button.style.setProperty('--db-projects-top',Math.round(y)+'px');
+     button.style.setProperty('--db-projects-right',Math.max(12,Math.round(innerWidth-rect.right))+'px');
+   }
+   layout();
+   if(!button.dataset.dbLayoutBound){
+     button.dataset.dbLayoutBound='true';
+     window.addEventListener('resize',layout,{passive:true});
+     window.addEventListener('orientationchange',layout,{passive:true});
+     window.addEventListener('load',layout,{once:true});
+     if(document.fonts&&document.fonts.ready)document.fonts.ready.then(layout);
+     var tg=window.Telegram&&window.Telegram.WebApp;
+     if(tg&&tg.onEvent){
+       tg.onEvent('safeAreaChanged',layout);
+       tg.onEvent('contentSafeAreaChanged',layout);
+       tg.onEvent('viewportChanged',layout);
+     }
+   }
  }
  document.addEventListener('click',function(e){
    var node=e.target;
