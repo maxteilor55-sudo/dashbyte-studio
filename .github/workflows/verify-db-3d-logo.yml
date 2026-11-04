@@ -1,0 +1,29 @@
+name: Verify interactive DashByte WebGL logo
+on:
+  push:
+    branches: [main]
+    paths:
+      - showroom.html
+      - assets/db-3d-logo.js
+      - assets/db-3d-logo.css
+      - assets/DashByte_DB_Official_Vector.svg
+      - scripts/verify-db-3d-logo.cjs
+      - .github/workflows/verify-db-3d-logo.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright@1.56.1
+      - name: Validate JS syntax and test 3D logo on mobile and desktop
+        run: |
+          node --check assets/db-3d-logo.js
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/db3d-http.log 2>&1 &
+          node scripts/verify-db-3d-logo.cjs
