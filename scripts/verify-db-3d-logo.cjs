@@ -28,6 +28,8 @@ const assert=require('node:assert/strict');
     meshParts:Number(stage.dataset.meshParts),
     faceSource:stage.dataset.faceSource,
     geometryVersion:stage.dataset.geometryVersion,
+    contours:Number(stage.dataset.contours),
+    edges:Number(stage.dataset.edges),
     webglSupported:supported,
     natural:image.naturalWidth,
     svgPath:image.getAttribute('src'),
@@ -51,7 +53,9 @@ const assert=require('node:assert/strict');
    assert.equal(state.renderer,'webgl','WebGL supported but model initialization failed');
    assert.equal(state.meshParts,1,'3D side walls must be connected into one solid body');
    assert.equal(state.faceSource,'original-svg-unmodified','The approved DB artwork must remain unchanged on front and back');
-   assert.equal(state.geometryVersion,'contour-v4-slim','The thin metal model must be loaded rather than the old chunky renderer');
+   assert.equal(state.geometryVersion,'contour-v5-smooth','The smoothed contour renderer must be loaded');
+   assert(state.contours>=3&&state.contours<=30,'Original DB must retain contour loops and letter counters');
+   assert(state.edges>400&&state.edges<12000,'Side walls must be built from the original DB perimeter');
    assert(state.canvasPixels[0]>0&&state.canvasPixels[1]>0,'No WebGL drawing surface');
   }else assert.equal(state.renderer,'fallback','No-WebGL fallback must be visible');
   if(isMobile)assert(Math.max(...state.cardBottoms)<=state.viewport+3,'Four cards must remain above fold');
@@ -113,6 +117,6 @@ const assert=require('node:assert/strict');
   await desktop.page.keyboard.press('ArrowLeft');
   assert.equal(desktop.failures.length,0,'Desktop JS errors: '+desktop.failures.join('; '));
   await desktop.page.close();
-  console.log('PASS: thin contour-preserving DB with no clipped front, angle, side or back; mouse and touch.');
+  console.log('PASS: smooth original DB contours, bounded automatic/manual tilt, four visual poses, touch and mouse.');
  }finally{await browser.close()}
 })().catch(err=>{console.error(err);process.exit(1)});
