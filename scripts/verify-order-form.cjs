@@ -39,18 +39,54 @@ const {chromium}=require('playwright');
     await page.locator('#dbBriefCompany').fill('Тест ООО');
     await page.locator('#dbBriefContact').fill('@testbuyer');
     await page.locator('#dbBriefMessage').fill('Нужен сайт и логотип');
-    await page.locator('.db-brief-service-picker label').filter({hasText:'Логотип'}).click();
+    const chips=page.locator('.db-brief-service-picker label');
+    const pickChip=async name=>chips.filter({hasText:name}).click();
+    if(await page.locator('input[name="services"]:checked').count())throw Error('Initial service selection must be empty');
+    await pickChip('Создание сайта');
+    await pickChip('Логотип');
+    await pickChip('Реклама');
+    if(await page.locator('input[name="services"]:checked').count()!==3)throw Error('Three selections were not kept');
+    await pickChip('Логотип');
+    if(await page.locator('input[name="services"]:checked').count()!==2)throw Error('Toggle off did not work');
+    await pickChip('Логотип');
+    await pickChip('Дизайн / айдентика');
+    await pickChip('Видео / контент');
+    await pickChip('Другое');
+    if(await page.locator('input[name="services"]:checked').count()!==6)throw Error('Select all six failed');
+    if((await page.locator('#dbBriefSelectedCount').innerText())!=='Выбрано: 6')throw Error('Incorrect live count');
     await page.locator('[name="privacy"]').check();
     await page.locator('.db-brief-submit[type="submit"]').click();
     const after=await page.evaluate(()=>({
       fallback:!document.getElementById('dbBriefAlternative').hidden,
       success:!document.getElementById('dbBriefSuccess').hidden,
       message:document.getElementById('dbBriefStatus').textContent,
-      selected:document.querySelector('input[name="service"]:checked').value,
+      selected:[...document.querySelectorAll('input[name="services"]:checked')].map(x=>x.value),
       draft:document.getElementById('dbBriefDraft').value
     }));
-    if(!after.fallback||after.success||after.selected!=='Логотип'||!after.draft.includes('Покупатель тест'))
+    if(!after.fallback||after.success||after.selected.length!==6||!after.draft.includes('Покупатель тест')||!after.draft.includes('Создание сайта, Логотип')||!after.draft.includes('Другое'))
       throw Error('Unsafe success or missing manual fallback: '+JSON.stringify({size,after}));
+
+    // The deployed Worker still validates a single whitelist service.
+    // Intercept only the network POST, not the browser payload construction.
+    await page.evaluate(()=>{window.Telegram={WebApp:{initData:'signed-test-stub',HapticFeedback:{}}}});
+    let wire=null;
+    await page.route('https://dashbyte-studio-bot.maxteilor55.workers.dev/api/lead',async route=>{
+      wire=route.request().postDataJSON();
+      await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true})});
+    });
+    await page.locator('.db-brief-submit[type="submit"]').click();
+    await page.locator('#dbBriefSuccess:visible').waitFor({timeout:7000});
+    if(!wire||wire.service!=='Создание сайта'||!wire.message.includes('Выбранные услуги (6):')||!wire.message.includes('Другое')||!wire.message.includes('Описание: Нужен сайт и логотип'))
+      throw Error('Wrong Telegram-compatible request payload: '+JSON.stringify(wire));
+    await page.locator('#dbBriefAgain').click();
+    if(await page.locator('input[name="services"]:checked').count())throw Error('Reset must deselect services');
+    // Explicitly validate zero services, with all other fields valid.
+    await page.locator('#dbBriefName').fill('Тест снова');
+    await page.locator('#dbBriefContact').fill('@testbuyer');
+    await page.locator('[name="privacy"]').check();
+    await page.locator('.db-brief-submit[type="submit"]').click();
+    const emptyWarning=await page.locator('#dbBriefStatus').innerText();
+    if(!emptyWarning.includes('Выбери хотя бы одну услугу'))throw Error('No-selection check failed: '+emptyWarning);
     await page.locator('.db-brief-close').click();
     await page.waitForFunction(()=>document.getElementById('dbBriefModal').hidden,{timeout:3000});
     if(errors.length)throw Error('JS errors: '+errors.join(' ; '));
