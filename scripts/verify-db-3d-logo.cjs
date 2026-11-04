@@ -25,6 +25,7 @@ const assert=require('node:assert/strict');
    try{supported=!!probe.getContext('webgl')}catch(_){}
    return {
     renderer:stage.dataset.renderer,
+    meshParts:Number(stage.dataset.meshParts),
     webglSupported:supported,
     natural:image.naturalWidth,
     svgPath:image.getAttribute('src'),
@@ -46,6 +47,7 @@ const assert=require('node:assert/strict');
   assert(state.overflow<=4,'No horizontal scrolling from 3D logo');
   if(state.webglSupported){
    assert.equal(state.renderer,'webgl','WebGL supported but model initialization failed');
+   assert.equal(state.meshParts,1,'3D logo must be one connected, welded monolithic mesh');
    assert(state.canvasPixels[0]>0&&state.canvasPixels[1]>0,'No WebGL drawing surface');
   }else assert.equal(state.renderer,'fallback','No-WebGL fallback must be visible');
   if(isMobile)assert(Math.max(...state.cardBottoms)<=state.viewport+3,'Four cards must remain above fold');
@@ -74,6 +76,6 @@ const assert=require('node:assert/strict');
   await desktop.page.keyboard.press('ArrowLeft');
   assert.equal(desktop.failures.length,0,'Desktop JS errors: '+desktop.failures.join('; '));
   await desktop.page.close();
-  console.log('PASS: accurate SVG silhouette extrusion, mobile fold, pointer & keyboard interactions.');
+  console.log('PASS: single-piece welded DB extrusion, mobile fold, pointer & keyboard interactions.');
  }finally{await browser.close()}
 })().catch(err=>{console.error(err);process.exit(1)});
