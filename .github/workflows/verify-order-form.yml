@@ -1,0 +1,28 @@
+name: Verify DashByte order form and mobile modal
+on:
+  push:
+    branches: [main]
+    paths:
+      - showroom.html
+      - assets/db-brief-form.css
+      - assets/db-brief-form.js
+      - assets/db-brief-config.js
+      - scripts/verify-order-form.cjs
+      - .github/workflows/verify-order-form.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright@1.56.1
+      - name: Test form placement, display, focus and truthful delivery state
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/order-form.log 2>&1 &
+          node scripts/verify-order-form.cjs
