@@ -122,9 +122,9 @@ const assert=require('node:assert/strict');
    return {yaw:Number(s.dataset.poseYaw),pitch:Number(s.dataset.posePitch)};
   });
   assert.equal(await mobile.page.locator('#db3dStage').getAttribute('data-interacted'),'true','Touch movement must rotate logo');
+  console.log('MOBILE_FREE_3D '+JSON.stringify({beforeTouch,afterTouch}));
   assert(Math.abs(afterTouch.yaw-beforeTouch.y)>Math.PI,'A swipe must rotate fully beyond 180 degrees horizontally');
   assert(Math.abs(afterTouch.pitch-beforeTouch.pitch)>Math.PI,'A swipe must rotate fully beyond 180 degrees vertically');
-  console.log('MOBILE_FREE_3D '+JSON.stringify({beforeTouch,afterTouch}));
   assert.equal(mobile.failures.length,0,'Mobile JS errors: '+mobile.failures.join('; '));
   await mobile.page.close();
 
