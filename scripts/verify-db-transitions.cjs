@@ -54,6 +54,15 @@ const {chromium}=require('playwright');
  });
  if(!arsenalNav.mobile||!arsenalNav.inMenu||!arsenalNav.desktop||arsenalNav.href!=='./')
    throw Error('Arsenal bot-return links unavailable: '+JSON.stringify(arsenalNav));
+ const toggle=await page.evaluate(()=>{
+   const all=[...document.querySelectorAll('button')];
+   const btn=all.find(b=>/menu|меню|гамбургер|hamburger/i.test([b.id,b.className,b.getAttribute('aria-label'),b.getAttribute('aria-controls')].join(' ')) && getComputedStyle(b).display!=='none');
+   if(btn)btn.click();
+   return {button:btn?{id:btn.id,className:btn.className,label:btn.getAttribute('aria-label')}:null,
+     buttons:all.map(b=>({id:b.id,className:String(b.className).slice(0,50),label:b.getAttribute('aria-label')})).slice(0,15)};
+ });
+ const menuShown=await page.locator('#db-arsenal-bot-mobile-return').isVisible();
+ if(!toggle.button||!menuShown)throw Error('Arsenal hamburger does not reveal the project link: '+JSON.stringify({toggle,menuShown}));
  await exit('#db-arsenal-bot-mobile-return','/');
  await open('green-collection.html'); 
  const greenBack=await page.evaluate(()=>document.querySelectorAll('.gc-projects-link').length);
