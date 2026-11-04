@@ -1,4 +1,4 @@
-name: Verify PERM-VL page and three-project showroom
+name: Verify PERM-VL page and four-project showroom
 on:
   push:
     branches: [main]
