@@ -36,6 +36,7 @@ const assert=require('node:assert/strict');
     previewBorderWidth:getComputedStyle(object).borderTopWidth,
     previewOutline:getComputedStyle(object).outlineStyle,
     frostCanvases:document.querySelectorAll('.project .db-frost-canvas').length,
+    frostCompositeFilter:getComputedStyle(document.querySelector('.db-frost-canvas')).filter,
     blurLayers:cards.map(c=>{const p=c.querySelector('.arthur-matte,.gc-card-matte,.pv-card-matte,.arsenal-matte-pane');return p ? (getComputedStyle(p).backdropFilter||getComputedStyle(p).webkitBackdropFilter) : 'missing'}),
     stageBorderWidth:getComputedStyle(stage).borderTopWidth,
     logoHeight:Math.round(object.getBoundingClientRect().height),
@@ -84,6 +85,7 @@ const assert=require('node:assert/strict');
   assert.equal(state.previewBorderWidth,'0px','Unframed 3D logo must have no visible border');
   assert.equal(state.previewOutline,'none','Touch or keyboard focus must never create a rectangular border');
   assert.equal(state.frostCanvases,4,'All four cards need true video-backed Gaussian frost lenses');
+  assert(state.frostCompositeFilter.includes('blur('),'GPU-composited Canvas blur must be active');
   assert(state.blurLayers.every(b=>b.includes('blur(')||b==='none'),'Native blur must be available for fallback');
   assert.equal(state.stageBorderWidth,'0px','Remove the wrapper shape around the text and logo');
   assert.equal(state.previewGlass,'none','3D logo must not sit inside a glass window');

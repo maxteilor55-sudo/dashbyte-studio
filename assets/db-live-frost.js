@@ -1,5 +1,5 @@
 /* DashByte TRUE FROST: Gaussian-blurred moving-video pixels under each glass card.
-   A single video decode, four low-resolution canvas samples, capped at 11 fps.
+   A single video decode, four low-resolution canvas samples, capped at ~2.4 fps.
    CSS backdrop-filter fallback remains when canvas or video cannot be sampled. */
 (function(){
  'use strict';
@@ -13,13 +13,13 @@
   canvas.setAttribute('aria-hidden','true');
   card.insertBefore(canvas,card.firstChild);
   const context=canvas.getContext('2d',{alpha:true,desynchronized:true});
-  if(context&&'filter' in context)lenses.push({card,canvas,context});
+  if(context)lenses.push({card,canvas,context});
   else canvas.remove();
  }
  if(!lenses.length)return;
  let last=0,request=0;
- const quality=.72;
- const pad=60;
+ const quality=.44;
+ const pad=48;
  function positionFactor(css,axis){
   const words=css.trim().split(/\s+/);
   const word=words[axis]|| (axis===0?'50%':'50%');
@@ -55,7 +55,8 @@
    const dx=-pad*quality,dy=-pad*quality;
    try{
     ctx.clearRect(0,0,w,h);
-    ctx.filter='blur(22px)';
+    // Gaussian blur runs as a GPU-composited CSS filter on the canvas.
+    // 2D canvas filtering large live video frames stalls Android and headless Chrome.
     // Clamp to the decoded frame; drawImage can then use an overscanned crop.
     const sx=Math.max(0,x),sy=Math.max(0,y);
     const ex=Math.min(film.videoWidth,x+sw),ey=Math.min(film.videoHeight,y+sh);
@@ -63,10 +64,8 @@
     const factor=(cardBox.width+pad*2)*quality/sw;
     ctx.drawImage(film,sx,sy,ex-sx,ey-sy,
       dx+(sx-x)*factor,dy+(sy-y)*factor,(ex-sx)*factor,(ey-sy)*factor);
-    ctx.filter='none';
     lens.card.dataset.liveFrost='on';
    }catch(error){
-    ctx.filter='none';
     lens.card.dataset.liveFrost='off';
     lens.canvas.style.display='none';
     // Native backdrop-filter remains in the pane as the fallback.
@@ -75,12 +74,11 @@
  }
  function tick(time){
   request=0;
-  if(!document.hidden&&time-last>=90){last=time;paint()}
+  if(!document.hidden&&time-last>=420){last=time;paint()}
   request=requestAnimationFrame(tick);
  }
- request=requestAnimationFrame(tick);
- film.addEventListener('loadeddata',paint,{passive:true});
- window.addEventListener('resize',paint,{passive:true});
- window.addEventListener('pageshow',paint,{passive:true});
- document.addEventListener('visibilitychange',()=>{if(!document.hidden)paint()},{passive:true});
+ // Start after DOMContentLoaded, so drawing cannot block the navigation event.
+ const run=()=>setTimeout(()=>{request=requestAnimationFrame(tick)},650);
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});else run();
+ window.addEventListener('resize',()=>{last=0},{passive:true});
 })();

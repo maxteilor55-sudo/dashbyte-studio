@@ -422,3 +422,11 @@
 @media(max-width:350px){
  .db3d-stage .db3d-viewport{height:170px!important}
 }
+
+/* v5 / Gaussian blur runs on composited canvas, not on decoded video frames. */
+.page > .projects > a.project .db-frost-canvas{
+  -webkit-filter:blur(23px) saturate(.78) contrast(.85)!important;
+  filter:blur(23px) saturate(.78) contrast(.85)!important;
+  transform:scale(1.14)!important;transform-origin:center!important;
+  opacity:.97!important;
+}
