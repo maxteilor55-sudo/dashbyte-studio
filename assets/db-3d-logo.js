@@ -15,20 +15,20 @@
  const vertexSource=[
   'attribute vec3 aPosition;attribute vec3 aNormal;attribute vec2 aUV;',
   'uniform float uYaw;uniform float uPitch;uniform float uRatio;',
-  'varying vec3 vNormal;varying vec2 vUV;',
+  'varying vec3 vNormal;varying vec2 vUV;varying float vFace;',
   'void main(){',
   'float cy=cos(uYaw),sy=sin(uYaw),cx=cos(uPitch),sx=sin(uPitch);',
   'vec3 p=vec3(aPosition.x*cy+aPosition.z*sy,aPosition.y,-aPosition.x*sy+aPosition.z*cy);',
   'p=vec3(p.x,p.y*cx-p.z*sx,p.y*sx+p.z*cx);',
   'vec3 n=vec3(aNormal.x*cy+aNormal.z*sy,aNormal.y,-aNormal.x*sy+aNormal.z*cy);',
   'n=vec3(n.x,n.y*cx-n.z*sx,n.y*sx+n.z*cx);',
-  'vNormal=normalize(n);vUV=aUV;',
+  'vNormal=normalize(n);vUV=aUV;vFace=abs(aNormal.z);',
   'float perspective=3.8/(3.8-p.z);',
   'gl_Position=vec4(p.x*1.34*perspective/uRatio,p.y*1.34*perspective,-p.z*.29,1.0);',
   '}'
  ].join('\n');
  const fragmentSource=[
-  'precision highp float;varying vec3 vNormal;varying vec2 vUV;',
+  'precision highp float;varying vec3 vNormal;varying vec2 vUV;varying float vFace;',
   'uniform float uTime;',
   'void main(){',
   'vec3 n=normalize(vNormal);',
@@ -48,7 +48,7 @@
   'float glint=pow(max(dot(n,movingLight),0.0),32.0);',
   'vec3 polished=vec3(.26,.28,.32)+vec3(.28,.30,.33)*(.50*key+.25*fill);',
   'polished+=vec3(.67,.71,.77)*(panelA*.82+panelB*.60+hairline*.42+glint*.23);',
-  'float face=smoothstep(.90,.98,abs(n.z));',
+  'float face=smoothstep(.90,.98,vFace);',
   'vec3 material=mix(polished,matte,face);',
   'gl_FragColor=vec4(clamp(material,0.0,1.0),1.0);',
   '}'
@@ -178,7 +178,7 @@
   stage.dataset.meshFaces=String(mesh.faces);
   stage.dataset.faceSource='original-vector-triangles';
   stage.dataset.geometryVersion='authentic-vector-solid-v1';
-  stage.dataset.material='matte-grey-polished-edges';
+  stage.dataset.material='matte-grey-polished-edges-v2';
   stage.dataset.rotation='two-axis-free';
   gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LESS);
   gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);gl.disable(gl.BLEND);
