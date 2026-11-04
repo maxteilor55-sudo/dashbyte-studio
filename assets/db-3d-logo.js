@@ -200,7 +200,7 @@
   stage.dataset.cameraMode='fixed-scale-no-auto-fit';
   stage.dataset.projection='orthographic';
   stage.dataset.rotation='two-axis-free';
-  stage.dataset.motion='intro-spin-then-gentle-auto';
+  stage.dataset.motion='intro-spin-then-rear-boost-auto';
   introStart=performance.now()+260;
   gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LESS);
   gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);
@@ -220,6 +220,14 @@
   gl.drawArrays(gl.TRIANGLES,0,sideCount);
  }
  function start(){if(!gl||!active||document.hidden||raf)return;lastFrame=0;raf=requestAnimationFrame(frame)}
+ // Smooth speed ramp: the logo spends more time front-facing and quickly
+ // passes the back. Camera and user-driven pointer rotation stay untouched.
+ function ambientStep(yawAngle,dt){
+  const rear=-Math.cos(yawAngle);
+  const t=Math.max(0,Math.min(1,(rear-.07)/.46));
+  const boost=t*t*(3-2*t);
+  return dt*(.00047+.00125*boost);
+ }
  function frame(t){
   raf=0;if(!active||document.hidden)return;
   const dt=Math.min(48,Math.max(0,lastFrame?t-lastFrame:16));lastFrame=t;
@@ -238,13 +246,13 @@
      if(u>=1){introFinished=true;stage.dataset.motionPhase='ambient'}
     }else if(introFinished){
      // Slow uninterrupted orbit after the reveal. No snapping back to the start pose.
-     targetYaw+=dt*.00015;
+     targetYaw+=ambientStep(yaw,dt);
      targetPitch+=(-.08+Math.sin(t*.0004)*.065-targetPitch)*Math.min(.035,dt*.002);
     }
    }else if(hasInteracted&&!reduced.matches&&t-lastManual>4800){
     // Manual inspection remains untouched for 4.8 s, then resumes very gently.
     if(Math.abs(inertiaYaw)<.000003&&Math.abs(inertiaPitch)<.000003){
-     targetYaw+=dt*.00012;
+     targetYaw+=ambientStep(yaw,dt);
      stage.dataset.motionPhase='ambient';
     }
    }

@@ -83,7 +83,7 @@ const assert=require('node:assert/strict');
   assert.equal(state.previewOutline,'none','3D logo must never draw a rectangular focus frame');
   assert.equal(state.stageBorderWidth,'0px','Remove the wrapper shape around the text and logo');
   assert.equal(state.previewGlass,'none','3D logo must not sit inside a glass window');
-  assert.equal(state.motion,'intro-spin-then-gentle-auto','Landing animation and gentle auto-orbit required');
+  assert.equal(state.motion,'intro-spin-then-rear-boost-auto','Landing animation and gentle auto-orbit required');
   if(isMobile){
    assert(Math.max(...state.cardBottoms)<=state.viewport+3,'Four cards must remain above fold');
    assert.equal(state.touchAction,'none','Vertical touch gestures must reach the 3D model instead of scrolling the page');
