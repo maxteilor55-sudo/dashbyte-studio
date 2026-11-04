@@ -44,35 +44,48 @@ const {chromium}=require('playwright');
  if(!auto.note.includes('PIN-кодом'))throw Error('Auto preview PIN option missing');
  const back=await exit('a.back','/'); 
  const perm=await exit('.project.perm-vl','/perm-vl.html');
- const returnHome=await exit('a[href="./index.html"]','/index.html');
+ const returnHome=await exit('#db-projects-shortcut','/index.html');
  await open('arsenal.html');
  const arsenalNav=await page.evaluate(()=>{
-   const mobile=document.querySelector('#db-arsenal-bot-mobile-return');
-   const desktop=document.querySelector('#db-arsenal-bot-desktop-return');
-   return {mobile:!!mobile,mobileText:mobile?.textContent.trim(),inMenu:!!mobile?.closest('#mobile-menu,.mobile-menu'),href:mobile?.getAttribute('href'),
-    desktop:!!desktop,videoDocument:document.title};
+   const button=document.getElementById('db-projects-shortcut');
+   const header=document.querySelector('header.site-header');
+   const rect=button?.getBoundingClientRect(),head=header?.getBoundingClientRect();
+   return {button:!!button,href:button?.getAttribute('href'),separate:!!button&&!button.closest('header,nav,#mobile-menu,.mobile-menu'),
+      belowHeader:!!rect&&!!head&&rect.top>=head.bottom-3,
+      visible:!!rect&&rect.width>90&&getComputedStyle(button).display!=='none',
+      oldMenu:!!document.querySelector('#db-arsenal-bot-mobile-return:not([aria-hidden="true"])')};
  });
- if(!arsenalNav.mobile||!arsenalNav.inMenu||!arsenalNav.desktop||arsenalNav.href!=='./')
-   throw Error('Arsenal bot-return links unavailable: '+JSON.stringify(arsenalNav));
+ if(!arsenalNav.button||!arsenalNav.separate||!arsenalNav.belowHeader||!arsenalNav.visible||arsenalNav.oldMenu)
+   throw Error('Arsenal separate project-return missing or still inside menu: '+JSON.stringify(arsenalNav));
  const toggle=await page.evaluate(()=>{
    const all=[...document.querySelectorAll('button')];
    const btn=all.find(b=>/menu|меню|гамбургер|hamburger/i.test([b.id,b.className,b.getAttribute('aria-label'),b.getAttribute('aria-controls')].join(' ')) && getComputedStyle(b).display!=='none');
    if(btn)btn.click();
-   return {button:btn?{id:btn.id,className:btn.className,label:btn.getAttribute('aria-label')}:null,
-     buttons:all.map(b=>({id:b.id,className:String(b.className).slice(0,50),label:b.getAttribute('aria-label')})).slice(0,15)};
+   return !!btn;
  });
- const menuShown=await page.locator('#db-arsenal-bot-mobile-return').isVisible();
- if(!toggle.button||!menuShown)throw Error('Arsenal hamburger does not reveal the project link: '+JSON.stringify({toggle,menuShown}));
- await exit('#db-arsenal-bot-mobile-return','/');
+ if(!toggle||await page.locator('#db-projects-shortcut').count()!==1)
+   throw Error('Arsenal menu toggling removed independent shortcut');
+ await exit('#db-projects-shortcut','/index.html');
  // The Green Collection page is intentionally PIN-gated. Simulate a valid
  // authorized dashboard session before checking its internal menu.
  await page.evaluate(()=>sessionStorage.setItem('db_gc_authorized_at',String(Date.now())));
  await open('green-collection.html');
- const greenBack=await page.evaluate(()=>({links:document.querySelectorAll('.gc-projects-link').length,authorized:document.documentElement.classList.contains('gc-authorized')}));
- if(!greenBack.authorized||greenBack.links<1)throw Error('Green Collection project menu return missing: '+JSON.stringify(greenBack));
+ const greenBack=await page.evaluate(()=>({
+   authorized:document.documentElement.classList.contains('gc-authorized'),
+   button:!!document.getElementById('db-projects-shortcut'),
+   separate:!document.getElementById('db-projects-shortcut')?.closest('nav,header'),
+   oldMenuVisible:[...document.querySelectorAll('.gc-projects-link')].some(el=>getComputedStyle(el).display!=='none')
+ }));
+ if(!greenBack.authorized||!greenBack.button||!greenBack.separate||greenBack.oldMenuVisible)
+   throw Error('Green Collection standalone project-return missing: '+JSON.stringify(greenBack));
  await open('dashbyte.html');
- const studioBack=await page.evaluate(()=>!!document.getElementById('db-chooser-return'));
- if(!studioBack)throw Error('DashByte studio project menu return missing');
+ const studioBack=await page.evaluate(()=>({
+   shortcut:!!document.getElementById('db-projects-shortcut'),
+   separate:!document.getElementById('db-projects-shortcut')?.closest('nav,header,aside'),
+   oldVisible:!!document.getElementById('db-chooser-return')&&getComputedStyle(document.getElementById('db-chooser-return')).display!=='none'
+ }));
+ if(!studioBack.shortcut||!studioBack.separate||studioBack.oldVisible)
+   throw Error('DashByte studio independent return missing: '+JSON.stringify(studioBack));
  await open('privacy.html');
  const privacyLoaded=await page.evaluate(()=>!!window.DashByteTransitions);
  if(!privacyLoaded)throw Error('Privacy page transition missing');
@@ -82,8 +95,8 @@ const {chromium}=require('playwright');
  for(const name of filenames){
     const response=await page.request.get(base+name);
     const content=await response.text();
-    if(!response.ok()||content.split('db-route-transition.js?v=1').length!==2||
-       content.split('db-route-transition.css?v=1').length!==2)missing.push(name);
+    if(!response.ok()||(content.match(/db-route-transition\.js\?v=\d+/g)||[]).length!==1||
+       (content.match(/db-route-transition\.css\?v=\d+/g)||[]).length!==1)missing.push(name);
  }
  if(missing.length)throw Error('Missing route asset references: '+missing.join(','));
  if(issues.length)throw Error('JavaScript errors: '+issues.join(' | '));
