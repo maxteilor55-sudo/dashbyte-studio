@@ -64,3 +64,10 @@ body.db-brief-locked{overflow:hidden!important;touch-action:none}
 
 .db-brief-draft{flex:1 1 100%;box-sizing:border-box;width:100%;min-height:125px;resize:vertical;padding:12px;border:1px solid rgba(255,200,212,.25);border-radius:12px;background:rgba(5,7,12,.68);color:#eadbdf;font:500 12px/1.6 system-ui,sans-serif;outline:none}
 .db-brief-draft:focus{border-color:#ff8ca4}
+
+/* Multi-select service chips: each highlighted service can be toggled. */
+.db-brief-service-hint{display:flex;flex-wrap:wrap;gap:4px 9px;align-items:baseline;justify-content:space-between;margin:1px 0 2px;color:#bb9fa8;font-size:11px;line-height:1.6}
+.db-brief-service-hint strong{color:#ffadb9;font-size:11px;font-weight:800;white-space:nowrap}
+.db-brief-service-picker span{position:relative;padding-right:23px}
+.db-brief-service-picker input:checked+span{border-color:#ff9cab;background:linear-gradient(120deg,rgba(248,69,107,.35),rgba(163,36,70,.28));box-shadow:inset 0 1px rgba(255,255,255,.16),0 0 18px rgba(246,67,105,.16)}
+.db-brief-service-picker input:checked+span::after{content:"✓";position:absolute;top:5px;right:7px;display:grid;place-items:center;width:14px;height:14px;border-radius:50%;background:#ff8296;color:#290c1a;font:900 11px/1 system-ui}
