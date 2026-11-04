@@ -33,6 +33,10 @@ const assert=require('node:assert/strict');
     cameraMode:stage.dataset.cameraMode,
     projection:stage.dataset.projection,
     previewGlass:getComputedStyle(object).backdropFilter||getComputedStyle(object).webkitBackdropFilter,
+    previewBorderWidth:getComputedStyle(object).borderTopWidth,
+    stageBorderWidth:getComputedStyle(stage).borderTopWidth,
+    logoHeight:Math.round(object.getBoundingClientRect().height),
+    motion:stage.dataset.motion,
     glassCards:cards.map(card=>({name:card.classList[1],blur:getComputedStyle(card).backdropFilter||getComputedStyle(card).webkitBackdropFilter,border:getComputedStyle(card).borderColor})),
     rotation:stage.dataset.rotation,
     touchAction:getComputedStyle(object).touchAction,
@@ -70,10 +74,14 @@ const assert=require('node:assert/strict');
    
    
    assert(state.canvasPixels[0]>0&&state.canvasPixels[1]>0,'No WebGL drawing surface');
+   assert(state.logoHeight>=110,'3D logo needs the enlarged, unframed viewport');
   }else assert.equal(state.renderer,'fallback','No-WebGL fallback must be visible');
   assert.equal(state.glassCards.length,4,'All four projects must use frosted glass');
   for(const card of state.glassCards)assert(card.blur.includes('blur('),'Card must genuinely blur backdrop: '+card.name);
-  assert(state.previewGlass.includes('blur('),'3D preview needs matching frosted glass');
+  assert.equal(state.previewBorderWidth,'0px','Unframed 3D logo must have no visible border');
+  assert.equal(state.stageBorderWidth,'0px','Remove the wrapper shape around the text and logo');
+  assert.equal(state.previewGlass,'none','3D logo must not sit inside a glass window');
+  assert.equal(state.motion,'intro-spin-then-gentle-auto','Landing animation and gentle auto-orbit required');
   if(isMobile){
    assert(Math.max(...state.cardBottoms)<=state.viewport+3,'Four cards must remain above fold');
    assert.equal(state.touchAction,'none','Vertical touch gestures must reach the 3D model instead of scrolling the page');

@@ -11,6 +11,8 @@
  let uYaw,uPitch,uRatio,uTime,locPos,locNorm,locUV;
  let active=true,raf=0,lastFrame=0,dragging=false,lastX=0,lastY=0,hasInteracted=false;
  let yaw=.14,pitch=-.08,targetYaw=.14,targetPitch=-.08,inertiaYaw=0,inertiaPitch=0,lastManual=0;
+ // A fast easing-out reveal, followed by quiet perpetual motion. Gestures take priority.
+ let introStart=0,introFinished=false;
 
  const vertexSource=[
   'attribute vec3 aPosition;attribute vec3 aNormal;attribute vec2 aUV;',
@@ -185,6 +187,8 @@
   stage.dataset.cameraMode='fixed-scale-no-auto-fit';
   stage.dataset.projection='orthographic';
   stage.dataset.rotation='two-axis-free';
+  stage.dataset.motion='intro-spin-then-gentle-auto';
+  introStart=performance.now()+260;
   gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LESS);
   gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);
   gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
@@ -206,26 +210,49 @@
  function frame(t){
   raf=0;if(!active||document.hidden)return;
   const dt=Math.min(48,Math.max(0,lastFrame?t-lastFrame:16));lastFrame=t;
+  let openingSpin=false;
   if(!dragging){
    if(!hasInteracted&&!reduced.matches){
-    // Keep the original approved front-facing appearance as the idle pose.
-    const desired=.12+Math.sin(t*.00028)*.16;
-    targetYaw+=(desired-targetYaw)*Math.min(.019,dt*.00045);
+    if(!introFinished&&t>=introStart){
+     const u=Math.min(1,(t-introStart)/1530);
+     // Two full revolutions, front-facing on landing; ease-out quintic is fast first,
+     // strongly damped at the end, with no last-frame orientation jump.
+     const eased=1-Math.pow(1-u,5);
+     yaw=targetYaw=.14+Math.PI*4*eased;
+     pitch=targetPitch=-.08+Math.sin(Math.PI*eased)*.14;
+     openingSpin=true;
+     stage.dataset.motionPhase='reveal';
+     if(u>=1){introFinished=true;stage.dataset.motionPhase='ambient'}
+    }else if(introFinished){
+     // Slow uninterrupted orbit after the reveal. No snapping back to the start pose.
+     targetYaw+=dt*.00015;
+     targetPitch+=(-.08+Math.sin(t*.0004)*.065-targetPitch)*Math.min(.035,dt*.002);
+    }
+   }else if(hasInteracted&&!reduced.matches&&t-lastManual>4800){
+    // Manual inspection remains untouched for 4.8 s, then resumes very gently.
+    if(Math.abs(inertiaYaw)<.000003&&Math.abs(inertiaPitch)<.000003){
+     targetYaw+=dt*.00012;
+     stage.dataset.motionPhase='ambient';
+    }
    }
-   targetYaw+=inertiaYaw*dt;
-   targetPitch+=inertiaPitch*dt;
+   if(!openingSpin){
+    targetYaw+=inertiaYaw*dt;
+    targetPitch+=inertiaPitch*dt;
+   }
    const drag=Math.pow(.86,dt/16);
    inertiaYaw*=drag;inertiaPitch*=drag;
    if(Math.abs(inertiaYaw)<.000003)inertiaYaw=0;
    if(Math.abs(inertiaPitch)<.000003)inertiaPitch=0;
   }
-  const ease=1-Math.exp(-dt/86);
-  yaw+=(targetYaw-yaw)*ease;
-  pitch+=(targetPitch-pitch)*ease;
+  if(!openingSpin){
+   const ease=1-Math.exp(-dt/86);
+   yaw+=(targetYaw-yaw)*ease;
+   pitch+=(targetPitch-pitch)*ease;
+  }
   draw();
-  // After a touch or mouse gesture, keep the exact inspected orientation.
-  // Never automatically snap the emblem back toward its front side.
-  if((!hasInteracted&&!reduced.matches)||dragging||Math.abs(targetYaw-yaw)>.0004||
+  // Only render continuously when visible. Reduced-motion visitors get a static
+  // logo until they choose to manipulate it.
+  if((!reduced.matches)||dragging||Math.abs(targetYaw-yaw)>.0004||
      Math.abs(targetPitch-pitch)>.0004||Math.abs(inertiaYaw)>.000003||Math.abs(inertiaPitch)>.000003)
    raf=requestAnimationFrame(frame);
  }
@@ -242,6 +269,7 @@
  viewport.addEventListener('pointerdown',e=>{
   if(e.pointerType==='mouse'&&e.button!==0)return;
   dragging=true;hasInteracted=true;lastX=e.clientX;lastY=e.clientY;
+  stage.dataset.motionPhase='manual';
   inertiaYaw=0;inertiaPitch=0;lastManual=performance.now();
   try{viewport.setPointerCapture(e.pointerId)}catch(_){}
   viewport.focus({preventScroll:true});start();
@@ -297,6 +325,7 @@
  if(new URLSearchParams(location.search).has('db3dtest')){
   window.__db3dTestPose=function(nextYaw,nextPitch){
    if(!gl||!Number.isFinite(nextYaw)||!Number.isFinite(nextPitch))return false;
+   hasInteracted=true;introFinished=true;stage.dataset.motionPhase='test';
    yaw=targetYaw=nextYaw;pitch=targetPitch=nextPitch;
    inertiaYaw=0;inertiaPitch=0;lastManual=performance.now();
    draw();return true;
