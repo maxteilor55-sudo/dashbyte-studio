@@ -939,10 +939,10 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
     letter-spacing:0!important;white-space:nowrap!important;gap:5px!important;
     padding:6px 7px!important;min-height:21px!important;border-radius:20px!important
   }
-  .page > .projects > a.project .category::after{content:"01 · КЛИЕНТ";font-size:7px;letter-spacing:.025em;font-weight:850}
+  .page > .projects > a.project .category::after{content:"04 · КЛИЕНТ";font-size:7px;letter-spacing:.025em;font-weight:850}
   .page > .projects > a.project.green-collection .category::after{content:"02 · КЛИЕНТ"}
   .page > .projects > a.project.perm-vl .category::after{content:"03 · ИГРА"}
-  .page > .projects > a.project.arthur .category::after{content:"04 · КЛИЕНТ"}
+  .page > .projects > a.project.arthur .category::after{content:"01 · КЛИЕНТ"}
   .page > .projects > a.project .project-progress{
     position:absolute!important;z-index:6!important;top:0!important;right:0!important;
     display:flex!important;flex-direction:column!important;gap:0!important;
@@ -1054,14 +1054,15 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
 </section>
 <section class="projects fade" aria-label="Сайты в разработке и их готовность">
  <div class="deck-hint" aria-hidden="true">Выберите проект <span>↘</span></div>
- <a class="project arsenal" data-project="arsenal" href="./arsenal.html" aria-label="Открыть сайт Арсенал">
-  <span class="arsenal-matte-pane" aria-hidden="true"></span>
-  <div class="art" aria-hidden="true"><div class="rings"></div><div class="slash"></div><div class="motif">A</div></div>
-  <div class="project-head"><span class="category"><i></i>01 · Клиентский проект</span><span class="project-progress" data-progress="99" role="img" aria-label="Готовность проекта Арсенал — 99 процентов"><span class="progress-ring"><span class="progress-number">99%</span></span><span class="progress-caption">ГОТОВНОСТЬ</span></span></div>
+ <!-- Новые заказы размещаем первыми; старые проекты идут ниже. -->
+ <a class="project arthur" data-project="arthur" href="./arthur.html" aria-label="Автосервис — новый проект, сбор материалов">
+  <span class="arthur-matte" aria-hidden="true"></span>
+  <div class="art" aria-hidden="true"><div class="rings"></div><div class="slash"></div><div class="motif">AS</div></div>
+  <div class="project-head"><span class="category"><i></i>01 · Клиентский проект</span><span class="project-progress" data-progress="5" role="img" aria-label="Готовность проекта Автосервис — 5 процентов"><span class="progress-ring"><span class="progress-number">5%</span></span><span class="progress-caption">СТАРТ</span></span></div>
   <div class="project-body">
-   <div class="project-label">Metal. Form. Character.</div><h2>АРСЕНАЛ</h2>
-   <p>Навесы, гаражи и металлоконструкции. Разрабатываем каталог услуг и удобный способ оставить заявку.</p>
-   <div class="project-foot"><span class="project-link">Открыть проект</span><span class="arrow" aria-hidden="true">↗</span></div>
+   <div class="project-label">AUTO. SERVICE. PARTS.</div><h2>АВТОСЕРВИС</h2>
+   <p>Автосервис, шиномонтаж и авторазбор. Сбор материалов и подготовка проекта.</p>
+   <div class="project-foot"><span class="project-link">Статус проекта</span><span class="arrow" aria-hidden="true">↗</span></div>
   </div>
  </a>
  <a class="project green-collection" href="./green-collection.html" data-open-pin="green-collection" aria-haspopup="dialog" aria-controls="greenPinModal" aria-label="Зелёная коллекция — открыть с PIN-кодом">
@@ -1111,15 +1112,14 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
    <div class="project-foot"><span class="project-link">Играть и узнать о проекте</span><span class="arrow pv-arrow" aria-hidden="true">↗</span></div>
   </div>
  </a>
-
- <a class="project arthur" data-project="arthur" href="./arthur.html" aria-label="Артур — новый проект автосервиса, сбор материалов">
-  <span class="arthur-matte" aria-hidden="true"></span>
-  <div class="art" aria-hidden="true"><div class="rings"></div><div class="slash"></div><div class="motif">AS</div></div>
-  <div class="project-head"><span class="category"><i></i>04 · Клиентский проект</span><span class="project-progress" data-progress="5" role="img" aria-label="Готовность проекта автосервиса Артура — 5 процентов"><span class="progress-ring"><span class="progress-number">5%</span></span><span class="progress-caption">СТАРТ</span></span></div>
+ <a class="project arsenal" data-project="arsenal" href="./arsenal.html" aria-label="Открыть сайт Арсенал">
+  <span class="arsenal-matte-pane" aria-hidden="true"></span>
+  <div class="art" aria-hidden="true"><div class="rings"></div><div class="slash"></div><div class="motif">A</div></div>
+  <div class="project-head"><span class="category"><i></i>04 · Клиентский проект</span><span class="project-progress" data-progress="99" role="img" aria-label="Готовность проекта Арсенал — 99 процентов"><span class="progress-ring"><span class="progress-number">99%</span></span><span class="progress-caption">ГОТОВНОСТЬ</span></span></div>
   <div class="project-body">
-   <div class="project-label">AUTO. SERVICE. PARTS.</div><h2>АРТУР</h2>
-   <p>Автосервис, шиномонтаж и авторазбор. Сбор материалов и подготовка проекта.</p>
-   <div class="project-foot"><span class="project-link">Статус проекта</span><span class="arrow" aria-hidden="true">↗</span></div>
+   <div class="project-label">Metal. Form. Character.</div><h2>АРСЕНАЛ</h2>
+   <p>Навесы, гаражи и металлоконструкции. Разрабатываем каталог услуг и удобный способ оставить заявку.</p>
+   <div class="project-foot"><span class="project-link">Открыть проект</span><span class="arrow" aria-hidden="true">↗</span></div>
   </div>
  </a>
  <div class="studio-stage">

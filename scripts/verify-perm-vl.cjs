@@ -20,9 +20,9 @@ const {chromium}=require('playwright');
   const card=await home.evaluate(()=>{
     const x=document.querySelector('.project.perm-vl');
     const badges=[...document.querySelectorAll('.projects > a.project .project-progress')];
-    return {exists:!!x,href:x?.getAttribute('href'),values:badges.map(b=>b.getAttribute('data-progress')),ring:x&&getComputedStyle(x.querySelector('.project-progress')).getPropertyValue('--progress-angle').trim()};
+    return {exists:!!x,href:x?.getAttribute('href'),order:[...document.querySelectorAll('.projects > a.project')].map(p=>p.dataset.project||'green-collection'),values:badges.map(b=>b.getAttribute('data-progress')),ring:x&&getComputedStyle(x.querySelector('.project-progress')).getPropertyValue('--progress-angle').trim()};
   });
-  if(!card.exists||card.href!=='./perm-vl.html'||card.values.join(',')!=='99,75,10,5'||card.ring!=='36deg')throw Error('Four-card progress regression: '+JSON.stringify(card));
+  if(!card.exists||card.href!=='./perm-vl.html'||card.order.join(',')!=='arthur,green-collection,perm-vl,arsenal'||card.values.join(',')!=='5,75,10,99'||card.ring!=='36deg')throw Error('Four-card progress regression: '+JSON.stringify(card));
   if(issues.length)throw Error('Page JavaScript error: '+issues.join('; '));
   console.log('PERM_VL_SMOKE '+JSON.stringify({viewport,content,card,player}));
   await page.close();await home.close();

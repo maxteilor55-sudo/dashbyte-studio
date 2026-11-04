@@ -75,12 +75,14 @@ jobs:
                 widths:cards.map(x=>Math.round(x.getBoundingClientRect().width)),
                 bottoms:cards.map(x=>Math.round(x.getBoundingClientRect().bottom)),
                 viewport:innerHeight, overflow:document.documentElement.scrollWidth-innerWidth,
+                order:cards.map(x=>x.dataset.project||'green-collection'),
                 percentages:cards.map(x=>x.querySelector('.project-progress')?.dataset.progress)};
             });
             console.log('MOBILE_DECK '+JSON.stringify(layout));
             if(layout.widths.length!==4||layout.columns.trim().split(/\s+/).length!==2||
                Math.max(...layout.bottoms)>layout.viewport+3||layout.overflow>4||
-               layout.percentages.join(',')!=='99,75,10,5')
+               layout.order.join(',')!=='arthur,green-collection,perm-vl,arsenal'||
+               layout.percentages.join(',')!=='5,75,10,99')
               throw Error('Telegram mobile project grid does not fit: '+JSON.stringify(layout));
             const arthurResponse=await page.request.get(base+'arthur.html');
             if(!arthurResponse.ok())throw Error('Arthur progress page unavailable: '+arthurResponse.status());
