@@ -122,7 +122,7 @@ const assert=require('node:assert/strict');
    return {yaw:Number(s.dataset.poseYaw),pitch:Number(s.dataset.posePitch)};
   });
   assert.equal(await mobile.page.locator('#db3dStage').getAttribute('data-interacted'),'true','Touch movement must rotate logo');
-  const rotatedYaw=Math.abs(afterTouch.yaw-beforeTouch.y);
+  const rotatedYaw=Math.abs(afterTouch.yaw-beforeTouch.yaw);
   const rotatedPitch=Math.abs(afterTouch.pitch-beforeTouch.pitch);
   console.log('MOBILE_FREE_3D '+JSON.stringify({beforeTouch,afterTouch,rotatedYaw,rotatedPitch}));
   assert(Number.isFinite(rotatedYaw)&&rotatedYaw>3.1,'Touch horizontal orbit did not exceed 180 degrees');
