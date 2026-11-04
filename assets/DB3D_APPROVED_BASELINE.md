@@ -10,13 +10,17 @@ Approved by studio owner on 2026-11-04, at the 23:10 screenshot in Telegram.
 - Never revert to raster alpha-mask extrusion, pixelated walls, filling holes, welding/stitching outlines, or creating a solid slab.
 - When changing appearance, modify **only shader/material or interaction controls**, not the triangulation, SVG, or the `makeGeometry()` model.
 
-## Approved interactive finish (requested after screenshot)
-- Faces: matte cool medium-gray, without glossy face glare.
-- Side/perimeter walls: polished/brushed steel with clean highlights that visibly move as the user rotates.
-- Full finger/mouse rotation around horizontal and vertical axes; do not clamp to a small angle.
-- Subtle original idle orientation, gentle easing, momentum, and retain manual viewing angle without auto-snapping back.
-- On mobile, vertical swipes inside the 3D preview rotate the model (touch-action:none); scrolling outside the preview works normally.
-- The surrounding glass frame and client cards must not change.
-- Double-click or keyboard Home restores the original front-oriented pose.
+## Current showroom Liquid Glass finish (requested 2026-11-04 at 23:24)
 
-This baseline exists so future maintenance protects the approved visual, rather than repeatedly redesigning the logo.
+- The approved vector mesh and all its original curves, counters, outlines, depth `Z=.118`, and geometry are frozen. Never rebuild them just to change the look.
+- **No automatic zoom or change of camera position with rotation.** There is exactly one fixed projection scale `1.04` for front, side, rear, top, bottom, and diagonal views. The obsolete `projectionFit()` function must not return.
+- Full intuitive two-axis finger and mouse rotation with optional inertia. Idle tilt is subtle until manually handled; manual view does not auto-reset.
+- The 3D DB is **light silvery frosted Liquid Glass**, softly translucent with neutral white refraction-like studio reflections along its edges; it should be bright enough to read against video.
+- The 3D viewport inherits optical styling inspired by Arsenal V9's single glass navigation shell (neutral translucent surface, soft blur, rim reflections).
+- The four client tiles are true CSS backdrop-filter frosted-glass panels with *delicate accent edges*: Arthur red; Green Collection green; PERM–VL cool blue; Arsenal graphite/bronze.
+- All four cards keep their existing content, progress indicators, PIN actions, project links, current order and grid layout. No opaque heavy color blocks.
+- Implemented in `assets/db-showroom-liquid-glass.css` and the **material and controls** section of `assets/db-3d-logo.js`.
+- Native CSS backdrop-filter blurs the page video behind the cards and the 3D viewport. WebGL uses optical reflections/transparency for the rotating mesh; it cannot itself sample and blur arbitrary DOM behind the canvas.
+- Test seven rendered 3D poses including steep diagonal, full finger/mouse motion, four card blur styles and the mobile 2×2 above-fold layout before publishing.
+
+This specification supersedes the former matte-metal-only material requirement. The official geometry and silhouette do **not** change.
