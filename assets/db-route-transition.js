@@ -77,7 +77,7 @@
    if((page==='arsenal.html'||page==='arsenal-privacy.html')&&/^(?:www\.)?navesy59\.ru$/i.test(location.hostname))return;
    var button=document.getElementById('db-projects-shortcut');
    var oldLinks=document.querySelectorAll(
-     '#db-arsenal-bot-mobile-return,#db-arsenal-bot-desktop-return,'+
+     '#db-arsenal-bot-mobile-return,#db-arsenal-bot-desktop-return,#db-chooser-return,#menu-sheet a[href],'+
      '.gc-projects-link,header a[href],nav a[href],#mobile-menu a[href],.mobile-menu a[href],.nav-links a[href]'
    );
    oldLinks.forEach(function(a){
