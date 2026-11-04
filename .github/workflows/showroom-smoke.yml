@@ -197,7 +197,7 @@ jobs:
             console.log('LATE_TG_AFTER '+JSON.stringify(after));
             if(after.top<76||after.top>150)throw Error('Late Telegram SDK header offset not corrected');
             await late.close();
-            // Desktop UX: three live projects fully visible without scrolling;
+            // Desktop UX: four live projects fully visible without scrolling;
             // the studio introduction is the next screen, with a narrow gateway.
             const desktop=await browser.newPage({viewport:{width:1536,height:864}});
             await desktop.route('**/*',route=>{
@@ -220,9 +220,9 @@ jobs:
                 };
               });
               console.log('DESKTOP_COVER '+JSON.stringify(ui));
-              if(ui.cards.length!==3||ui.cards.some(c=>c.top<0||c.bottom>height-8||c.width>370||c.height>260)||
+              if(ui.cards.length!==4||ui.cards.some(c=>c.top<0||c.bottom>height-8||c.width>370||c.height>260)||
                  ui.stage.top<height-8||ui.portal.width>430||!ui.video.includes('hero-desktop.mp4')){
-                throw Error('Desktop overview must fit all three project cards above fold: '+JSON.stringify(ui));
+                throw Error('Desktop overview must fit all four project cards above fold: '+JSON.stringify(ui));
               }
             }
             await desktop.close();
