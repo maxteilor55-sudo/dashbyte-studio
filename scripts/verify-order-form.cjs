@@ -87,6 +87,20 @@ const {chromium}=require('playwright');
     await page.locator('.db-brief-submit[type="submit"]').click();
     const emptyWarning=await page.locator('#dbBriefStatus').innerText();
     if(!emptyWarning.includes('Выбери хотя бы одну услугу'))throw Error('No-selection check failed: '+emptyWarning);
+    // Check actionable diagnostics without contacting the live Worker.
+    await page.route('https://dashbyte-studio-bot.maxteilor55.workers.dev/api/lead',async route=>{
+      await route.fulfill({status:401,contentType:'application/json',body:JSON.stringify({ok:false,error:'telegram_auth'})});
+    });
+    await page.locator('.db-brief-service-picker label').filter({hasText:'Создание сайта'}).click();
+    await page.locator('.db-brief-submit[type="submit"]').click();
+    await page.waitForFunction(()=>document.getElementById('dbBriefStatus').textContent.includes('(401)'),{timeout:7000});
+    if(!(await page.locator('#dbBriefAlternative').isVisible()))throw Error('Missing 401 fallback');
+    await page.unroute('https://dashbyte-studio-bot.maxteilor55.workers.dev/api/lead');
+    await page.route('https://dashbyte-studio-bot.maxteilor55.workers.dev/api/lead',async route=>{
+      await route.fulfill({status:502,contentType:'application/json',body:JSON.stringify({ok:false,error:'delivery_failed'})});
+    });
+    await page.locator('.db-brief-submit[type="submit"]').click();
+    await page.waitForFunction(()=>document.getElementById('dbBriefStatus').textContent.includes('(502)'),{timeout:7000});
     await page.locator('.db-brief-close').click();
     await page.waitForFunction(()=>document.getElementById('dbBriefModal').hidden,{timeout:3000});
     if(errors.length)throw Error('JS errors: '+errors.join(' ; '));

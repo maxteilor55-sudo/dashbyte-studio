@@ -32,6 +32,17 @@
    serviceCount.textContent=count?'Выбрано: '+count:'Не выбрано';
  };
  const feedback=(message,kind='idle')=>{status.textContent=message;status.dataset.state=kind};
+ const explainApiError=(status,code)=>{
+   if(status===401)return 'Telegram не подтвердил запуск (401). Открой мини-приложение через DashByteStudioBot и проверь, что в Cloudflare указан токен именно этого бота.';
+   if(status===502)return 'Telegram не смог доставить заявку владельцу (502). Открой личный чат с DashByteStudioBot, нажми «Запустить» и проверь свой chat ID в Cloudflare.';
+   if(status===503&&code==='owner_chat_id')return 'Неверный TELEGRAM_OWNER_CHAT_ID в Cloudflare (503): нужен числовой ID личного чата.';
+   if(status===503)return 'В Cloudflare не хватает настроек (503). Проверь TELEGRAM_BOT_TOKEN и TELEGRAM_OWNER_CHAT_ID.';
+   if(status===429)return 'Слишком много попыток отправки (429). Попробуй позже.';
+   if(status===403)return 'Сервер не разрешил адрес приложения (403). Нужна проверка настроек Worker.';
+   if(status===400)return 'Сервер отклонил данные заявки (400).';
+   if(status===404||status===405)return 'Сервер не нашёл обработчик /api/lead (код '+status+').';
+   return 'Сервер не подтвердил отправку (код '+status+'). Проверь журнал Cloudflare Worker.';
+ };
  const getMessage=()=>[
    '🟥 ЗАЯВКА НА УСЛУГИ DASHBYTE',
    '',
@@ -142,13 +153,21 @@
    try{
      const res=await fetch(safeEndpoint.href,{method:'POST',mode:'cors',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify({...data,initData}),signal:controller.signal});
      let json=null;try{json=await res.json()}catch(e){}
-     if(!res.ok||!json||json.ok!==true)throw Error('Delivery unconfirmed: '+res.status);
+     if(!res.ok||!json||json.ok!==true){
+       const failure=new Error(explainApiError(res.status,json&&typeof json.error==='string'?json.error:''));
+       failure.isDeliveryResponse=true;
+       throw failure;
+     }
      form.reset();updateServiceCount();success.hidden=false;form.hidden=true;
      feedback('Заявка доставлена в Telegram.','success');
      try{tg()?.HapticFeedback?.notificationOccurred('success')}catch(e){}
    }catch(error){
      alternative.hidden=false;
-     feedback('Не удалось подтвердить доставку. Заявка не отмечена как отправленная — свяжись с нами напрямую в Telegram.','error');
+     const explanation=error?.isDeliveryResponse?error.message:
+       error?.name==='AbortError'?
+       'Сервер не ответил за 16 секунд. Проверь соединение и повтори попытку.':
+       'Не удалось связаться с Cloudflare Worker. Проверь интернет и попробуй ещё раз.';
+     feedback(explanation+' Заявка не отмечена как отправленная.','error');
    }finally{
      clearTimeout(timeout);submitting=false;submit.disabled=false;submit.innerHTML=initialButton;
    }
