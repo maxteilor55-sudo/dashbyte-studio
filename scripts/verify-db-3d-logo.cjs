@@ -112,6 +112,10 @@ const assert=require('node:assert/strict');
  }
  try{
   const mobile=await pageFor({width:390,height:844},true);
+  if(process.env.DB3D_SCREENSHOTS==='1'){
+   const jpeg=await mobile.page.screenshot({type:'jpeg',quality:55,scale:'css'});
+   console.log('DB_LIQUID_GLASS_MOBILE_JPEG:'+jpeg.toString('base64'));
+  }
   if(await mobile.page.locator('#db3dStage').getAttribute('data-renderer')==='webgl')await checkVisualPoses(mobile.page);
   const beforeTouch=await mobile.page.evaluate(()=>{
    const s=document.querySelector('#db3dStage');
