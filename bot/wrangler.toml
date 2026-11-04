@@ -6,3 +6,9 @@ compatibility_date = "2026-10-01"
 # Sensitive values belong only in Cloudflare Worker secrets:
 # TELEGRAM_BOT_TOKEN
 # TELEGRAM_WEBHOOK_SECRET
+
+# One additional secret needed for automatic lead delivery:
+# TELEGRAM_OWNER_CHAT_ID — private numeric chat ID (send /myid to bot)
+# Both this and TELEGRAM_BOT_TOKEN must be configured in deployed Worker,
+# not in this public TOML / GitHub Pages JavaScript.
+# Optional Cloudflare Rate Limiting binding: LEAD_RATE_LIMITER.

@@ -40,3 +40,57 @@ test('/start responds with welcome and an inline Mini App launch button',async()
     globalThis.fetch=realFetch;
   }
 });
+
+
+test('lead endpoint rejects arbitrary websites and unsigned Telegram clients',async()=>{
+ const url='https://example.workers.dev/api/lead';
+ const payload={name:'Олег',company:'Пример',service:'Создание сайта',contact:'@sample',message:'Нужен сайт',privacy:true,website:'',initData:'fake'};
+ const bad=await bot.fetch(new Request(url,{method:'POST',headers:{Origin:'https://evil.test','content-type':'application/json'},body:JSON.stringify(payload)}),
+ {...env,TELEGRAM_OWNER_CHAT_ID:'12345678'});
+ assert.equal(bad.status,403);
+ const missing=await bot.fetch(new Request(url,{method:'POST',headers:{Origin:'https://maxteilor55-sudo.github.io','content-type':'application/json'},body:JSON.stringify(payload)}),
+ {...env,TELEGRAM_OWNER_CHAT_ID:'12345678'});
+ assert.equal(missing.status,401);
+ const preflight=await bot.fetch(new Request(url,{method:'OPTIONS',headers:{Origin:'https://maxteilor55-sudo.github.io'}}),env);
+ assert.equal(preflight.status,204);
+ assert.equal(preflight.headers.get('Access-Control-Allow-Origin'),'https://maxteilor55-sudo.github.io');
+});
+test('valid Telegram Mini App request reaches ONLY private owner chat after signed verification',async()=>{
+ const {createHmac}=await import('node:crypto');
+ const now=Math.floor(Date.now()/1000);
+ const params=new URLSearchParams();
+ params.set('auth_date',String(now));
+ params.set('user',JSON.stringify({id:99887,first_name:'Павел',username:'testbuyer'}));
+ const plain=[...params.entries()].sort(([a],[b])=>a.localeCompare(b)).map(([k,v])=>k+'='+v).join('\n');
+ const secret=createHmac('sha256','WebAppData').update(env.TELEGRAM_BOT_TOKEN).digest();
+ params.set('hash',createHmac('sha256',secret).update(plain).digest('hex'));
+ const lead={name:'Павел',company:'Тест',service:'Создание сайта',contact:'@testbuyer',message:'Нужен лендинг',privacy:true,website:'',initData:params.toString()};
+ const real=globalThis.fetch;const deliveries=[];
+ globalThis.fetch=async(url,opts)=>{
+   deliveries.push({url:String(url),payload:JSON.parse(opts.body)});
+   return new Response(JSON.stringify({ok:true,result:{message_id:77}}),{status:200,headers:{'content-type':'application/json'}});
+ };
+ try{
+   const res=await bot.fetch(new Request('https://example.workers.dev/api/lead',{method:'POST',headers:{Origin:'https://maxteilor55-sudo.github.io','content-type':'application/json'},body:JSON.stringify(lead)}),
+   {...env,TELEGRAM_OWNER_CHAT_ID:'123456789'});
+   assert.equal(res.status,200);
+   assert.equal((await res.json()).ok,true);
+   assert.equal(deliveries.length,1);
+   assert.equal(deliveries[0].payload.chat_id,'123456789');
+   assert.match(deliveries[0].payload.text,/Нужен лендинг/);
+   assert.match(deliveries[0].payload.text,/@testbuyer/);
+ }finally{globalThis.fetch=real}
+});
+test('/myid replies with private chat identifier',async()=>{
+ const real=globalThis.fetch;const sent=[];
+ globalThis.fetch=async(url,opts)=>{
+   sent.push(JSON.parse(opts.body));
+   return new Response(JSON.stringify({ok:true,result:{message_id:3}}),{status:200});
+ };
+ try{
+   const update={message:{chat:{id:765432,type:'private'},text:'/myid'}};
+   const res=await bot.fetch(new Request('https://example.workers.dev/webhook',{method:'POST',headers:{'content-type':'application/json','X-Telegram-Bot-Api-Secret-Token':env.TELEGRAM_WEBHOOK_SECRET},body:JSON.stringify(update)}),env);
+   assert.equal(res.status,200);
+   assert.match(sent[0].text,/765432/);
+ }finally{globalThis.fetch=real}
+});
