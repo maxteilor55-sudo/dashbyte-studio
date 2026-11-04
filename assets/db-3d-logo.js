@@ -1,6 +1,6 @@
-/* Official DashByte DB — WebGL 1 silhouette extrusion, no CDN or external assets.
-   Uses the approved SVG as an alpha mask for front/back and builds matching walls.
-   Works with mouse, touch and keyboard. Stops drawing when out of view. */
+/* DashByte signature — preserve every pixel of the user's original PNG-traced
+   APPROVED SVG on the faces. Only the depth geometry is simplified/welded.
+   This is a genuine thickness extrusion, never a redrawn or closed-up logo. */
 (function(){
  'use strict';
  const stage=document.getElementById('db3dStage');
@@ -12,7 +12,7 @@
  let gl=null,program=null,buffer=null,texture=null,sideStart=0,sideCount=0;
  let uYaw,uPitch,uRatio,uMode,uTex,locPos,locNorm,locUV;
  let active=true,raf=0,lastFrame=0,dragging=false,lastX=0,lastY=0;
- let yaw=.25,pitch=-.13,targetYaw=.25,targetPitch=-.13,inertiaYaw=0,inertiaPitch=0,lastManual=0;
+ let yaw=.14,pitch=-.08,targetYaw=.14,targetPitch=-.08,inertiaYaw=0,inertiaPitch=0,lastManual=0;
 
  const vertexSource=[
   'attribute vec3 aPosition;attribute vec3 aNormal;attribute vec2 aUV;',
@@ -40,7 +40,7 @@
   'if(uMode<.5){',
   'float a=texture2D(uTex,vUV).a;',
   'if(a<.07)discard;',
-  'float stripe=.09*sin(vUV.x*16.0+vUV.y*4.2);',
+  'float stripe=0.0; // the original monogram has its own signature fine lines',
   'float light=clamp(.38+.48*key+.18*fill+stripe,0.0,1.0);',
   'vec3 metal=mix(vec3(.41,.38,.44),vec3(.99,.94,.98),light);',
   'metal+=vec3(.27,.20,.25)*glint;',
@@ -163,21 +163,18 @@
    }
   }
 
-  const imageData=ctx.createImageData(W,H);
-  for(let k=0;k<N;k++){
-   const p=k*4;
-   imageData.data[p]=255;imageData.data[p+1]=255;imageData.data[p+2]=255;
-   imageData.data[p+3]=solid[k]?255:0;
-  }
-  ctx.putImageData(imageData,0,0);
+  // CRITICAL: Side walls can have a welded silhouette, but the visible faces
+  // must be the exact, untouched approved artwork. NEVER draw the closed mask
+  // onto the front/back texture or the thin branded cuts disappear.
   const textureCanvas=document.createElement('canvas');
-  textureCanvas.width=512;textureCanvas.height=350;
+  textureCanvas.width=1024;textureCanvas.height=702;
   const tc=textureCanvas.getContext('2d');
   if(!tc)throw Error('Texture canvas unavailable');
   tc.imageSmoothingEnabled=true;
-  tc.drawImage(mask,0,0,512,350);
+  tc.clearRect(0,0,1024,702);
+  tc.drawImage(image,0,0,1024,702);
 
-  const aspect=762/522,X=.80,Y=X/aspect,Z=.17;
+  const aspect=762/522,X=.80,Y=X/aspect,Z=.275; // more depth, same original XY silhouette
   const posX=i=>((i/W)*2-1)*X,posY=j=>(1-(j/H)*2)*Y;
   const data=[];
   function put(x,y,z,nx,ny,nz,u,v){data.push(x,y,z,nx,ny,nz,u,v)}
@@ -228,6 +225,7 @@
   const mesh=makeGeometry(source);
   sideStart=mesh.start;sideCount=mesh.count;
   stage.dataset.meshParts=String(mesh.parts);
+  stage.dataset.faceSource='original-svg-unmodified';
   buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
   gl.bufferData(gl.ARRAY_BUFFER,mesh.vertices,gl.STATIC_DRAW);
   const stride=8*4;
@@ -267,7 +265,12 @@
   raf=0;if(!active||document.hidden)return;
   const dt=Math.min(48,Math.max(0,lastFrame?t-lastFrame:16));lastFrame=t;
   if(!dragging){
-   if(!reduced.matches&&t-lastManual>1250)targetYaw+=dt*.000071;
+   if(!reduced.matches&&t-lastManual>1250){
+    // Gentle showroom motion stays almost face-on so the original DB mark
+    // remains legible instead of turning into a side-on abstract sculpture.
+    const desired=.14+Math.sin(t*.00037)*.24;
+    targetYaw+=(desired-targetYaw)*Math.min(.025,dt*.0007);
+   }
    targetYaw+=inertiaYaw*dt;targetPitch+=inertiaPitch*dt;
    targetPitch=Math.max(-.57,Math.min(.57,targetPitch));
    const drag=Math.pow(.88,dt/16);
@@ -311,7 +314,7 @@
  viewport.addEventListener('keydown',e=>{
   if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home'].includes(e.key))return;
   e.preventDefault();stage.dataset.interacted='true';
-  if(e.key==='Home'){targetYaw=.25;targetPitch=-.13}
+  if(e.key==='Home'){targetYaw=.14;targetPitch=-.08}
   if(e.key==='ArrowLeft')targetYaw-=.2;
   if(e.key==='ArrowRight')targetYaw+=.2;
   if(e.key==='ArrowUp')targetPitch=Math.max(-.57,targetPitch-.12);
