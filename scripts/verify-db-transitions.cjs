@@ -15,6 +15,13 @@ const {chromium}=require('playwright');
       opacity:getComputedStyle(document.getElementById('db-route-veil')).opacity
    }));
    if(!start.veil||!start.leaving)throw Error('No transition after '+selector+': '+JSON.stringify(start));
+   await page.waitForTimeout(115);
+   const visual=await page.evaluate(()=>({
+     opacity:Number(getComputedStyle(document.getElementById('db-route-veil')).opacity),
+     blur:getComputedStyle(document.getElementById('db-route-veil')).backdropFilter
+   }));
+   if(visual.opacity<.10||!visual.blur.includes('blur('))
+     throw Error('Blur is not visually active after '+selector+': '+JSON.stringify(visual));
    await page.waitForURL(u=>u.pathname.endsWith(expected),{timeout:20000});
    await page.locator('#db-route-veil').waitFor({state:'attached',timeout:20000});
    return start;
