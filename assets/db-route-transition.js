@@ -94,28 +94,30 @@
    if(!button){
      button=document.createElement('a');
      button.id='db-projects-shortcut';
+     button.classList.add('db-project-return');
      button.href='./index.html';
      button.setAttribute('aria-label','Вернуться к проектам DashByte');
-     button.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m14 5-7 7 7 7"/></svg><span>Вернуться к проектам</span>';
+     button.innerHTML='<span class="db-project-return-icon" aria-hidden="true">←</span><span>Вернуться к проектам</span>';
      document.body.appendChild(button);
    }
    document.documentElement.setAttribute('data-db-project-page',page.replace('.html',''));
-   var header=document.querySelector('.site-header,header.nav,nav[aria-label="Навигация"],header.topbar,.topbar,.shell > .top,header');
+   button.classList.toggle('db-project-return-light',page==='green-collection.html');
+   button.classList.toggle('db-project-return-bronze',page==='arsenal.html');
+   button.classList.toggle('db-project-return-rail',page==='perm-vl.html');
+   var header=document.querySelector('#topbar,.site-header,header.nav,nav[aria-label="Навигация"],header.topbar,.topbar,.shell > .top,header');
    if(!header){
-     button.classList.add('db-projects-shortcut--fixed');
-     button.style.setProperty('--db-projects-top','112px');
+     button.classList.remove('db-project-return-inline');
+     button.style.setProperty('--db-project-top','112px');
      return;
    }
    var css=getComputedStyle(header);
    var fixed=css.position==='fixed'||css.position==='sticky';
    if(!fixed){
-     button.classList.remove('db-projects-shortcut--fixed');
-     button.classList.add('db-projects-shortcut--inline');
+     button.classList.add('db-project-return-inline');
      header.insertAdjacentElement('afterend',button);
      return;
    }
-   button.classList.remove('db-projects-shortcut--inline');
-   button.classList.add('db-projects-shortcut--fixed');
+   button.classList.remove('db-project-return-inline');
    if(button.parentElement!==document.body)document.body.appendChild(button);
    function layout(){
      var s=getComputedStyle(header);
@@ -131,8 +133,8 @@
                      Number(tg.contentSafeAreaInset&&tg.contentSafeAreaInset.top)||0);
      }
      var y=Math.max(headerBottom+10,safe+58,18);
-     button.style.setProperty('--db-projects-top',Math.round(y)+'px');
-     button.style.setProperty('--db-projects-right',Math.max(12,Math.round(innerWidth-rect.right))+'px');
+     button.style.setProperty('--db-project-top',Math.round(y)+'px');
+     button.style.setProperty('--db-project-left',Math.max(12,Math.round(rect.left+4))+'px');
    }
    layout();
    if(!button.dataset.dbLayoutBound){
