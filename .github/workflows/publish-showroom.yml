@@ -7,6 +7,9 @@ on:
       - perm-vl.html
       - arthur.html
       - scripts/build-showroom.py
+      - scripts/install-transitions.py
+      - assets/db-route-transition.css
+      - assets/db-route-transition.js
       - scripts/upgrade_arsenal.py
       - arsenal-privacy.html
       - assets/arsenal-compliance.css
@@ -32,6 +35,8 @@ jobs:
         run: python3 scripts/build-showroom.py
       - name: Apply standalone Arsenal release cleanup and legal links
         run: python3 scripts/upgrade_arsenal.py
+      - name: Install liquid blur transitions across project documents
+        run: python3 scripts/install-transitions.py
       - name: Prepare complete REG.RU website archive with favicon and privacy page
         run: |
           python3 -m pip install --quiet --break-system-packages pillow cairosvg
@@ -68,6 +73,11 @@ jobs:
               assert 'К выбору проектов' not in result
               assert 'arsenal-privacy.html' in result
           assert '<iframe' not in chooser
+          for page in ['index.html','showroom.html','arthur.html','dashbyte.html','arsenal.html','green-collection.html','perm-vl.html','privacy.html','arsenal-privacy.html','showcase.html']:
+              body=(root/page).read_text(encoding='utf-8')
+              assert body.count('db-route-transition.css?v=1')==1,page
+              assert body.count('db-route-transition.js?v=1')==1,page
+          assert 'DashByteTransitions?.go(destination.href)' in chooser
           # Every active document loads exactly one unified control; the
           # previous footer-up implementations must not be reintroduced.
           for name in ['index.html','showroom.html','arsenal.html','dashbyte.html','green-collection.html','showcase.html']:
@@ -98,7 +108,7 @@ jobs:
       - name: Commit new showroom without touching bot settings
         run: |
           git diff --check
-          git add index.html showroom.html dashbyte.html arsenal.html showcase.html DashByte_Showroom_v2_0.html arsenal-upload.zip
+          git add index.html showroom.html dashbyte.html arsenal.html showcase.html arthur.html green-collection.html perm-vl.html privacy.html arsenal-privacy.html DashByte_Showroom_v2_0.html arsenal-upload.zip
           if git diff --cached --quiet; then
             echo "Already published"
             exit 0
