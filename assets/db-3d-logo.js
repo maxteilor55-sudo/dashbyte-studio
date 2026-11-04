@@ -8,13 +8,13 @@
  const source=stage.querySelector('.db3d-source');
  const reduced=window.matchMedia('(prefers-reduced-motion:reduce)');
  let gl=null,program=null,buffer=null,texture=null,sideStart=0,sideCount=0;
- let uYaw,uPitch,uRatio,uTime,locPos,locNorm,locUV;
+ let uYaw,uPitch,uRatio,uTime,uFit,locPos,locNorm,locUV;
  let active=true,raf=0,lastFrame=0,dragging=false,lastX=0,lastY=0,hasInteracted=false;
  let yaw=.14,pitch=-.08,targetYaw=.14,targetPitch=-.08,inertiaYaw=0,inertiaPitch=0,lastManual=0;
 
  const vertexSource=[
   'attribute vec3 aPosition;attribute vec3 aNormal;attribute vec2 aUV;',
-  'uniform float uYaw;uniform float uPitch;uniform float uRatio;',
+  'uniform float uYaw;uniform float uPitch;uniform float uRatio;uniform float uFit;',
   'varying vec3 vNormal;varying vec2 vUV;varying float vFace;',
   'void main(){',
   'float cy=cos(uYaw),sy=sin(uYaw),cx=cos(uPitch),sx=sin(uPitch);',
@@ -24,7 +24,7 @@
   'n=vec3(n.x,n.y*cx-n.z*sx,n.y*sx+n.z*cx);',
   'vNormal=normalize(n);vUV=aUV;vFace=abs(aNormal.z);',
   'float perspective=3.8/(3.8-p.z);',
-  'gl_Position=vec4(p.x*1.34*perspective/uRatio,p.y*1.34*perspective,-p.z*.29,1.0);',
+  'gl_Position=vec4(p.x*1.34*perspective/uRatio*uFit,p.y*1.34*perspective*uFit,-p.z*.29,1.0);',
   '}'
  ].join('\n');
  const fragmentSource=[
@@ -165,6 +165,7 @@
   uYaw=gl.getUniformLocation(program,'uYaw');
   uPitch=gl.getUniformLocation(program,'uPitch');
   uRatio=gl.getUniformLocation(program,'uRatio');
+  uFit=gl.getUniformLocation(program,'uFit');
   uTime=gl.getUniformLocation(program,'uTime');
   buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
   gl.bufferData(gl.ARRAY_BUFFER,mesh.vertices,gl.STATIC_DRAW);
@@ -184,12 +185,29 @@
   gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);gl.disable(gl.BLEND);
   resize();draw();stage.dataset.renderer='webgl';start();
  }
+ // The approved front view stays at its original scale. When the viewer tilts
+ // the object far up/down, fit the rotated 3D bounding box inside the small
+ // Telegram preview so no corner can get clipped. Geometry is untouched.
+ function projectionFit(){
+  const cy=Math.cos(yaw),sy=Math.sin(yaw),cx=Math.cos(pitch),sx=Math.sin(pitch);
+  const ratio=Math.max(.7,canvas.width/canvas.height);
+  let extent=0;
+  for(const x of [-.8,.8])for(const y of [-.8*522/762,.8*522/762])
+   for(const z of [-.118,.118]){
+    const rx=x*cy+z*sy,rz=-x*sy+z*cy;
+    const ry=y*cx-rz*sx,depth=y*sx+rz*cx;
+    const persp=3.8/(3.8-depth);
+    extent=Math.max(extent,Math.abs(rx*1.34*persp/ratio),Math.abs(ry*1.34*persp));
+   }
+  return Math.min(1,.925/Math.max(extent,.001));
+ }
  function draw(){
   if(!gl||!program)return;
   resize();gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
   gl.useProgram(program);
   gl.uniform1f(uYaw,yaw);gl.uniform1f(uPitch,pitch);
   gl.uniform1f(uRatio,Math.max(.7,canvas.width/canvas.height));
+  gl.uniform1f(uFit,projectionFit());
   gl.uniform1f(uTime,performance.now()*.001);
   stage.dataset.poseYaw=String(yaw.toFixed(4));
   stage.dataset.posePitch=String(pitch.toFixed(4));
