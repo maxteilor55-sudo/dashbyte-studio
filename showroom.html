@@ -993,6 +993,8 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
  .page > .projects > a.project .project-link{font-size:8px!important}
 }
 </style>
+<link rel="stylesheet" href="./assets/db-route-transition.css?v=1">
+<script defer src="./assets/db-route-transition.js?v=1"></script>
 </head>
 <body>
 <div class="scroll-edge-glass scroll-edge-glass--top" aria-hidden="true"></div>
@@ -1271,7 +1273,7 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
      report('Код принят. Открываем коллекцию…',true);
      const destination=new URL(card.getAttribute('href'),location.href);
      if(location.hash.includes('tgWebApp'))destination.hash=location.hash;
-     location.assign(destination.href);
+     if(!window.DashByteTransitions?.go(destination.href))location.assign(destination.href);
    }catch(e){busy=false;report('Проверка недоступна. Обновите страницу.',false)}
  }
  function addDigit(value){
