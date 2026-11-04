@@ -231,7 +231,7 @@
     }
     current=best;
    }
-   if(loop.length<3)continue;
+   if(loop.length<40)continue; // avoid extruding insignificant SVG pinholes
    contourCount++;
    const normals=loop.map((p,i)=>{
     const prev=loop[(i+loop.length-1)%loop.length];
@@ -276,7 +276,7 @@
   sideStart=mesh.start;sideCount=mesh.count;
   stage.dataset.meshParts=String(mesh.parts);
   stage.dataset.faceSource='original-svg-unmodified';
-  stage.dataset.geometryVersion='contour-v5-smooth';
+  stage.dataset.geometryVersion='contour-v6-brand-first';
   stage.dataset.contours=String(mesh.contours);
   stage.dataset.edges=String(mesh.edgeCount);
   buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
@@ -327,7 +327,7 @@
    }
    targetYaw+=inertiaYaw*dt;targetPitch+=inertiaPitch*dt;
    // A physical showroom turntable, not a full flip that shows a blank slab.
-   targetYaw=Math.max(-.92,Math.min(.92,targetYaw));
+   targetYaw=Math.max(-.46,Math.min(.46,targetYaw));
    targetPitch=Math.max(-.38,Math.min(.38,targetPitch));
    const drag=Math.pow(.88,dt/16);
    inertiaYaw*=drag;inertiaPitch*=drag;
@@ -357,7 +357,7 @@
   if(!dragging)return;
   const dx=e.clientX-lastX,dy=e.clientY-lastY;
   lastX=e.clientX;lastY=e.clientY;
-  targetYaw=Math.max(-.92,Math.min(.92,targetYaw+dx*.009));
+  targetYaw=Math.max(-.46,Math.min(.46,targetYaw+dx*.008));
   targetPitch=Math.max(-.38,Math.min(.38,targetPitch+dy*.005));
   inertiaYaw=Math.max(-.008,Math.min(.008,dx*.00018));
   inertiaPitch=Math.max(-.003,Math.min(.003,dy*.00007));
@@ -372,8 +372,8 @@
   if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home'].includes(e.key))return;
   e.preventDefault();stage.dataset.interacted='true';
   if(e.key==='Home'){targetYaw=.14;targetPitch=-.08}
-  if(e.key==='ArrowLeft')targetYaw=Math.max(-.92,targetYaw-.2);
-  if(e.key==='ArrowRight')targetYaw=Math.min(.92,targetYaw+.2);
+  if(e.key==='ArrowLeft')targetYaw=Math.max(-.46,targetYaw-.15);
+  if(e.key==='ArrowRight')targetYaw=Math.min(.46,targetYaw+.15);
   if(e.key==='ArrowUp')targetPitch=Math.max(-.38,targetPitch-.12);
   if(e.key==='ArrowDown')targetPitch=Math.min(.38,targetPitch+.12);
   lastManual=performance.now();start();
