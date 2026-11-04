@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#09090c">
-<meta name="description" content="DashByte Digital Atelier — проекты Арсенал, Зелёная коллекция и железнодорожный симулятор PERM–VL.">
+<meta name="description" content="DashByte Digital Atelier — проекты Арсенал, Зелёная коллекция, автосервис Артура и PERM–VL.">
 <title>DashByte — Digital Showroom</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
@@ -896,6 +896,103 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
  .page > .projects > a.project.perm-vl h2{font-size:clamp(29px,2.4vw,38px)!important}
 }
 </style>
+
+<style id="db-mobile-two-by-two-client-deck-v1">
+/* The Telegram home screen presents FOUR tappable projects together.
+   Keep the cinematic background, original desktop, studio and PIN dialog. */
+.projects .project.arthur{
+ background:linear-gradient(140deg,rgba(68,26,30,.76),rgba(21,17,22,.90))!important;
+ border:1px solid rgba(250,113,112,.39)!important;
+ box-shadow:0 17px 48px rgba(0,0,0,.35),inset 0 1px rgba(255,255,255,.16)!important;
+ -webkit-backdrop-filter:blur(26px) saturate(1.35);
+ backdrop-filter:blur(26px) saturate(1.35);
+}
+.projects .project.arthur::before{background:radial-gradient(ellipse at 82% 20%,rgba(233,56,64,.36),transparent 70%),linear-gradient(137deg,rgba(255,255,255,.12),transparent 62%)}
+.projects .project.arthur .motif{font-size:clamp(110px,20vw,260px);right:-7%;top:42px;opacity:.22;color:transparent;-webkit-text-stroke:2px rgba(254,140,146,.62);letter-spacing:-.12em}
+.projects .project.arthur .category i{background:#ff707e}
+.projects .project.arthur .project-label{color:#ffc0b8}
+.projects .project.arthur .arrow{background:linear-gradient(138deg,#f48187,#b83e4b);color:#24090b;border-color:#ffc0b7}
+@media(max-width:767px){
+  .page{width:100%!important;padding:calc(var(--edge-top) + 4px) 14px 32px!important;overflow-x:clip}
+  .page > .nav{min-height:42px!important;gap:8px!important}
+  .page > .nav .brand-icon{width:39px!important;height:39px!important;border-radius:13px!important}
+  .page > .nav .brand-name{font-size:18px!important}
+  .page > .nav .brand-sub{font-size:7px!important}
+  .page > .intro{margin:clamp(12px,2.1svh,20px) 0 clamp(12px,1.9svh,17px)!important}
+  .page > .intro .kicker{font-size:8px!important;letter-spacing:.08em!important;gap:8px!important}
+  .page > .intro .kicker::before{width:14px!important}
+  .page > .intro h1{font-size:clamp(27px,7.85vw,36px)!important;line-height:.99!important;margin:11px 0 0!important;letter-spacing:-.065em!important}
+  .page > .intro .intro-bottom{display:none!important}
+  .page > .projects{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;max-width:none!important;width:100%!important;margin:0!important;align-items:stretch!important}
+  .page > .projects > .deck-hint{display:none!important}
+  .page > .projects > a.project{
+    display:flex!important;flex-direction:column!important;box-sizing:border-box!important;
+    min-width:0!important;width:100%!important;max-width:none!important;
+    height:clamp(148px,23svh,190px)!important;min-height:0!important;
+    margin:0!important;padding:12px!important;border-radius:19px!important;
+    transform:none;overflow:hidden
+  }
+  .page > .projects > a.project:active{transform:scale(.975)!important}
+  .page > .projects > a.project .project-head{display:flex!important;position:relative!important;min-height:39px!important;align-items:flex-start!important;gap:0!important}
+  .page > .projects > a.project .category{
+    max-width:calc(100% - 43px)!important;font-size:0!important;line-height:1.1!important;
+    letter-spacing:0!important;white-space:nowrap!important;gap:5px!important;
+    padding:6px 7px!important;min-height:21px!important;border-radius:20px!important
+  }
+  .page > .projects > a.project .category::after{content:"01 · КЛИЕНТ";font-size:7px;letter-spacing:.025em;font-weight:850}
+  .page > .projects > a.project.green-collection .category::after{content:"02 · КЛИЕНТ"}
+  .page > .projects > a.project.perm-vl .category::after{content:"03 · ИГРА"}
+  .page > .projects > a.project.arthur .category::after{content:"04 · КЛИЕНТ"}
+  .page > .projects > a.project .project-progress{
+    position:absolute!important;z-index:6!important;top:0!important;right:0!important;
+    display:flex!important;flex-direction:column!important;gap:0!important;
+    align-items:center!important;margin:0!important
+  }
+  .page > .projects > a.project .progress-ring{width:39px!important;height:39px!important;flex:0 0 39px!important}
+  .page > .projects > a.project .progress-ring::before{inset:4px!important}
+  .page > .projects > a.project .progress-number{font-size:11px!important;letter-spacing:-.06em!important}
+  .page > .projects > a.project .progress-caption{display:none!important}
+  .page > .projects > a.project .project-body{display:flex!important;flex-direction:column!important;min-width:0!important;margin-top:auto!important;z-index:4!important}
+  .page > .projects > a.project .project-label{
+    font-size:7px!important;line-height:1.15!important;letter-spacing:.07em!important;
+    margin:0 0 6px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important
+  }
+  .page > .projects > a.project h2{
+    font-size:clamp(19px,5.35vw,26px)!important;line-height:.96!important;
+    margin:0 0 1px!important;letter-spacing:-.06em!important;overflow-wrap:normal!important
+  }
+  .page > .projects > a.project p{display:none!important}
+  .page > .projects > a.project .project-foot{
+    margin-top:9px!important;padding-top:7px!important;gap:4px!important;
+    display:flex!important;align-items:center!important
+  }
+  .page > .projects > a.project .project-link{font-size:9px!important;line-height:1.25!important;letter-spacing:0!important;min-width:0}
+  .page > .projects > a.project .arrow{width:25px!important;height:25px!important;border-radius:9px!important;font-size:16px!important;flex:0 0 25px!important}
+  .page > .projects > a.project .art{inset:23px 0 0!important}
+  .page > .projects > a.project.arsenal .art .motif{font-size:125px!important;top:8px!important;right:-23%!important;opacity:.19!important}
+  .page > .projects > a.project.green-collection .gc-art{opacity:.26!important;transform:scale(.65);transform-origin:bottom right}
+  .page > .projects > a.project.perm-vl .pv-card-art{inset:18% -24% 21% 2%!important;opacity:.24!important}
+  .page > .projects > a.project.arthur .motif{top:7px!important;right:-28%!important;font-size:125px!important;opacity:.17!important}
+  .page > .projects > .studio-stage{grid-column:1 / -1!important;margin:31px auto 16px!important;max-width:100%!important}
+  .page > footer{margin-top:14px!important}
+  .page > .cinema-layer{height:clamp(800px,117svh,1250px)}
+}
+@media(max-width:767px) and (max-height:700px){
+ .page > .intro{margin:7px 0 10px!important}
+ .page > .intro h1{font-size:clamp(25px,7vw,31px)!important;margin-top:6px!important}
+ .page > .projects > a.project{height:clamp(135px,22svh,156px)!important;padding:10px!important}
+ .page > .projects > a.project .project-head{min-height:33px!important}
+ .page > .projects > a.project .project-label{display:none!important}
+ .page > .projects > a.project .project-foot{margin-top:6px!important;padding-top:5px!important}
+}
+@media(max-width:360px){
+ .page > .projects{gap:8px!important}
+ .page > .projects > a.project{padding:9px!important}
+ .page > .projects > a.project .category{padding:5px!important}
+ .page > .projects > a.project h2{font-size:19px!important}
+ .page > .projects > a.project .project-link{font-size:8px!important}
+}
+</style>
 </head>
 <body>
 <div class="scroll-edge-glass scroll-edge-glass--top" aria-hidden="true"></div>
@@ -960,7 +1057,7 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
  <a class="project arsenal" data-project="arsenal" href="./arsenal.html" aria-label="Открыть сайт Арсенал">
   <span class="arsenal-matte-pane" aria-hidden="true"></span>
   <div class="art" aria-hidden="true"><div class="rings"></div><div class="slash"></div><div class="motif">A</div></div>
-  <div class="project-head"><span class="category"><i></i>01 · Клиентский проект</span><span class="project-progress" data-progress="95" role="img" aria-label="Готовность проекта Арсенал — 95 процентов"><span class="progress-ring"><span class="progress-number">95%</span></span><span class="progress-caption">ГОТОВНОСТЬ</span></span></div>
+  <div class="project-head"><span class="category"><i></i>01 · Клиентский проект</span><span class="project-progress" data-progress="99" role="img" aria-label="Готовность проекта Арсенал — 99 процентов"><span class="progress-ring"><span class="progress-number">99%</span></span><span class="progress-caption">ГОТОВНОСТЬ</span></span></div>
   <div class="project-body">
    <div class="project-label">Metal. Form. Character.</div><h2>АРСЕНАЛ</h2>
    <p>Навесы, гаражи и металлоконструкции. Разрабатываем каталог услуг и удобный способ оставить заявку.</p>
@@ -975,7 +1072,7 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
   </span>
   <div class="project-head">
    <span class="category gc-category"><i></i>02 · КЛИЕНТСКИЙ ПРОЕКТ</span>
-   <span class="project-progress gc-progress" data-progress="56" role="img" aria-label="Готовность проекта Зелёная коллекция — 56 процентов"><span class="progress-ring gc-progress-ring"><span class="progress-number">56%</span></span><span class="progress-caption">ГОТОВНОСТЬ</span></span>
+   <span class="project-progress gc-progress" data-progress="75" role="img" aria-label="Готовность проекта Зелёная коллекция — 75 процентов"><span class="progress-ring gc-progress-ring"><span class="progress-number">75%</span></span><span class="progress-caption">ГОТОВНОСТЬ</span></span>
   </div>
   <div class="project-body">
    <div class="project-label gc-label">BOTANICAL. LIVING. BEAUTY.</div>
@@ -1012,6 +1109,17 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
    <h2>PERM–VL</h2>
    <p>Железнодорожный симулятор Пермь II — Екатеринбург. Альфа уже доступна для игры.</p>
    <div class="project-foot"><span class="project-link">Играть и узнать о проекте</span><span class="arrow pv-arrow" aria-hidden="true">↗</span></div>
+  </div>
+ </a>
+
+ <a class="project arthur" data-project="arthur" href="./arthur.html" aria-label="Артур — новый проект автосервиса, сбор материалов">
+  <span class="arthur-matte" aria-hidden="true"></span>
+  <div class="art" aria-hidden="true"><div class="rings"></div><div class="slash"></div><div class="motif">AS</div></div>
+  <div class="project-head"><span class="category"><i></i>04 · Клиентский проект</span><span class="project-progress" data-progress="5" role="img" aria-label="Готовность проекта автосервиса Артура — 5 процентов"><span class="progress-ring"><span class="progress-number">5%</span></span><span class="progress-caption">СТАРТ</span></span></div>
+  <div class="project-body">
+   <div class="project-label">AUTO. SERVICE. PARTS.</div><h2>АРТУР</h2>
+   <p>Автосервис, шиномонтаж и авторазбор. Сбор материалов и подготовка проекта.</p>
+   <div class="project-foot"><span class="project-link">Статус проекта</span><span class="arrow" aria-hidden="true">↗</span></div>
   </div>
  </a>
  <div class="studio-stage">

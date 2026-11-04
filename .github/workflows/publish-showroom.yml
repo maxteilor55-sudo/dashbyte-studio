@@ -5,6 +5,7 @@ on:
     paths:
       - showroom.html
       - perm-vl.html
+      - arthur.html
       - scripts/build-showroom.py
       - scripts/upgrade_arsenal.py
       - arsenal-privacy.html
@@ -81,8 +82,10 @@ jobs:
           assert 'gc-back-to-top-controller' not in green
           assert 'gc-footer-up' not in green
           assert 'ПРОЕКТЫ<br><em>В РАЗРАБОТКЕ.</em>' in chooser
-          for project, percent in [('arsenal',95),('green-collection',56),('perm-vl',10)]:
+          for project, percent in [('arsenal',99),('green-collection',75),('perm-vl',10),('arthur',5)]:
               assert f'data-progress="{percent}"' in chooser,project
+          assert 'href="./arthur.html"' in chooser
+          assert (root/'arthur.html').exists()
           assert 'href="./perm-vl.html"' in chooser
           game_page=(root/'perm-vl.html').read_text(encoding='utf-8')
           assert 'id="gameFrame"' in game_page
