@@ -25,13 +25,19 @@
  const tg=()=>window.Telegram&&window.Telegram.WebApp;
  const escapeLine=s=>String(s||'').trim().slice(0,1400);
  const pick=(name)=>escapeLine(form.elements.namedItem(name)?.value||'');
+ const selectedServices=()=>[...form.querySelectorAll('input[name="services"]:checked')].map(el=>el.value);
+ const serviceCount=overlay.querySelector('#dbBriefSelectedCount');
+ const updateServiceCount=()=>{
+   const count=selectedServices().length;
+   serviceCount.textContent=count?'Выбрано: '+count:'Не выбрано';
+ };
  const feedback=(message,kind='idle')=>{status.textContent=message;status.dataset.state=kind};
  const getMessage=()=>[
    '🟥 ЗАЯВКА НА УСЛУГИ DASHBYTE',
    '',
    'Имя: '+pick('name'),
    'Компания: '+(pick('company')||'Не указана'),
-   'Услуга: '+pick('service'),
+   'Услуги: '+(selectedServices().join(', ')||'Не выбраны'),
    'Контакт: '+pick('contact'),
    'Задача: '+(pick('message')||'Уточнить при общении'),
  ].join('\n');
@@ -89,6 +95,11 @@
    // Opening a chat is NOT proof of sending a lead.
  });
  form.addEventListener('input',()=>{if(status.dataset.state==='error')feedback('Опиши задачу — мы свяжемся с тобой для уточнения деталей.')});
+ form.querySelectorAll('input[name="services"]').forEach(input=>input.addEventListener('change',()=>{
+   updateServiceCount();
+   try{tg()?.HapticFeedback?.selectionChanged()}catch(e){}
+ }));
+ updateServiceCount();
  form.addEventListener('submit',async e=>{
    e.preventDefault();
    if(submitting||!form.reportValidity())return;
@@ -96,8 +107,19 @@
      feedback('Для отправки необходимо согласие на обработку данных.','error');return;
    }
    if(pick('website'))return;
-   const data={name:pick('name'),company:pick('company'),service:pick('service'),contact:pick('contact'),message:pick('message'),privacy:true,website:''};
-   if(!data.name||!data.contact||!data.service){feedback('Укажи имя, услугу и способ связи.','error');return}
+   const services=selectedServices();
+   if(!services.length){
+     feedback('Выбери хотя бы одну услугу — можно отметить сразу несколько.','error');
+     form.querySelector('.db-brief-service-picker input')?.focus({preventScroll:true});
+     return;
+   }
+   // Compatible with the already deployed Worker: first item as the validated
+   // service, complete selection in the message sent to the Telegram owner.
+   const summary='Выбранные услуги ('+services.length+'): '+services.join(', ');
+   const description=pick('message');
+   const details=description?('\n\nОписание: '+description):'';
+   const data={name:pick('name'),company:pick('company'),service:services[0],contact:pick('contact'),message:(summary+details).slice(0,1500),privacy:true,website:''};
+   if(!data.name||!data.contact){feedback('Укажи имя и способ связи.','error');return}
    latestDraft=getMessage();
    if(draftArea)draftArea.value=latestDraft;
    alternative.hidden=true;
@@ -121,7 +143,7 @@
      const res=await fetch(safeEndpoint.href,{method:'POST',mode:'cors',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify({...data,initData}),signal:controller.signal});
      let json=null;try{json=await res.json()}catch(e){}
      if(!res.ok||!json||json.ok!==true)throw Error('Delivery unconfirmed: '+res.status);
-     form.reset();success.hidden=false;form.hidden=true;
+     form.reset();updateServiceCount();success.hidden=false;form.hidden=true;
      feedback('Заявка доставлена в Telegram.','success');
      try{tg()?.HapticFeedback?.notificationOccurred('success')}catch(e){}
    }catch(error){
