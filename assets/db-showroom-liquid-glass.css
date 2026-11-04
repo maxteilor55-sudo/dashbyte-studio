@@ -430,3 +430,19 @@
   transform:scale(1.14)!important;transform-origin:center!important;
   opacity:.97!important;
 }
+
+/* v6 / Avoid the slow nested backdrop root on Android and headless Chrome.
+   Matte color is CSS; animated gaussian texture is already composited by canvas. */
+.page > .projects > a.project > .arthur-matte,
+.page > .projects > a.project > .gc-card-matte,
+.page > .projects > a.project > .pv-card-matte,
+.page > .projects > a.project > .arsenal-matte-pane{
+  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+}
+.page > .projects > a.project.arthur:not([data-live-frost="on"]),
+.page > .projects > a.project.green-collection:not([data-live-frost="on"]),
+.page > .projects > a.project.perm-vl:not([data-live-frost="on"]),
+.page > .projects > a.project.arsenal:not([data-live-frost="on"]){
+  -webkit-backdrop-filter:blur(18px) saturate(.85)!important;
+  backdrop-filter:blur(18px) saturate(.85)!important;
+}
