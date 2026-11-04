@@ -1,6 +1,6 @@
 /* DashByte signature — preserve every pixel of the user's original PNG-traced
-   APPROVED SVG on the faces. Only the depth geometry is simplified/welded.
-   This is a genuine thickness extrusion, never a redrawn or closed-up logo. */
+   APPROVED SVG on both faces. The sidewalls are thin, subtle and follow
+   the actual contour instead of turning the mark into a thick white slab. */
 (function(){
  'use strict';
  const stage=document.getElementById('db3dStage');
@@ -25,8 +25,8 @@
   'vec3 n=vec3(aNormal.x*cy+aNormal.z*sy,aNormal.y,-aNormal.x*sy+aNormal.z*cy);',
   'n=vec3(n.x,n.y*cx-n.z*sx,n.y*sx+n.z*cx);',
   'vNormal=normalize(n);vUV=aUV;',
-  'float perspective=2.8/(2.8-p.z);',
-  'gl_Position=vec4(p.x*1.36*perspective/uRatio,p.y*1.36*perspective,-p.z*.23,1.0);',
+  'float perspective=3.6/(3.6-p.z);',
+  'gl_Position=vec4(p.x*1.26*perspective/uRatio,p.y*1.26*perspective,-p.z*.23,1.0);',
   '}'
  ].join('\n');
  const fragmentSource=[
@@ -40,15 +40,15 @@
   'if(uMode<.5){',
   'float a=texture2D(uTex,vUV).a;',
   'if(a<.07)discard;',
-  'float stripe=0.0; // the original monogram has its own signature fine lines',
-  'float light=clamp(.38+.48*key+.18*fill+stripe,0.0,1.0);',
-  'vec3 metal=mix(vec3(.41,.38,.44),vec3(.99,.94,.98),light);',
-  'metal+=vec3(.27,.20,.25)*glint;',
+  'float stripe=.025*sin(vUV.x*25.0+vUV.y*2.5);',
+  'float light=clamp(.26+.47*key+.21*fill+stripe,0.0,1.0);',
+  'vec3 metal=mix(vec3(.31,.30,.35),vec3(.92,.88,.93),light);',
+  'metal+=vec3(.21,.16,.21)*glint;',
   'metal=mix(metal,vec3(.99,.38,.57),pow(1.0-abs(n.z),3.0)*.24);',
   'gl_FragColor=vec4(min(metal,vec3(1.0)),a);',
   '}else{',
   'float light=clamp(.35+.47*key+.19*fill,0.0,1.0);',
-  'vec3 edge=mix(vec3(.31,.28,.34),vec3(.88,.76,.81),light);',
+  'vec3 edge=mix(vec3(.27,.23,.28),vec3(.72,.64,.70),light);',
   'edge+=glint*vec3(.19,.12,.14);',
   'gl_FragColor=vec4(min(edge,vec3(1.0)),1.0);',
   '}',
@@ -72,7 +72,7 @@
   // Weld the thin decorative strokes of the official vector into ONE solid
   // extrusion. The previous implementation extruded every SVG slit separately,
   // producing dozens of floating ribs when the monogram was turned sideways.
-  const W=224,H=154,N=W*H;
+  const W=384,H=264,N=W*H;
   const mask=document.createElement('canvas');
   mask.width=W;mask.height=H;
   const ctx=mask.getContext('2d',{willReadFrequently:true});
@@ -80,7 +80,7 @@
   ctx.clearRect(0,0,W,H);ctx.drawImage(image,0,0,W,H);
   const pixels=ctx.getImageData(0,0,W,H).data;
   const original=new Uint8Array(N);
-  for(let k=0;k<N;k++)original[k]=pixels[k*4+3]>92?1:0;
+  for(let k=0;k<N;k++)original[k]=pixels[k*4+3]>112?1:0;
 
   function morph(input,r,expand){
    const output=new Uint8Array(N);
@@ -99,7 +99,7 @@
   }
   // Rounded morphological closing seals hairline gaps without changing the
   // approved outer DB silhouette into a rectangular plaque.
-  const solid=morph(morph(original,4,true),4,false);
+  const solid=morph(morph(original,2,true),2,false);
   const queue=new Int32Array(N);
   const eachNeighbor=(k,visit)=>{
    const x=k%W,y=(k/W)|0;
@@ -174,7 +174,7 @@
   tc.clearRect(0,0,1024,702);
   tc.drawImage(image,0,0,1024,702);
 
-  const aspect=762/522,X=.80,Y=X/aspect,Z=.275; // more depth, same original XY silhouette
+  const aspect=762/522,X=.80,Y=X/aspect,Z=.115; // precise front outline, modest solid-metal depth
   const posX=i=>((i/W)*2-1)*X,posY=j=>(1-(j/H)*2)*Y;
   const data=[];
   function put(x,y,z,nx,ny,nz,u,v){data.push(x,y,z,nx,ny,nz,u,v)}
@@ -182,7 +182,7 @@
    for(const p of [a,b,c])put(p[0],p[1],p[2],n[0],n[1],n[2],p[3]||0,p[4]||0);
   }
   function plane(z,front){
-   const tl=[-X,Y,z,0,1],tr=[X,Y,z,1,1],br=[X,-Y,z,1,0],bl=[-X,-Y,z,0,0];
+   const tl=[-X,Y,z,front?0:1,1],tr=[X,Y,z,front?1:0,1],br=[X,-Y,z,front?1:0,0],bl=[-X,-Y,z,front?0:1,0];
    if(front){tri(tl,bl,br,[0,0,1]);tri(tl,br,tr,[0,0,1])}
    else{tri(tl,br,bl,[0,0,-1]);tri(tl,tr,br,[0,0,-1])}
   }
@@ -205,7 +205,7 @@
           textureCanvas: textureCanvas,parts:components().length};
  }
  function setup(){
-  gl=canvas.getContext('webgl',{alpha:true,antialias:true,powerPreference:'low-power',premultipliedAlpha:false});
+  gl=canvas.getContext('webgl',{alpha:true,antialias:true,powerPreference:'low-power',premultipliedAlpha:false,preserveDrawingBuffer:true});
   if(!gl)throw Error('WebGL is not supported');
   const vs=compile(gl.VERTEX_SHADER,vertexSource);
   const fs=compile(gl.FRAGMENT_SHADER,fragmentSource);
@@ -226,6 +226,7 @@
   sideStart=mesh.start;sideCount=mesh.count;
   stage.dataset.meshParts=String(mesh.parts);
   stage.dataset.faceSource='original-svg-unmodified';
+  stage.dataset.geometryVersion='contour-v4-slim';
   buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
   gl.bufferData(gl.ARRAY_BUFFER,mesh.vertices,gl.STATIC_DRAW);
   const stride=8*4;
@@ -268,11 +269,12 @@
    if(!reduced.matches&&t-lastManual>1250){
     // Gentle showroom motion stays almost face-on so the original DB mark
     // remains legible instead of turning into a side-on abstract sculpture.
-    const desired=.14+Math.sin(t*.00037)*.24;
-    targetYaw+=(desired-targetYaw)*Math.min(.025,dt*.0007);
+    const desired=.14+Math.sin(t*.00030)*.16;
+    const nearest=desired+Math.round((targetYaw-desired)/(Math.PI*2))*Math.PI*2;
+    targetYaw+=(nearest-targetYaw)*Math.min(.019,dt*.00045);
    }
    targetYaw+=inertiaYaw*dt;targetPitch+=inertiaPitch*dt;
-   targetPitch=Math.max(-.57,Math.min(.57,targetPitch));
+   targetPitch=Math.max(-.38,Math.min(.38,targetPitch));
    const drag=Math.pow(.88,dt/16);
    inertiaYaw*=drag;inertiaPitch*=drag;
   }
@@ -301,9 +303,9 @@
   if(!dragging)return;
   const dx=e.clientX-lastX,dy=e.clientY-lastY;
   lastX=e.clientX;lastY=e.clientY;
-  targetYaw+=dx*.014;targetPitch=Math.max(-.57,Math.min(.57,targetPitch+dy*.008));
-  inertiaYaw=Math.max(-.012,Math.min(.012,dx*.00029));
-  inertiaPitch=Math.max(-.005,Math.min(.005,dy*.00012));
+  targetYaw+=dx*.009;targetPitch=Math.max(-.38,Math.min(.38,targetPitch+dy*.005));
+  inertiaYaw=Math.max(-.008,Math.min(.008,dx*.00018));
+  inertiaPitch=Math.max(-.003,Math.min(.003,dy*.00007));
   lastManual=performance.now();stage.dataset.interacted='true';
   start();
  });
@@ -317,8 +319,8 @@
   if(e.key==='Home'){targetYaw=.14;targetPitch=-.08}
   if(e.key==='ArrowLeft')targetYaw-=.2;
   if(e.key==='ArrowRight')targetYaw+=.2;
-  if(e.key==='ArrowUp')targetPitch=Math.max(-.57,targetPitch-.12);
-  if(e.key==='ArrowDown')targetPitch=Math.min(.57,targetPitch+.12);
+  if(e.key==='ArrowUp')targetPitch=Math.max(-.38,targetPitch-.12);
+  if(e.key==='ArrowDown')targetPitch=Math.min(.38,targetPitch+.12);
   lastManual=performance.now();start();
  });
  if('IntersectionObserver' in window){
