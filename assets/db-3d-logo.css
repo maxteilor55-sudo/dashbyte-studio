@@ -1,0 +1,86 @@
+
+/* DASHBYTE — real extruded WebGL silhouette of the approved official DB mark. */
+.db3d-stage{
+  position:relative;z-index:2;isolation:isolate;display:flex;align-items:center;
+  justify-content:space-between;gap:10px;height:104px;min-width:0;
+  padding:0 10px 0 17px;margin:13px 0 -2px;border-radius:23px;overflow:hidden;
+  border:1px solid rgba(255,153,178,.26);
+  background:linear-gradient(109deg,rgba(26,15,24,.76),rgba(42,19,35,.53) 68%,rgba(15,10,20,.39));
+  box-shadow:inset 0 1px rgba(255,255,255,.1),0 16px 38px rgba(0,0,0,.13);
+  -webkit-backdrop-filter:blur(13px);backdrop-filter:blur(13px);
+  animation:db3d-appear .95s cubic-bezier(.18,.8,.16,1) .18s both;
+}
+.db3d-stage::before{
+  content:"";position:absolute;pointer-events:none;inset:0;
+  background:radial-gradient(ellipse 38% 90% at 85% 45%,rgba(238,67,113,.16),transparent 85%);
+}
+.db3d-label{position:relative;z-index:2;display:flex;flex-direction:column;justify-content:center;gap:5px;min-width:0}
+.db3d-kicker{display:flex;align-items:center;gap:7px;color:#f2aab8;font-size:8px;font-weight:800;letter-spacing:.14em;white-space:nowrap}
+.db3d-kicker i{width:5px;height:5px;flex:none;border-radius:50%;background:#fa678c;box-shadow:0 0 10px rgba(255,90,128,.7)}
+.db3d-title{color:#f7f0f5;font-weight:900;line-height:1.06;font-size:clamp(13px,3.6vw,17px);letter-spacing:-.045em}
+.db3d-title span{color:#fb627f}
+.db3d-instruction{font-size:9px;line-height:1.2;letter-spacing:.09em;font-weight:800;color:rgba(242,178,195,.85);white-space:nowrap}
+.db3d-viewport{
+ position:relative;isolation:isolate;flex:0 0 auto;width:min(45%,190px);
+ height:100%;min-height:78px;overflow:visible;outline:none;
+ cursor:grab;touch-action:pan-y;user-select:none;-webkit-user-select:none;
+ -webkit-tap-highlight-color:transparent;
+}
+.db3d-viewport:active{cursor:grabbing}
+.db3d-viewport:focus-visible{outline:2px solid #ff8da9;outline-offset:-5px;border-radius:17px}
+.db3d-light{
+ position:absolute;pointer-events:none;inset:2% -10%;
+ background:radial-gradient(ellipse at 48% 53%,rgba(248,64,112,.2),transparent 66%);
+ filter:blur(12px);
+}
+.db3d-source,.db3d-canvas{
+ position:absolute;inset:0;width:100%;height:100%;
+ object-fit:contain;pointer-events:none;
+}
+.db3d-source{
+ width:75%;height:83%;inset:8% 12.5% 9%;opacity:.83;
+ filter:brightness(0) invert(.91) drop-shadow(0 2px 10px rgba(240,84,126,.55));
+ transition:opacity .5s ease;
+}
+.db3d-canvas{opacity:0;transition:opacity .65s ease;display:block}
+.db3d-stage[data-renderer="webgl"] .db3d-canvas{opacity:1}
+.db3d-stage[data-renderer="webgl"] .db3d-source{opacity:0}
+@keyframes db3d-appear{
+  from{opacity:0;transform:translate3d(0,18px,0) scale(.95);filter:blur(7px)}
+  to{opacity:1;transform:translate3d(0,0,0) scale(1);filter:blur(0)}
+}
+@media(min-width:1024px){
+  .page>.intro{position:relative}
+  .page>.intro h1{max-width:calc(100% - 230px)}
+  .page>.intro .intro-bottom p{max-width:calc(100% - 240px)}
+  .page>.intro>.db3d-stage{
+    position:absolute;right:0;top:12px;
+    display:flex;flex-direction:column-reverse;justify-content:center;
+    gap:0;width:clamp(180px,21vw,240px);height:174px;
+    padding:0;margin:0;overflow:visible;
+    border:0;background:transparent;box-shadow:none;
+    -webkit-backdrop-filter:none;backdrop-filter:none;
+  }
+  .page>.intro>.db3d-stage::before{background:none}
+  .db3d-stage .db3d-viewport{width:100%;height:132px;min-height:0}
+  .db3d-stage .db3d-label{align-items:center;text-align:center;gap:4px}
+  .db3d-stage .db3d-title{display:none}
+  .db3d-stage .db3d-kicker{font-size:8px}
+  .db3d-stage .db3d-instruction{font-size:8px}
+}
+@media(max-width:767px) and (max-height:700px){
+ .db3d-stage{height:83px;margin-top:8px;padding-left:12px;border-radius:18px}
+ .db3d-kicker{font-size:7px}
+ .db3d-title{font-size:12px}
+ .db3d-instruction{font-size:8px}
+ .db3d-viewport{min-height:72px}
+}
+@media(max-width:350px){
+ .db3d-stage{padding-left:10px}
+ .db3d-kicker{font-size:7px;letter-spacing:.07em}
+ .db3d-title{font-size:12px}
+}
+@media(prefers-reduced-motion:reduce){
+ .db3d-stage{animation:none!important}
+ .db3d-canvas,.db3d-source{transition:none!important}
+}
