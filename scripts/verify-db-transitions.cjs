@@ -65,6 +65,7 @@ const {chromium}=require('playwright');
  });
  if(!toggle||await page.locator('#db-projects-shortcut').count()!==1)
    throw Error('Arsenal menu toggling removed independent shortcut');
+ await page.evaluate(()=>document.getElementById('menu-toggle')?.click());
  await exit('#db-projects-shortcut','/index.html');
  // The Green Collection page is intentionally PIN-gated. Simulate a valid
  // authorized dashboard session before checking its internal menu.
