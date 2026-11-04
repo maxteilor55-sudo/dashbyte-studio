@@ -995,6 +995,9 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
 </style>
 <link rel="stylesheet" href="./assets/db-route-transition.css?v=1">
 <script defer src="./assets/db-route-transition.js?v=1"></script>
+<link rel="stylesheet" href="./assets/db-brief-form.css?v=1">
+<script defer src="./assets/db-brief-config.js?v=1"></script>
+<script defer src="./assets/db-brief-form.js?v=1"></script>
 </head>
 <body>
 <div class="scroll-edge-glass scroll-edge-glass--top" aria-hidden="true"></div>
@@ -1124,6 +1127,14 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
    <div class="project-foot"><span class="project-link">Открыть проект</span><span class="arrow" aria-hidden="true">↗</span></div>
   </div>
  </a>
+
+ <div class="db-brief-launch">
+  <button class="db-brief-launch-button" id="dbOpenBrief" type="button" aria-haspopup="dialog" aria-controls="dbBriefModal">
+   <span class="db-brief-launch-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>
+   <span class="db-brief-launch-text"><strong>ЗАКАЗАТЬ САЙТ</strong><small>Сайт, логотип, реклама и дизайн · обсудим проект</small></span>
+   <span class="db-brief-launch-arrow" aria-hidden="true">↗</span>
+  </button>
+ </div>
  <div class="studio-stage">
   <span class="studio-rule" aria-hidden="true"></span>
   <div class="studio-stage-top">
@@ -1145,6 +1156,61 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
 <footer class="fade"><strong>© 2026 DashByte Digital Atelier.</strong><span>ПРОЕКТЫ В РАЗРАБОТКЕ · 2026</span></footer>
 </main>
 
+<div id="dbBriefModal" class="db-brief-overlay" role="presentation" aria-hidden="true" hidden>
+ <div class="db-brief-backdrop" data-db-brief-close></div>
+ <section class="db-brief-modal" role="dialog" aria-modal="true" aria-labelledby="dbBriefTitle" aria-describedby="dbBriefDescription">
+  <div class="db-brief-content">
+   <button type="button" class="db-brief-close" data-db-brief-close aria-label="Закрыть форму">×</button>
+   <div class="db-brief-brand"><i aria-hidden="true"></i> DASHBYTE / ЗАЯВКА НА ПРОЕКТ</div>
+   <h2 id="dbBriefTitle">ЕСТЬ ИДЕЯ?<br><em>СДЕЛАЕМ.</em></h2>
+   <p class="db-brief-intro" id="dbBriefDescription">Расскажи, что нужно твоему бизнесу. Мы изучим задачу и свяжемся с тобой для обсуждения.</p>
+   <form class="db-brief-form" id="dbBriefForm">
+    <div class="db-brief-field">
+     <label for="dbBriefName">Как тебя зовут? *</label>
+     <input id="dbBriefName" name="name" type="text" placeholder="Твоё имя" required maxlength="80" autocomplete="name">
+    </div>
+    <div class="db-brief-field">
+     <label for="dbBriefCompany">Название компании</label>
+     <input id="dbBriefCompany" name="company" type="text" placeholder="Если есть — укажи название" maxlength="120" autocomplete="organization">
+    </div>
+    <div class="db-brief-field">
+     <span class="db-brief-service-caption" id="dbBriefServiceCaption">Какая услуга интересует? *</span>
+     <div class="db-brief-service-picker" role="radiogroup" aria-labelledby="dbBriefServiceCaption">
+      <label><input type="radio" name="service" value="Создание сайта" checked><span>🌐 Создание сайта</span></label>
+      <label><input type="radio" name="service" value="Логотип"><span>✦ Логотип</span></label>
+      <label><input type="radio" name="service" value="Айдентика и дизайн"><span>◈ Дизайн / айдентика</span></label>
+      <label><input type="radio" name="service" value="Реклама и продвижение"><span>↗ Реклама</span></label>
+      <label><input type="radio" name="service" value="Видео и контент"><span>▶ Видео / контент</span></label>
+      <label><input type="radio" name="service" value="Другое"><span>＋ Другое</span></label>
+     </div>
+    </div>
+    <div class="db-brief-field">
+     <label for="dbBriefContact">Как с тобой связаться? *</label>
+     <input id="dbBriefContact" name="contact" type="text" required maxlength="160" placeholder="Телефон, @Telegram, MAX или соцсеть" autocomplete="off">
+    </div>
+    <div class="db-brief-field">
+     <label for="dbBriefMessage">Что нужно сделать?</label>
+     <textarea id="dbBriefMessage" name="message" rows="3" maxlength="1500" placeholder="Расскажи о задаче, пожеланиях, примерных сроках..."></textarea>
+    </div>
+    <input type="text" tabindex="-1" name="website" aria-hidden="true" autocomplete="off" style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;opacity:0">
+    <label class="db-brief-consent"><input type="checkbox" name="privacy" required><span>Даю согласие на обработку указанных данных для ответа на заявку. <a href="./privacy.html#consent" target="_blank" rel="noopener noreferrer">Политика конфиденциальности</a>.</span></label>
+    <button class="db-brief-submit" type="submit"><span>ОТПРАВИТЬ ЗАЯВКУ</span><span aria-hidden="true">↗</span></button>
+    <p id="dbBriefStatus" class="db-brief-status" role="status" aria-live="polite" data-state="idle">Ответим по указанному контакту, чтобы обсудить твой проект.</p>
+    <div id="dbBriefAlternative" class="db-brief-alternative" hidden>
+      <button type="button" id="dbBriefCopy" class="db-brief-alt-action">Скопировать заявку</button>
+      <a href="https://t.me/Reelog" target="_blank" rel="noopener noreferrer" id="dbBriefTelegram" class="db-brief-alt-action">Написать в Telegram ↗</a>
+    </div>
+    <div class="db-brief-footer">DASHBYTE — ПРЕВРАЩАЕМ ИДЕИ В УСПЕХ.</div>
+   </form>
+   <div class="db-brief-success" id="dbBriefSuccess" hidden>
+    <span class="db-brief-success-glyph" aria-hidden="true">✓</span>
+    <h3>ЗАЯВКА ПРИНЯТА.</h3>
+    <p>Спасибо! Сообщение доставлено в Telegram студии. Свяжемся с тобой по указанному контакту.</p>
+    <button type="button" class="db-brief-submit" id="dbBriefAgain"><span>НОВАЯ ЗАЯВКА</span><span aria-hidden="true">↗</span></button>
+   </div>
+  </div>
+ </section>
+</div>
 
 <script id="db-project-readiness-rings">
 (function(){
