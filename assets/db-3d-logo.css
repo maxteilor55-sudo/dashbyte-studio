@@ -49,8 +49,8 @@
 .db3d-stage[data-renderer="webgl"] .db3d-canvas{opacity:1}
 .db3d-stage[data-renderer="webgl"] .db3d-source{opacity:0}
 @keyframes db3d-appear{
-  from{opacity:0;transform:translate3d(0,18px,0) scale(.95);filter:blur(7px)}
-  to{opacity:1;transform:translate3d(0,0,0) scale(1);filter:blur(0)}
+  from{opacity:0;transform:translate3d(0,18px,0);filter:blur(7px)}
+  to{opacity:1;transform:translate3d(0,0,0);filter:blur(0)}
 }
 @media(min-width:1024px){
   .page>.intro{position:relative}

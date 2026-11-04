@@ -31,6 +31,7 @@ const assert=require('node:assert/strict');
     meshFaces:Number(stage.dataset.meshFaces),
     material:stage.dataset.material,
     cameraMode:stage.dataset.cameraMode,
+    projection:stage.dataset.projection,
     previewGlass:getComputedStyle(object).backdropFilter||getComputedStyle(object).webkitBackdropFilter,
     glassCards:cards.map(card=>({name:card.classList[1],blur:getComputedStyle(card).backdropFilter||getComputedStyle(card).webkitBackdropFilter,border:getComputedStyle(card).borderColor})),
     rotation:stage.dataset.rotation,
@@ -64,6 +65,7 @@ const assert=require('node:assert/strict');
    assert.equal(state.meshFaces,502,'Exact official DB silhouette should have 502 front triangles');
    assert.equal(state.material,'arsenal-liquid-glass-webgl-v1','Frosted liquid glass WebGL shader is required');
    assert.equal(state.cameraMode,'fixed-scale-no-auto-fit','Zooming/auto fit during rotation is forbidden');
+   assert.equal(state.projection,'orthographic','Projection must never vary the model scale with rotation or depth');
    assert.equal(state.rotation,'two-axis-free','Full two-axis 3D rotation must be enabled');
    
    

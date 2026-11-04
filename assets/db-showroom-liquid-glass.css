@@ -135,3 +135,92 @@
 @media(prefers-reduced-motion:reduce){
  .page > .projects > a.project{transition:none!important}
 }
+
+/* DashByte Liquid Glass Atelier v2 · November 2026.
+   One moving-video backdrop sample per tile (mobile GPU-friendly).
+   Colour lives in the light at the glass rim, not opaque paint. */
+.page > .projects > a.project.arthur,
+.page > .projects > a.project.green-collection,
+.page > .projects > a.project.perm-vl,
+.page > .projects > a.project.arsenal{
+  background:rgba(153,166,187,.085)!important;
+  border:1px solid rgba(var(--db-glass-accent),.48)!important;
+  -webkit-backdrop-filter:blur(24px) saturate(112%) contrast(.97) brightness(1.08)!important;
+  backdrop-filter:blur(24px) saturate(112%) contrast(.97) brightness(1.08)!important;
+  box-shadow:0 16px 44px rgba(2,5,12,.34),
+    0 0 23px rgba(var(--db-glass-accent),.075),
+    inset 0 1px 0 rgba(255,255,255,.53),
+    inset 1px 0 0 rgba(255,255,255,.24),
+    inset -1px 0 0 rgba(var(--db-glass-accent),.29),
+    inset 0 -1px 0 rgba(255,255,255,.13)!important;
+}
+.page > .projects > a.project.arthur{--db-glass-accent:247,94,114}
+.page > .projects > a.project.green-collection{--db-glass-accent:168,216,151}
+.page > .projects > a.project.perm-vl{--db-glass-accent:115,178,235}
+.page > .projects > a.project.arsenal{--db-glass-accent:203,164,128}
+.page > .projects > a.project > .arthur-matte,
+.page > .projects > a.project > .gc-card-matte,
+.page > .projects > a.project > .pv-card-matte,
+.page > .projects > a.project > .arsenal-matte-pane{
+  /* Diffuse glass body; parent's backdrop-filter already samples the moving video. */
+  background:radial-gradient(ellipse 115% 95% at -12% -28%,rgba(255,255,255,.30),transparent 65%),
+    radial-gradient(ellipse 92% 80% at 114% 0%,rgba(var(--db-glass-accent),.15),transparent 76%),
+    linear-gradient(142deg,rgba(223,228,236,.19),rgba(87,95,109,.17) 42%,rgba(10,13,21,.32))!important;
+  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),inset 0 -1px 0 rgba(255,255,255,.07)!important;
+}
+.page > .projects > a.project.arthur::before,
+.page > .projects > a.project.green-collection::before,
+.page > .projects > a.project.perm-vl::before,
+.page > .projects > a.project.arsenal::before{
+  background:linear-gradient(150deg,rgba(255,255,255,.30) 0%,rgba(255,255,255,.075) 13%,transparent 34%,rgba(255,255,255,.028) 58%,rgba(255,255,255,.10) 100%),
+    radial-gradient(ellipse 86% 42% at 97% -5%,rgba(var(--db-glass-accent),.18),transparent 77%),
+    linear-gradient(105deg,rgba(255,255,255,.06),transparent 13%,transparent 89%,rgba(255,255,255,.08))!important;
+}
+.page > .projects > a.project.arthur::after,
+.page > .projects > a.project.green-collection::after,
+.page > .projects > a.project.perm-vl::after,
+.page > .projects > a.project.arsenal::after{
+  background:linear-gradient(180deg,transparent 0%,rgba(6,8,14,.035) 30%,rgba(5,8,13,.19) 72%,rgba(4,6,11,.49) 100%)!important;
+}
+.page > .projects > a.project:focus-visible{
+  outline:2px solid rgba(var(--db-glass-accent),.86)!important;
+  outline-offset:3px!important;
+}
+.db3d-stage{
+  background:linear-gradient(133deg,rgba(228,235,245,.13),rgba(85,95,113,.12) 41%,rgba(18,23,34,.27))!important;
+  border-color:rgba(235,241,249,.37)!important;
+  -webkit-backdrop-filter:blur(22px) saturate(112%)!important;
+  backdrop-filter:blur(22px) saturate(112%)!important;
+}
+.db3d-stage .db3d-viewport{
+  isolation:isolate!important;
+  border:1px solid rgba(251,221,235,.61)!important;
+  background:linear-gradient(144deg,rgba(237,244,253,.13),rgba(98,106,125,.075) 42%,rgba(13,18,27,.17))!important;
+  -webkit-backdrop-filter:blur(18px) saturate(111%)!important;
+  backdrop-filter:blur(18px) saturate(111%)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.51),
+    inset 1px 0 0 rgba(255,255,255,.21),inset 0 -1px 0 rgba(255,255,255,.12),
+    0 0 24px rgba(251,108,152,.10)!important;
+}
+.db3d-stage .db3d-viewport::after{
+  content:"";position:absolute;z-index:3;inset:1px;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(134deg,rgba(255,255,255,.23),transparent 18%,transparent 77%,rgba(255,255,255,.095));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18);
+}
+.db3d-stage .db3d-canvas,.db3d-stage .db3d-source{z-index:1}
+@media(max-width:760px){
+  .page > .projects > a.project.arthur,
+  .page > .projects > a.project.green-collection,
+  .page > .projects > a.project.perm-vl,
+  .page > .projects > a.project.arsenal{
+    -webkit-backdrop-filter:blur(18px) saturate(113%) brightness(1.06)!important;
+    backdrop-filter:blur(18px) saturate(113%) brightness(1.06)!important;
+  }
+}
+@supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
+  .page > .projects > a.project.arthur,
+  .page > .projects > a.project.green-collection,
+  .page > .projects > a.project.perm-vl,
+  .page > .projects > a.project.arsenal{background:rgba(46,53,65,.86)!important}
+}

@@ -23,44 +23,40 @@
   'vec3 n=vec3(aNormal.x*cy+aNormal.z*sy,aNormal.y,-aNormal.x*sy+aNormal.z*cy);',
   'n=vec3(n.x,n.y*cx-n.z*sx,n.y*sx+n.z*cx);',
   'vNormal=normalize(n);vUV=aUV;vFace=abs(aNormal.z);',
-  '// Orthographic camera: the projected size and center never depend on model depth.',
+  '// Orthographic camera: fixed center and size, regardless of object depth or gesture.',
   'gl_Position=vec4(p.x*1.04/uRatio,p.y*1.04,-p.z*.29,1.0);',
   '}'
  ].join('\n');
  const fragmentSource=[
-  "precision highp float;",
-  "varying vec3 vNormal;",
-  "varying vec2 vUV;",
-  "varying float vFace;",
-  "uniform float uTime;",
-  "void main(){",
-  " vec3 n=normalize(vNormal);",
-  " vec3 viewDir=vec3(0.0,0.0,1.0);",
-  " float grazing=pow(1.0-abs(dot(n,viewDir)),2.0);",
-  " float face=smoothstep(0.89,0.99,vFace);",
-  " // Cool, light-transmitting frosted glass, not painted metal.",
-  " vec3 keyDir=normalize(vec3(-0.62,0.78,0.49));",
-  " vec3 softDir=normalize(vec3(0.91,0.27,0.38));",
-  " float key=max(dot(n,keyDir),0.0);",
-  " float fill=max(dot(n,softDir),0.0);",
-  " float sky=clamp(n.y*0.5+0.5,0.0,1.0);",
-  " vec3 milk=vec3(0.66,0.71,0.78)+(vec3(0.13,0.14,0.15)*sky);",
-  " milk+=(0.16*key+0.08*fill)*vec3(0.87,0.92,1.0);",
-  " // Thickness gives the side surfaces a cooler, denser glass appearance.",
-  " vec3 thickness=vec3(0.32,0.43,0.53)+(0.20*key+0.11*fill)*vec3(0.80,0.89,1.0);",
-  " float edgeKey=pow(max(dot(n,normalize(vec3(-0.77,0.52,0.36))),0.0),22.0);",
-  " float edgeFill=pow(max(dot(n,normalize(vec3(0.83,0.37,0.30))),0.0),26.0);",
-  " float opticalSweep=pow(max(dot(n,normalize(vec3(cos(uTime*0.31),0.65,sin(uTime*0.23)*0.42+0.45))),0.0),40.0);",
-  " // Small blue/white wavelength shifts at glancing edges suggest refraction.",
-  " vec3 rim=vec3(0.20,0.32,0.43)*grazing;",
-  " rim+=vec3(0.67,0.81,0.98)*(edgeKey*0.78+edgeFill*0.58+opticalSweep*0.20);",
-  " vec3 material=mix(thickness,milk,face)+rim;",
-  " material+=vec3(0.035,0.050,0.075)*sin(vUV.x*3.0+vUV.y*5.0);",
-  " float alpha=mix(0.80,0.73,face)+grazing*0.11;",
-  " gl_FragColor=vec4(clamp(material,0.0,1.0),clamp(alpha,0.0,0.94));",
-  "}"
+  'precision highp float;',
+  'varying vec3 vNormal;varying vec2 vUV;varying float vFace;',
+  'uniform float uTime;',
+  'void main(){',
+  'vec3 n=normalize(vNormal);',
+  'vec3 keyDir=normalize(vec3(-.56,.74,.42));',
+  'vec3 fillDir=normalize(vec3(.83,.25,.49));',
+  'float key=abs(dot(n,keyDir));',
+  'float fill=abs(dot(n,fillDir));',
+  'float face=smoothstep(.91,.99,vFace);',
+  'float grazing=pow(1.0-abs(n.z),1.65);',
+  '// Frosted translucent mineral glass, not opaque chrome: diffuse pearl on both faces.',
+  'vec3 milk=vec3(.74,.79,.87)*(.89+.13*key+.065*fill);',
+  'float satin=pow(max(dot(n,normalize(vec3(-.36,.57,.74))),0.0),12.0);',
+  'milk+=vec3(.095,.105,.125)*satin;',
+  '// Edge thickness, polished glancing reflections and a very slow optical shimmer.',
+  'float stripA=pow(max(dot(n,normalize(vec3(-.72,.64,.28))),0.0),19.0);',
+  'float stripB=pow(max(dot(n,normalize(vec3(.82,.37,.32))),0.0),24.0);',
+  'vec3 moving=normalize(vec3(cos(uTime*.23),.47+sin(uTime*.17)*.16,.48));',
+  'float caustic=pow(max(dot(n,moving),0.0),39.0);',
+  'vec3 rim=vec3(.42,.51,.63)+vec3(.14,.17,.19)*(.6*key+.25*fill);',
+  'rim+=vec3(.48,.56,.66)*(stripA*.66+stripB*.57+caustic*.24);',
+  'rim+=vec3(.12,.17,.22)*grazing;',
+  'vec3 glass=mix(rim,milk,face);',
+  '// Front is misty translucent; the sides preserve depth with luminous edges.',
+  'float alpha=mix(.76,.84,face);',
+  'gl_FragColor=vec4(clamp(glass,0.0,1.0),alpha);',
+  '}'
  ].join('\n');
-
  function compile(type,code){
   const shader=gl.createShader(type);
   gl.shaderSource(shader,code);gl.compileShader(shader);
@@ -187,6 +183,7 @@
   stage.dataset.geometryVersion='authentic-vector-solid-v1';
   stage.dataset.material='arsenal-liquid-glass-webgl-v1';
   stage.dataset.cameraMode='fixed-scale-no-auto-fit';
+  stage.dataset.projection='orthographic';
   stage.dataset.rotation='two-axis-free';
   gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LESS);
   gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);
