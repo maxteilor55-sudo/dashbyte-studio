@@ -4,6 +4,9 @@ on:
     branches: [main]
     paths:
       - showroom.html
+      - assets/db-brief-form.css
+      - assets/db-brief-form.js
+      - assets/db-brief-config.js
       - perm-vl.html
       - arthur.html
       - scripts/build-showroom.py
@@ -74,6 +77,11 @@ jobs:
               assert 'К выбору проектов' not in result  # never inject bot UI in REG archive
               assert 'arsenal-privacy.html' in result
           assert '<iframe' not in chooser
+          assert chooser.count('id="dbOpenBrief"')==1
+          assert chooser.count('id="dbBriefModal"')==1
+          assert 'assets/db-brief-form.js?v=1' in chooser
+          assert 'assets/db-brief-form.css?v=1' in chooser
+          assert (root/'assets/db-brief-config.js').exists()
           for page in ['index.html','showroom.html','arthur.html','dashbyte.html','arsenal.html','green-collection.html','perm-vl.html','privacy.html','arsenal-privacy.html','showcase.html']:
               body=(root/page).read_text(encoding='utf-8')
               assert body.count('db-route-transition.css?v=1')==1,page
