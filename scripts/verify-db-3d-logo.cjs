@@ -59,7 +59,7 @@ const assert=require('node:assert/strict');
    assert.equal(state.faceSource,'original-vector-triangles','Front and reverse must use true SVG triangles, not raster alpha planes');
    assert.equal(state.geometryVersion,'authentic-vector-solid-v1','Must use the new exact vector solid');
    assert.equal(state.meshFaces,502,'Exact official DB silhouette should have 502 front triangles');
-   assert.equal(state.material,'matte-grey-polished-edges','Approved matte faces / reflective edges material missing');
+   assert.equal(state.material,'matte-grey-polished-edges-v2','Approved matte faces / reflective edges material missing');
    assert.equal(state.rotation,'two-axis-free','Full two-axis 3D rotation must be enabled');
    
    
