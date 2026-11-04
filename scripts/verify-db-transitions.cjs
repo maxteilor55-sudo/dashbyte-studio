@@ -15,12 +15,12 @@ const {chromium}=require('playwright');
       opacity:getComputedStyle(document.getElementById('db-route-veil')).opacity
    }));
    if(!start.veil||!start.leaving)throw Error('No transition after '+selector+': '+JSON.stringify(start));
-   await page.waitForTimeout(115);
+   await page.waitForTimeout(80);
    const visual=await page.evaluate(()=>({
      opacity:Number(getComputedStyle(document.getElementById('db-route-veil')).opacity),
      blur:getComputedStyle(document.getElementById('db-route-veil')).backdropFilter
    }));
-   if(visual.opacity<.10||!visual.blur.includes('blur('))
+   if(visual.opacity<.10||!visual.blur.includes('blur(5px)'))
      throw Error('Blur is not visually active after '+selector+': '+JSON.stringify(visual));
    await page.waitForURL(u=>u.pathname.endsWith(expected),{timeout:20000});
    await page.locator('#db-route-veil').waitFor({state:'attached',timeout:20000});
@@ -45,7 +45,23 @@ const {chromium}=require('playwright');
  const back=await exit('a.back','/'); 
  const perm=await exit('.project.perm-vl','/perm-vl.html');
  const returnHome=await exit('a[href="./index.html"]','/index.html');
- await page.goto(base+'privacy.html',{waitUntil:'domcontentloaded'});
+ await open('arsenal.html');
+ const arsenalNav=await page.evaluate(()=>{
+   const mobile=document.querySelector('#db-arsenal-bot-mobile-return');
+   const desktop=document.querySelector('#db-arsenal-bot-desktop-return');
+   return {mobile:!!mobile,mobileText:mobile?.textContent.trim(),inMenu:!!mobile?.closest('#mobile-menu,.mobile-menu'),href:mobile?.getAttribute('href'),
+    desktop:!!desktop,videoDocument:document.title};
+ });
+ if(!arsenalNav.mobile||!arsenalNav.inMenu||!arsenalNav.desktop||arsenalNav.href!=='./')
+   throw Error('Arsenal bot-return links unavailable: '+JSON.stringify(arsenalNav));
+ await exit('#db-arsenal-bot-mobile-return','/');
+ await open('green-collection.html'); 
+ const greenBack=await page.evaluate(()=>document.querySelectorAll('.gc-projects-link').length);
+ if(!greenBack)throw Error('Green Collection project menu return missing');
+ await open('dashbyte.html');
+ const studioBack=await page.evaluate(()=>!!document.getElementById('db-chooser-return'));
+ if(!studioBack)throw Error('DashByte studio project menu return missing');
+ await open('privacy.html');
  const privacyLoaded=await page.evaluate(()=>!!window.DashByteTransitions);
  if(!privacyLoaded)throw Error('Privacy page transition missing');
  // All actual pages reference shared assets precisely once.
@@ -61,6 +77,6 @@ const {chromium}=require('playwright');
  if(issues.length)throw Error('JavaScript errors: '+issues.join(' | '));
  console.log('ROUTE_TRANSITIONS_PASS '+JSON.stringify({initial,pin,auto,
   navigation:['dashboard→autocervice','autocervice→dashboard','dashboard→PERM-VL','PERM-VL→dashboard'],
-  checkedPages:filenames.length,exitSamples:[toAuto,back,perm,returnHome]}));
+  checkedPages:filenames.length,arsenalNav,greenBack,studioBack,exitSamples:[toAuto,back,perm,returnHome]}));
  await browser.close();
 })().catch(e=>{console.error(e);process.exit(1)});
