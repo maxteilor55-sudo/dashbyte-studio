@@ -8,8 +8,8 @@
  const source=stage.querySelector('.db3d-source');
  const reduced=window.matchMedia('(prefers-reduced-motion:reduce)');
  let gl=null,program=null,buffer=null,texture=null,sideStart=0,sideCount=0;
- let uYaw,uPitch,uRatio,uMode,uTex,locPos,locNorm,locUV;
- let active=true,raf=0,lastFrame=0,dragging=false,lastX=0,lastY=0;
+ let uYaw,uPitch,uRatio,uTime,locPos,locNorm,locUV;
+ let active=true,raf=0,lastFrame=0,dragging=false,lastX=0,lastY=0,hasInteracted=false;
  let yaw=.14,pitch=-.08,targetYaw=.14,targetPitch=-.08,inertiaYaw=0,inertiaPitch=0,lastManual=0;
 
  const vertexSource=[
@@ -29,19 +29,28 @@
  ].join('\n');
  const fragmentSource=[
   'precision highp float;varying vec3 vNormal;varying vec2 vUV;',
+  'uniform float uTime;',
   'void main(){',
   'vec3 n=normalize(vNormal);',
-  'float key=max(dot(n,normalize(vec3(-.35,.73,.62))),0.0);',
-  'float fill=max(dot(n,normalize(vec3(.87,.07,.48))),0.0);',
-  'float spec=pow(max(dot(n,normalize(vec3(-.25,.61,.76))),0.0),30.0);',
-  'float face=abs(n.z);',
-  'float light=clamp(.33+.48*key+.24*fill,0.0,1.0);',
-  'vec3 silver=mix(vec3(.36,.30,.36),vec3(.98,.91,.96),light);',
-  'silver+=spec*vec3(.22,.17,.21);',
-  'vec3 edge=mix(vec3(.25,.20,.27),vec3(.74,.58,.67),clamp(.27+.52*key+.17*fill,0.0,1.0));',
-  'edge+=spec*vec3(.11,.10,.12);',
-  'vec3 metal=mix(edge,silver,smoothstep(.3,.8,face));',
-  'gl_FragColor=vec4(clamp(metal,0.0,1.0),1.0);',
+  'float key=max(dot(n,normalize(vec3(-.45,.78,.52))),0.0);',
+  'float fill=max(dot(n,normalize(vec3(.79,.16,.47))),0.0);',
+  '// Signed geometry normals identify the untouched vector front/back surfaces.',
+  '// Matte grey faces: diffuse studio light only, no sparkling coating.',
+  'float diffuse=.76+.17*key+.07*fill;',
+  'vec3 matte=vec3(.68,.69,.71)*diffuse;',
+  'matte+=vec3(.014)*pow(max(dot(n,normalize(vec3(.1,.38,.92))),0.0),6.0);',
+  '// The real extruded SVG perimeter has polished metallic sidewalls.',
+  '// Broad environment panels + sharp moving strip lights follow the normal.',
+  'float panelA=pow(max(dot(n,normalize(vec3(-.75,.62,.12))),0.0),13.0);',
+  'float panelB=pow(max(dot(n,normalize(vec3(.82,.32,.18))),0.0),22.0);',
+  'float hairline=pow(max(dot(n,normalize(vec3(-.15,-.95,.26))),0.0),42.0);',
+  'vec3 movingLight=normalize(vec3(cos(uTime*.26),.45+sin(uTime*.19)*.2,.18));',
+  'float glint=pow(max(dot(n,movingLight),0.0),32.0);',
+  'vec3 polished=vec3(.26,.28,.32)+vec3(.28,.30,.33)*(.50*key+.25*fill);',
+  'polished+=vec3(.67,.71,.77)*(panelA*.82+panelB*.60+hairline*.42+glint*.23);',
+  'float face=smoothstep(.90,.98,abs(n.z));',
+  'vec3 material=mix(polished,matte,face);',
+  'gl_FragColor=vec4(clamp(material,0.0,1.0),1.0);',
   '}'
  ].join('\n');
 
@@ -156,6 +165,7 @@
   uYaw=gl.getUniformLocation(program,'uYaw');
   uPitch=gl.getUniformLocation(program,'uPitch');
   uRatio=gl.getUniformLocation(program,'uRatio');
+  uTime=gl.getUniformLocation(program,'uTime');
   buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
   gl.bufferData(gl.ARRAY_BUFFER,mesh.vertices,gl.STATIC_DRAW);
   for(const [index,size,offset] of [[locPos,3,0],[locNorm,3,12],[locUV,2,24]]){
@@ -168,6 +178,8 @@
   stage.dataset.meshFaces=String(mesh.faces);
   stage.dataset.faceSource='original-vector-triangles';
   stage.dataset.geometryVersion='authentic-vector-solid-v1';
+  stage.dataset.material='matte-grey-polished-edges';
+  stage.dataset.rotation='two-axis-free';
   gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LESS);
   gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);gl.disable(gl.BLEND);
   resize();draw();stage.dataset.renderer='webgl';start();
@@ -178,6 +190,9 @@
   gl.useProgram(program);
   gl.uniform1f(uYaw,yaw);gl.uniform1f(uPitch,pitch);
   gl.uniform1f(uRatio,Math.max(.7,canvas.width/canvas.height));
+  gl.uniform1f(uTime,performance.now()*.001);
+  stage.dataset.poseYaw=String(yaw.toFixed(4));
+  stage.dataset.posePitch=String(pitch.toFixed(4));
   gl.drawArrays(gl.TRIANGLES,0,sideCount);
  }
  function start(){if(!gl||!active||document.hidden||raf)return;lastFrame=0;raf=requestAnimationFrame(frame)}
@@ -185,24 +200,26 @@
   raf=0;if(!active||document.hidden)return;
   const dt=Math.min(48,Math.max(0,lastFrame?t-lastFrame:16));lastFrame=t;
   if(!dragging){
-   if(!reduced.matches&&t-lastManual>1250){
-    // Gentle showroom motion stays almost face-on so the original DB mark
-    // remains legible instead of turning into a side-on abstract sculpture.
+   if(!hasInteracted&&!reduced.matches){
+    // Keep the original approved front-facing appearance as the idle pose.
     const desired=.12+Math.sin(t*.00028)*.16;
-    const nearest=desired+Math.round((targetYaw-desired)/(Math.PI*2))*Math.PI*2;
-    targetYaw+=(nearest-targetYaw)*Math.min(.019,dt*.00045);
+    targetYaw+=(desired-targetYaw)*Math.min(.019,dt*.00045);
    }
-   targetYaw+=inertiaYaw*dt;targetPitch+=inertiaPitch*dt;
-   // A physical showroom turntable, not a full flip that shows a blank slab.
-   targetYaw=Math.max(-.54,Math.min(.54,targetYaw));
-   targetPitch=Math.max(-.38,Math.min(.38,targetPitch));
-   const drag=Math.pow(.88,dt/16);
+   targetYaw+=inertiaYaw*dt;
+   targetPitch+=inertiaPitch*dt;
+   const drag=Math.pow(.86,dt/16);
    inertiaYaw*=drag;inertiaPitch*=drag;
+   if(Math.abs(inertiaYaw)<.000003)inertiaYaw=0;
+   if(Math.abs(inertiaPitch)<.000003)inertiaPitch=0;
   }
-  const e=1-Math.exp(-dt/104);
-  yaw+=(targetYaw-yaw)*e;pitch+=(targetPitch-pitch)*e;
+  const ease=1-Math.exp(-dt/86);
+  yaw+=(targetYaw-yaw)*ease;
+  pitch+=(targetPitch-pitch)*ease;
   draw();
-  if(!reduced.matches||dragging||Math.abs(targetYaw-yaw)>.001||Math.abs(targetPitch-pitch)>.001||Math.abs(inertiaYaw)>.00001)
+  // After a touch or mouse gesture, keep the exact inspected orientation.
+  // Never automatically snap the emblem back toward its front side.
+  if((!hasInteracted&&!reduced.matches)||dragging||Math.abs(targetYaw-yaw)>.0004||
+     Math.abs(targetPitch-pitch)>.0004||Math.abs(inertiaYaw)>.000003||Math.abs(inertiaPitch)>.000003)
    raf=requestAnimationFrame(frame);
  }
  function init(){
@@ -213,9 +230,11 @@
   source.addEventListener('load',init,{once:true});
   source.addEventListener('error',()=>{stage.dataset.renderer='fallback'},{once:true});
  }
+ // One-finger or mouse drag: X rotates around the vertical axis, Y around
+ // the horizontal axis. Both are continuous 360-degree rotations.
  viewport.addEventListener('pointerdown',e=>{
-  if(e.button!==0)return;
-  dragging=true;lastX=e.clientX;lastY=e.clientY;
+  if(e.pointerType==='mouse'&&e.button!==0)return;
+  dragging=true;hasInteracted=true;lastX=e.clientX;lastY=e.clientY;
   inertiaYaw=0;inertiaPitch=0;lastManual=performance.now();
   try{viewport.setPointerCapture(e.pointerId)}catch(_){}
   viewport.focus({preventScroll:true});start();
@@ -224,10 +243,10 @@
   if(!dragging)return;
   const dx=e.clientX-lastX,dy=e.clientY-lastY;
   lastX=e.clientX;lastY=e.clientY;
-  targetYaw=Math.max(-.54,Math.min(.54,targetYaw+dx*.008));
-  targetPitch=Math.max(-.38,Math.min(.38,targetPitch+dy*.005));
-  inertiaYaw=Math.max(-.008,Math.min(.008,dx*.00018));
-  inertiaPitch=Math.max(-.003,Math.min(.003,dy*.00007));
+  targetYaw+=dx*.012;
+  targetPitch+=dy*.012;
+  inertiaYaw=Math.max(-.011,Math.min(.011,dx*.00020));
+  inertiaPitch=Math.max(-.011,Math.min(.011,dy*.00020));
   lastManual=performance.now();stage.dataset.interacted='true';
   start();
  });
@@ -235,14 +254,22 @@
  viewport.addEventListener('pointerup',release);
  viewport.addEventListener('pointercancel',release);
  viewport.addEventListener('lostpointercapture',release);
+ // Double-click and Home reset the viewing angle without touching the shape.
+ const reset=()=>{
+  hasInteracted=true;inertiaYaw=0;inertiaPitch=0;
+  targetYaw=.14+Math.round((yaw-.14)/(Math.PI*2))*Math.PI*2;
+  targetPitch=-.08+Math.round((pitch+.08)/(Math.PI*2))*Math.PI*2;
+  lastManual=performance.now();start();
+ };
+ viewport.addEventListener('dblclick',reset);
  viewport.addEventListener('keydown',e=>{
   if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home'].includes(e.key))return;
-  e.preventDefault();stage.dataset.interacted='true';
-  if(e.key==='Home'){targetYaw=.14;targetPitch=-.08}
-  if(e.key==='ArrowLeft')targetYaw=Math.max(-.54,targetYaw-.15);
-  if(e.key==='ArrowRight')targetYaw=Math.min(.54,targetYaw+.15);
-  if(e.key==='ArrowUp')targetPitch=Math.max(-.38,targetPitch-.12);
-  if(e.key==='ArrowDown')targetPitch=Math.min(.38,targetPitch+.12);
+  e.preventDefault();stage.dataset.interacted='true';hasInteracted=true;
+  if(e.key==='Home')reset();
+  if(e.key==='ArrowLeft')targetYaw-=.22;
+  if(e.key==='ArrowRight')targetYaw+=.22;
+  if(e.key==='ArrowUp')targetPitch-=.22;
+  if(e.key==='ArrowDown')targetPitch+=.22;
   lastManual=performance.now();start();
  });
  if('IntersectionObserver' in window){
