@@ -486,3 +486,30 @@
   backdrop-filter:blur(50px) saturate(.69) contrast(.80)!important;
  }
 }
+
+/* v8 / The model grows optically via viewport height, not via perspective zoom.
+   Keep all 7 WebGL test poses unclipped. */
+.db3d-stage .db3d-viewport{height:210px!important}
+@media(min-width:1024px){.db3d-stage .db3d-viewport{height:190px!important;flex-basis:190px!important}}
+@media(max-width:767px) and (max-height:700px){.db3d-stage .db3d-viewport{height:180px!important}}
+@media(max-width:350px){.db3d-stage .db3d-viewport{height:190px!important}}
+/* The backdrop-blur stays on the card as a single compositor pass;
+   additional milky diffusion is supplied by the existing matte glass layer. */
+@media(min-width:761px){
+ .page > .projects > a.project.arthur,
+ .page > .projects > a.project.green-collection,
+ .page > .projects > a.project.perm-vl,
+ .page > .projects > a.project.arsenal{
+  -webkit-backdrop-filter:blur(54px) saturate(.70) contrast(.81)!important;
+  backdrop-filter:blur(54px) saturate(.70) contrast(.81)!important;
+ }
+}
+@media(max-width:760px){
+ .page > .projects > a.project.arthur,
+ .page > .projects > a.project.green-collection,
+ .page > .projects > a.project.perm-vl,
+ .page > .projects > a.project.arsenal{
+  -webkit-backdrop-filter:blur(44px) saturate(.69) contrast(.80)!important;
+  backdrop-filter:blur(44px) saturate(.69) contrast(.80)!important;
+ }
+}
