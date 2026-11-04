@@ -96,8 +96,8 @@ const {chromium}=require('playwright');
  for(const name of filenames){
     const response=await page.request.get(base+name);
     const content=await response.text();
-    if(!response.ok()||(content.match(/db-route-transition\.js\?v=\d+/g)||[]).length!==1||
-       (content.match(/db-route-transition\.css\?v=\d+/g)||[]).length!==1)missing.push(name);
+    if(!response.ok()||content.split('db-route-transition.js?v=3').length!==2||
+       content.split('db-route-transition.css?v=3').length!==2)missing.push(name);
  }
  if(missing.length)throw Error('Missing route asset references: '+missing.join(','));
  if(issues.length)throw Error('JavaScript errors: '+issues.join(' | '));
