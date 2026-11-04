@@ -51,11 +51,3 @@ html.db-route-entering #db-route-veil{
  #db-route-veil,html.db-route-leaving #db-route-veil{transition-duration:0.01ms!important}
  html.db-route-entering #db-route-veil{animation-duration:0.01ms!important}
 }
-
-/* Fast first response even with full-screen video + four frosted cards.
-   Arrival retains its original 260ms blur/fade transition. */
-html.db-route-leaving #db-route-veil{
-  transition:none!important;
-  opacity:1!important;
-  visibility:visible!important;
-}

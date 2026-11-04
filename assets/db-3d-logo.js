@@ -272,7 +272,7 @@
   stage.dataset.motionPhase='manual';
   inertiaYaw=0;inertiaPitch=0;lastManual=performance.now();
   try{viewport.setPointerCapture(e.pointerId)}catch(_){}
-  // Pointer gesture does not force keyboard focus (and never summons a frame).
+  // Touch must never force a pink keyboard-focus rectangle on the logo.
   start();
  });
  viewport.addEventListener('pointermove',e=>{
