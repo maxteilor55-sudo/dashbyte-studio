@@ -27,6 +27,7 @@ const assert=require('node:assert/strict');
     renderer:stage.dataset.renderer,
     webglSupported:supported,
     natural:image.naturalWidth,
+    svgPath:image.getAttribute('src'),
     canvasPixels:[canvas.width,canvas.height],
     order:document.querySelector('.intro').contains(stage)&&document.querySelector('.intro').nextElementSibling.classList.contains('projects'),
     stageBottom:stage.getBoundingClientRect().bottom,
@@ -39,7 +40,7 @@ const assert=require('node:assert/strict');
   });
   console.log((isMobile?'MOBILE':'DESKTOP')+'_3D '+JSON.stringify(state));
   assert.equal(state.order,true,'Logo must sit between intro headline and project cards');
-  assert.equal(state.natural,762,'Must use official DB vector image');
+  assert(state.natural>0&&state.svgPath.endsWith('/assets/DashByte_DB_Official_Vector.svg'),'Must load the official DB vector image');
   assert.equal(state.inView,true);
   assert(state.stageBottom<=state.firstCardTop+3,'Logo must be before cards without overlapping');
   assert(state.overflow<=4,'No horizontal scrolling from 3D logo');
