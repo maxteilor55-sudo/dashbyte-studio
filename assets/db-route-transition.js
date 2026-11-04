@@ -133,6 +133,13 @@
                      Number(tg.contentSafeAreaInset&&tg.contentSafeAreaInset.top)||0);
      }
      var y=Math.max(headerBottom+10,safe+58,18);
+     // If the hamburger expands, keep the independent return BELOW the entire
+     // flyout. Do not cover the client's normal menu entries.
+     var flyout=document.querySelector('#mobile-menu,.mobile-menu,.mobile-dropdown');
+     if(flyout&&(flyout.classList.contains('open')||flyout.classList.contains('is-open'))){
+       var flyoutBottom=flyout.getBoundingClientRect().bottom;
+       if(flyoutBottom>headerBottom)y=Math.max(y,flyoutBottom+10);
+     }
      button.style.setProperty('--db-project-top',Math.round(y)+'px');
      button.style.setProperty('--db-project-left',Math.max(12,Math.round(rect.left+4))+'px');
    }
@@ -143,6 +150,14 @@
      window.addEventListener('orientationchange',layout,{passive:true});
      window.addEventListener('load',layout,{once:true});
      if(document.fonts&&document.fonts.ready)document.fonts.ready.then(layout);
+     var flyout=document.querySelector('#mobile-menu,.mobile-menu,.mobile-dropdown');
+     if(flyout){
+       flyout.addEventListener('transitionend',layout);
+       if(window.MutationObserver){
+         var observer=new MutationObserver(layout);
+         observer.observe(flyout,{attributes:true,attributeFilter:['class','aria-expanded','aria-hidden','style']});
+       }
+     }
      var tg=window.Telegram&&window.Telegram.WebApp;
      if(tg&&tg.onEvent){
        tg.onEvent('safeAreaChanged',layout);
