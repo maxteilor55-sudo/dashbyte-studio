@@ -26,7 +26,7 @@
  border:1px solid rgba(255,125,163,.62);border-radius:17px;box-sizing:border-box;
  background:radial-gradient(ellipse at 51% 49%,rgba(96,38,67,.18),rgba(16,10,18,.36) 86%);
  box-shadow:inset 0 1px rgba(255,225,236,.11),0 0 19px rgba(253,77,124,.065);
- cursor:grab;touch-action:pan-y;user-select:none;-webkit-user-select:none;
+ cursor:grab;touch-action:none;overscroll-behavior:contain;user-select:none;-webkit-user-select:none;
  -webkit-tap-highlight-color:transparent;
 }
 .db3d-viewport:active{cursor:grabbing}
