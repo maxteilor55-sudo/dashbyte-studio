@@ -62,7 +62,7 @@ jobs:
           assert len(arsenal)>1000000
           assert 'db-arsenal-choice-return-init' not in arsenal
           assert 'db-arsenal-navigation-finish' not in arsenal
-          assert 'db-route-transition.js?v=1' in arsenal
+          assert 'db-route-transition.js?v=3' in arsenal
           assert 'К выбору проектов' not in arsenal  # generated in JS only on GitHub pages
           assert 'https://t.me/DashByteStudioBot' in arsenal
           assert 'arsenal-privacy.html' in arsenal
@@ -84,8 +84,8 @@ jobs:
           assert (root/'assets/db-brief-config.js').exists()
           for page in ['index.html','showroom.html','arthur.html','dashbyte.html','arsenal.html','green-collection.html','perm-vl.html','privacy.html','arsenal-privacy.html','showcase.html']:
               body=(root/page).read_text(encoding='utf-8')
-              assert body.count('db-route-transition.css?v=1')==1,page
-              assert body.count('db-route-transition.js?v=1')==1,page
+              assert body.count('db-route-transition.css?v=3')==1,page
+              assert body.count('db-route-transition.js?v=3')==1,page
           assert 'DashByteTransitions?.go(destination.href)' in chooser
           # Every active document loads exactly one unified control; the
           # previous footer-up implementations must not be reintroduced.

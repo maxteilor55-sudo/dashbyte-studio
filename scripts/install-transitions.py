@@ -13,19 +13,22 @@ DOCS=(
  "green-collection.html","perm-vl.html","privacy.html","arsenal-privacy.html",
  "showcase.html",
 )
-LINK='<link rel="stylesheet" href="./assets/db-route-transition.css?v=1">'
-SCRIPT='<script defer src="./assets/db-route-transition.js?v=1"></script>'
+LINK='<link rel="stylesheet" href="./assets/db-route-transition.css?v=3">'
+SCRIPT='<script defer src="./assets/db-route-transition.js?v=3"></script>'
 for filename in DOCS:
     path=ROOT/filename
     if not path.is_file():
         raise FileNotFoundError(path)
     text=path.read_text(encoding="utf-8")
-    # Older builds can be reprocessed safely: no duplicate assets.
-    for item in (LINK,SCRIPT):
-        if item not in text:
-            text,n=re.subn(r"</head\s*>",lambda m:item+"\n"+m.group(0),text,count=1,flags=re.I)
-            if n!=1:
-                raise RuntimeError("No HEAD boundary: "+filename)
+    # Replace EVERY older cached reference; don't stack versioned duplicates.
+    text=re.sub(r'<link\s+rel="stylesheet"\s+href="\./assets/db-route-transition\.css\?v=\d+"\s*/?>\s*',
+                '',text,flags=re.I)
+    text=re.sub(r'<script\s+defer\s+src="\./assets/db-route-transition\.js\?v=\d+"\s*>\s*</script>\s*',
+                '',text,flags=re.I)
+    text,n=re.subn(r"</head\s*>",lambda m:LINK+"\n"+SCRIPT+"\n"+m.group(0),
+                   text,count=1,flags=re.I)
+    if n!=1:
+        raise RuntimeError("No HEAD boundary: "+filename)
     if filename in ("index.html","showroom.html"):
         # Correct PIN entry keeps its authorization; only the subsequent
         # document change uses the shared blur transition.
