@@ -51,3 +51,12 @@ html.db-route-entering #db-route-veil{
  #db-route-veil,html.db-route-leaving #db-route-veil{transition-duration:0.01ms!important}
  html.db-route-entering #db-route-veil{animation-duration:0.01ms!important}
 }
+
+
+/* Stable route-leave visibility in mobile WebView. Only during an actual
+   outgoing navigation, never on initial load. No video or card effects. */
+html.db-route-leaving #db-route-veil{
+  transition:none!important;
+  opacity:1!important;
+  visibility:visible!important;
+}
