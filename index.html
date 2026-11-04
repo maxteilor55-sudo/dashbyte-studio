@@ -998,6 +998,8 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
 <link rel="stylesheet" href="./assets/db-brief-form.css?v=2">
 <script defer src="./assets/db-brief-config.js?v=1"></script>
 <script defer src="./assets/db-brief-form.js?v=3"></script>
+<link rel="stylesheet" href="./assets/db-3d-logo.css?v=1">
+<script defer src="./assets/db-3d-logo.js?v=1"></script>
 </head>
 <body>
 <div class="scroll-edge-glass scroll-edge-glass--top" aria-hidden="true"></div>
@@ -1055,6 +1057,18 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
  <div class="intro-bottom">
  <p>Здесь собраны сайты клиентов и собственные разработки DashByte. Открывайте проекты, следите за готовностью и пробуйте доступные версии.</p>
  <div class="intro-hint">Выберите проект <span>↘</span></div>
+ </div>
+ <div class="db3d-stage" id="db3dStage" aria-label="Интерактивный объёмный логотип DashByte">
+  <div class="db3d-label" aria-hidden="true">
+   <span class="db3d-kicker"><i></i>DASHBYTE / LIVE OBJECT</span>
+   <span class="db3d-title">ФОРМА<br>В ДВИЖЕНИИ<span>.</span></span>
+   <span class="db3d-instruction">↔ ПОВЕРНИ ЛОГОТИП</span>
+  </div>
+  <div class="db3d-viewport" id="db3dViewport" tabindex="0" role="img" aria-label="3D-логотип DashByte. Проведите пальцем или мышью для вращения. На клавиатуре используйте стрелки.">
+   <span class="db3d-light" aria-hidden="true"></span>
+   <img class="db3d-source" src="./assets/DashByte_DB_Official_Vector.svg" alt="" draggable="false" loading="eager" decoding="async">
+   <canvas class="db3d-canvas" aria-hidden="true"></canvas>
+  </div>
  </div>
 </section>
 <section class="projects fade" aria-label="Сайты в разработке и их готовность">
