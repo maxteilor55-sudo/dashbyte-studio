@@ -53,7 +53,7 @@ const assert=require('node:assert/strict');
    assert.equal(state.renderer,'webgl','WebGL supported but model initialization failed');
    assert.equal(state.meshParts,1,'3D side walls must be connected into one solid body');
    assert.equal(state.faceSource,'original-svg-unmodified','The approved DB artwork must remain unchanged on front and back');
-   assert.equal(state.geometryVersion,'contour-v5-smooth','The smoothed contour renderer must be loaded');
+   assert.equal(state.geometryVersion,'contour-v6-brand-first','The smoothed contour renderer must be loaded');
    assert(state.contours>=3&&state.contours<=30,'Original DB must retain contour loops and letter counters');
    assert(state.edges>400&&state.edges<12000,'Side walls must be built from the original DB perimeter');
    assert(state.canvasPixels[0]>0&&state.canvasPixels[1]>0,'No WebGL drawing surface');
@@ -62,7 +62,7 @@ const assert=require('node:assert/strict');
   return {page,failures};
  }
  async function checkVisualPoses(page){
-  const shots=[['front',0,0],['angled',0.68,-0.15],['side',Math.PI/2,0],['back',Math.PI,0]];
+  const shots=[['front',0,0],['angled',0.46,-0.15],['side',Math.PI/2,0],['back',Math.PI,0]];
   for(const [name,yaw,pitch] of shots){
    const captured=await page.evaluate(([y,p])=>{
     if(!window.__db3dTestPose?.(y,p))return {ok:false};
