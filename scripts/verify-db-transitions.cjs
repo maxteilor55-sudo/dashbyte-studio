@@ -42,7 +42,7 @@ const {chromium}=require('playwright');
  const toAuto=await exit('.project.arthur','/arthur.html');
  const auto=await page.evaluate(()=>({note:document.querySelector('.note')?.textContent,title:document.title}));
  if(!auto.note.includes('PIN-кодом'))throw Error('Auto preview PIN option missing');
- const back=await exit('a.back','/'); 
+ const back=await exit('#db-projects-shortcut','/index.html');
  const perm=await exit('.project.perm-vl','/perm-vl.html');
  const returnHome=await exit('#db-projects-shortcut','/index.html');
  await open('arsenal.html');
