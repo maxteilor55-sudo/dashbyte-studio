@@ -30,6 +30,9 @@ const assert=require('node:assert/strict');
     geometryVersion:stage.dataset.geometryVersion,
     meshFaces:Number(stage.dataset.meshFaces),
     material:stage.dataset.material,
+    cameraMode:stage.dataset.cameraMode,
+    previewGlass:getComputedStyle(object).backdropFilter||getComputedStyle(object).webkitBackdropFilter,
+    glassCards:cards.map(card=>({name:card.classList[1],blur:getComputedStyle(card).backdropFilter||getComputedStyle(card).webkitBackdropFilter,border:getComputedStyle(card).borderColor})),
     rotation:stage.dataset.rotation,
     touchAction:getComputedStyle(object).touchAction,
 
@@ -59,12 +62,16 @@ const assert=require('node:assert/strict');
    assert.equal(state.faceSource,'original-vector-triangles','Front and reverse must use true SVG triangles, not raster alpha planes');
    assert.equal(state.geometryVersion,'authentic-vector-solid-v1','Must use the new exact vector solid');
    assert.equal(state.meshFaces,502,'Exact official DB silhouette should have 502 front triangles');
-   assert.equal(state.material,'matte-grey-polished-edges-v2','Approved matte faces / reflective edges material missing');
+   assert.equal(state.material,'arsenal-liquid-glass-webgl-v1','Frosted liquid glass WebGL shader is required');
+   assert.equal(state.cameraMode,'fixed-scale-no-auto-fit','Zooming/auto fit during rotation is forbidden');
    assert.equal(state.rotation,'two-axis-free','Full two-axis 3D rotation must be enabled');
    
    
    assert(state.canvasPixels[0]>0&&state.canvasPixels[1]>0,'No WebGL drawing surface');
   }else assert.equal(state.renderer,'fallback','No-WebGL fallback must be visible');
+  assert.equal(state.glassCards.length,4,'All four projects must use frosted glass');
+  for(const card of state.glassCards)assert(card.blur.includes('blur('),'Card must genuinely blur backdrop: '+card.name);
+  assert(state.previewGlass.includes('blur('),'3D preview needs matching frosted glass');
   if(isMobile){
    assert(Math.max(...state.cardBottoms)<=state.viewport+3,'Four cards must remain above fold');
    assert.equal(state.touchAction,'none','Vertical touch gestures must reach the 3D model instead of scrolling the page');
@@ -144,6 +151,6 @@ const assert=require('node:assert/strict');
   await desktop.page.keyboard.press('ArrowLeft');
   assert.equal(desktop.failures.length,0,'Desktop JS errors: '+desktop.failures.join('; '));
   await desktop.page.close();
-  console.log('PASS: exact 502-triangle DB geometry, matte faces, polished edges, full 360 touch and two-axis mouse rotation.');
+  console.log('PASS: original DB, fixed camera scale, liquid glass viewer and four blurred project cards, full mobile/desktop 3D rotation.');
  }finally{await browser.close()}
 })().catch(err=>{console.error(err);process.exit(1)});
