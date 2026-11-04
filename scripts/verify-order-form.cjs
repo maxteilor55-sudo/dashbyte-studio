@@ -24,6 +24,8 @@ const {chromium}=require('playwright');
       throw Error('CTA placement: '+JSON.stringify({size,first}));
     await page.locator('#dbOpenBrief').click();
     await page.locator('#dbBriefModal.is-open').waitFor({timeout:9000});
+    // Measure after the 340ms entrance transform has settled.
+    await page.waitForTimeout(440);
     const modal=await page.evaluate(()=>{
       const dlg=document.querySelector('.db-brief-modal'),r=dlg.getBoundingClientRect();
       return {top:r.top,bottom:r.bottom,windowHeight:innerHeight,width:r.width,
