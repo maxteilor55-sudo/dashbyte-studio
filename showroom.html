@@ -995,9 +995,9 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
 </style>
 <link rel="stylesheet" href="./assets/db-route-transition.css?v=1">
 <script defer src="./assets/db-route-transition.js?v=1"></script>
-<link rel="stylesheet" href="./assets/db-brief-form.css?v=1">
+<link rel="stylesheet" href="./assets/db-brief-form.css?v=2">
 <script defer src="./assets/db-brief-config.js?v=1"></script>
-<script defer src="./assets/db-brief-form.js?v=1"></script>
+<script defer src="./assets/db-brief-form.js?v=2"></script>
 </head>
 <body>
 <div class="scroll-edge-glass scroll-edge-glass--top" aria-hidden="true"></div>
@@ -1174,14 +1174,15 @@ body.gc-pin-open{overflow:hidden!important;touch-action:none!important}
      <input id="dbBriefCompany" name="company" type="text" placeholder="Если есть — укажи название" maxlength="120" autocomplete="organization">
     </div>
     <div class="db-brief-field">
-     <span class="db-brief-service-caption" id="dbBriefServiceCaption">Какая услуга интересует? *</span>
-     <div class="db-brief-service-picker" role="radiogroup" aria-labelledby="dbBriefServiceCaption">
-      <label><input type="radio" name="service" value="Создание сайта" checked><span>🌐 Создание сайта</span></label>
-      <label><input type="radio" name="service" value="Логотип"><span>✦ Логотип</span></label>
-      <label><input type="radio" name="service" value="Айдентика и дизайн"><span>◈ Дизайн / айдентика</span></label>
-      <label><input type="radio" name="service" value="Реклама и продвижение"><span>↗ Реклама</span></label>
-      <label><input type="radio" name="service" value="Видео и контент"><span>▶ Видео / контент</span></label>
-      <label><input type="radio" name="service" value="Другое"><span>＋ Другое</span></label>
+     <span class="db-brief-service-caption" id="dbBriefServiceCaption">Какие услуги интересуют? *</span>
+     <div class="db-brief-service-hint">Можно выбрать несколько услуг · повторное нажатие снимает выбор <strong id="dbBriefSelectedCount" aria-live="polite">Не выбрано</strong></div>
+     <div class="db-brief-service-picker" role="group" aria-labelledby="dbBriefServiceCaption" aria-describedby="dbBriefSelectedCount">
+      <label><input type="checkbox" name="services" value="Создание сайта"><span>🌐 Создание сайта</span></label>
+      <label><input type="checkbox" name="services" value="Логотип"><span>✦ Логотип</span></label>
+      <label><input type="checkbox" name="services" value="Айдентика и дизайн"><span>◈ Дизайн / айдентика</span></label>
+      <label><input type="checkbox" name="services" value="Реклама и продвижение"><span>↗ Реклама</span></label>
+      <label><input type="checkbox" name="services" value="Видео и контент"><span>▶ Видео / контент</span></label>
+      <label><input type="checkbox" name="services" value="Другое"><span>＋ Другое</span></label>
      </div>
     </div>
     <div class="db-brief-field">
