@@ -41,8 +41,7 @@
   'vec3 edge=mix(vec3(.25,.20,.27),vec3(.74,.58,.67),clamp(.27+.52*key+.17*fill,0.0,1.0));',
   'edge+=spec*vec3(.11,.10,.12);',
   'vec3 metal=mix(edge,silver,smoothstep(.3,.8,face));',
-  'float brush=.008*sin(vUV.y*138.0+vUV.x*4.0);',
-  'gl_FragColor=vec4(min(metal+vec3(brush),vec3(1.0)),1.0);',
+  'gl_FragColor=vec4(clamp(metal,0.0,1.0),1.0);',
   '}'
  ].join('\n');
 
