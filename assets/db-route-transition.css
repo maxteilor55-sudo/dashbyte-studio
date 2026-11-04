@@ -96,3 +96,15 @@ html.db-route-leaving #db-route-veil{
  display:inline-flex!important;margin:14px 0 0!important;z-index:2!important;
 }
 @media(max-width:480px){.db-project-return{font-size:10.5px!important;min-height:39px!important;padding:8px 12px!important}}
+
+
+/* Never let delayed menu hydration restore a duplicate return link.
+   Project return lives ONLY in the independent glass button below the menu. */
+html[data-db-project-page="green-collection"] .gc-projects-link,
+html[data-db-project-page="dashbyte"] #db-chooser-return,
+html[data-db-project-page="arsenal"] #db-arsenal-bot-mobile-return,
+html[data-db-project-page="arsenal"] #db-arsenal-bot-desktop-return,
+html[data-db-project-page="perm-vl"] nav a.backlink,
+html[data-db-project-page="arthur"] nav a.back{
+ display:none!important;visibility:hidden!important;
+}
