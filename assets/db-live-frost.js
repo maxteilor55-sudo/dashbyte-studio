@@ -21,7 +21,7 @@
  const quality=.72;
  const pad=60;
  function positionFactor(css,axis){
-  const words=css.trim().split(/\\s+/);
+  const words=css.trim().split(/\s+/);
   const word=words[axis]|| (axis===0?'50%':'50%');
   if(word==='center')return .5;
   if(word==='left'||word==='top')return 0;
@@ -55,7 +55,7 @@
    const dx=-pad*quality,dy=-pad*quality;
    try{
     ctx.clearRect(0,0,w,h);
-    ctx.filter='blur(17px)';
+    ctx.filter='blur(22px)';
     // Clamp to the decoded frame; drawImage can then use an overscanned crop.
     const sx=Math.max(0,x),sy=Math.max(0,y);
     const ex=Math.min(film.videoWidth,x+sw),ey=Math.min(film.videoHeight,y+sh);
