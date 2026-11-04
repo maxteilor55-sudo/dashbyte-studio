@@ -69,23 +69,56 @@
  }
  // Arsenal is served from GitHub Pages inside DashByte Bot, but its standalone
  // production site lives on REG.RU. Do NOT add the project shortcut to navesy59.ru.
- function installArsenalReturn(){
-   if(!/\/arsenal\.html$/i.test(location.pathname))return;
-   if(/^(?:www\.)?navesy59\.ru$/i.test(location.hostname))return;
-   var menu=document.getElementById('mobile-menu')||document.querySelector('.site-header .mobile-menu, .mobile-menu');
-   if(menu&&!document.getElementById('db-arsenal-bot-mobile-return')){
-     var back=document.createElement('a');
-     back.id='db-arsenal-bot-mobile-return';
-     back.href='./';back.textContent='← К выбору проектов';
-     back.setAttribute('aria-label','Вернуться к списку проектов DashByte');
-     menu.prepend(back);
-   }
-   var desktop=document.querySelector('.site-header .nav-links');
-   if(desktop&&!document.getElementById('db-arsenal-bot-desktop-return')){
-     var a=document.createElement('a');a.id='db-arsenal-bot-desktop-return';
-     a.href='./';a.textContent='← К проектам';
-     desktop.prepend(a);
-   }
+ function installProjectReturn(){
+  var file=location.pathname.split('/').pop().toLowerCase();
+  if(!/^(arsenal|dashbyte|green-collection|perm-vl|arthur)\.html$/.test(file))return;
+  if(file==='arsenal.html'&&/^(?:www\.)?navesy59\.ru$/i.test(location.hostname))return;
+  if(document.querySelector('.db-project-return'))return;
+  var header=file==='dashbyte.html'?document.getElementById('topbar'):
+    file==='arsenal.html'||file==='green-collection.html'?document.querySelector('header.site-header'):
+    file==='perm-vl.html'?document.querySelector('nav[aria-label="Навигация"]'):
+    document.querySelector('main.shell nav.top');
+  if(!header)return;
+  var anchor=file==='perm-vl.html'?header.querySelector('a.backlink'):
+    file==='arthur.html'?header.querySelector('a.back'):null;
+  if(!anchor)anchor=document.createElement('a');
+  anchor.classList.add('db-project-return');
+  anchor.href='./';
+  anchor.setAttribute('aria-label','Вернуться к проектам DashByte');
+  anchor.innerHTML='<span class="db-project-return-icon" aria-hidden="true">←</span><span>Вернуться к проектам</span>';
+  if(file==='green-collection.html')anchor.classList.add('db-project-return-light');
+  if(file==='arsenal.html')anchor.classList.add('db-project-return-bronze');
+  if(file==='perm-vl.html')anchor.classList.add('db-project-return-rail');
+  if(file==='arthur.html'){
+    anchor.classList.add('db-project-return-inline');
+    header.insertAdjacentElement('afterend',anchor);
+    return;
+  }
+  document.body.appendChild(anchor);
+  var scheduled=false;
+  function position(){
+    scheduled=false;
+    if(!anchor.isConnected)return;
+    var bounds=header.getBoundingClientRect();
+    var tg=window.Telegram&&window.Telegram.WebApp;
+    var telegram=!!(tg&&tg.platform&&tg.platform!=='unknown')||/tgWebApp/i.test(location.hash);
+    var mobile=innerWidth<=820;
+    var safe=telegram&&mobile?132:mobile?17:15;
+    var y=Math.max(safe,Math.min(innerHeight-54,bounds.bottom+9));
+    var x=Math.max(12,Math.min(bounds.left+4,innerWidth-210));
+    anchor.style.setProperty('--db-project-top',Math.round(y)+'px');
+    anchor.style.setProperty('--db-project-left',Math.round(x)+'px');
+  }
+  function schedule(){
+    if(scheduled)return;scheduled=true;
+    requestAnimationFrame(position);
+  }
+  position();
+  window.addEventListener('scroll',schedule,{passive:true});
+  window.addEventListener('resize',schedule,{passive:true});
+  window.addEventListener('pageshow',schedule,{passive:true});
+  header.addEventListener('transitionend',schedule);
+  if(window.ResizeObserver){var ob=new ResizeObserver(schedule);ob.observe(header)}
  }
  document.addEventListener('click',function(e){
    var node=e.target;
@@ -94,7 +127,7 @@
    e.preventDefault();e.stopImmediatePropagation();
    go(a.href,false);
  },true);
- function ready(){mount();installArsenalReturn()}
+ function ready(){mount();installProjectReturn()}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});
  else ready();
  window.addEventListener('pageshow',function(e){ready();arrive(!!e.persisted)});
