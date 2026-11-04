@@ -11,7 +11,7 @@ const assert=require('node:assert/strict');
    if(!route.request().url().startsWith(base))return route.abort();
    route.continue();
   });
-  await page.goto(base+'showroom.html',{waitUntil:'domcontentloaded',timeout:60000});
+  await page.goto(base+'showroom.html?db3dtest=1',{waitUntil:'domcontentloaded',timeout:60000});
   await page.waitForFunction(()=>['webgl','fallback'].includes(document.querySelector('#db3dStage')?.dataset.renderer),{timeout:15000});
   const state=await page.evaluate(()=>{
    const stage=document.querySelector('#db3dStage');
@@ -27,6 +27,7 @@ const assert=require('node:assert/strict');
     renderer:stage.dataset.renderer,
     meshParts:Number(stage.dataset.meshParts),
     faceSource:stage.dataset.faceSource,
+    geometryVersion:stage.dataset.geometryVersion,
     webglSupported:supported,
     natural:image.naturalWidth,
     svgPath:image.getAttribute('src'),
@@ -49,14 +50,48 @@ const assert=require('node:assert/strict');
   if(state.webglSupported){
    assert.equal(state.renderer,'webgl','WebGL supported but model initialization failed');
    assert.equal(state.meshParts,1,'3D side walls must be connected into one solid body');
-   assert.equal(state.faceSource,'original-svg-unmodified','Original approved DB artwork must remain completely unchanged on front/back');
+   assert.equal(state.faceSource,'original-svg-unmodified','The approved DB artwork must remain unchanged on front and back');
+   assert.equal(state.geometryVersion,'contour-v4-slim','The thin metal model must be loaded rather than the old chunky renderer');
    assert(state.canvasPixels[0]>0&&state.canvasPixels[1]>0,'No WebGL drawing surface');
   }else assert.equal(state.renderer,'fallback','No-WebGL fallback must be visible');
   if(isMobile)assert(Math.max(...state.cardBottoms)<=state.viewport+3,'Four cards must remain above fold');
   return {page,failures};
  }
+ async function checkVisualPoses(page){
+  const shots=[['front',0,0],['angled',0.68,-0.15],['side',Math.PI/2,0],['back',Math.PI,0]];
+  for(const [name,yaw,pitch] of shots){
+   const captured=await page.evaluate(([y,p])=>{
+    if(!window.__db3dTestPose?.(y,p))return {ok:false};
+    const canvas=document.querySelector('.db3d-canvas');
+    const w=canvas.width,h=canvas.height;
+    const scratch=document.createElement('canvas');scratch.width=w;scratch.height=h;
+    const c=scratch.getContext('2d',{willReadFrequently:true});
+    c.clearRect(0,0,w,h);c.drawImage(canvas,0,0);
+    const rgba=c.getImageData(0,0,w,h).data;
+    let count=0,minX=w,minY=h,maxX=-1,maxY=-1;
+    for(let j=0;j<h;j++)for(let i=0;i<w;i++){
+     if(rgba[(j*w+i)*4+3]<45)continue;
+     count++;minX=Math.min(minX,i);minY=Math.min(minY,j);
+     maxX=Math.max(maxX,i);maxY=Math.max(maxY,j);
+    }
+    const composite=document.createElement('canvas');composite.width=240;composite.height=150;
+    const ctx=composite.getContext('2d');
+    ctx.fillStyle='#20131f';ctx.fillRect(0,0,240,150);
+    ctx.drawImage(canvas,0,0,240,150);
+    return {ok:true,bounds:[minX,minY,maxX,maxY],count,w,h,preview:composite.toDataURL('image/png').split(',')[1]};
+   },[yaw,pitch]);
+   assert(captured.ok,'Missing visual test renderer control');
+   assert(captured.count>120,'Logo vanished at '+name+' rotation');
+   const [x1,y1,x2,y2]=captured.bounds;
+   assert(x1>=2&&y1>=2&&x2<captured.w-2&&y2<captured.h-2,
+     'Logo clipped in '+name+' position: '+JSON.stringify(captured.bounds)+' / '+captured.w+'x'+captured.h);
+   console.log('DB3D_VISUAL '+name+' '+JSON.stringify({bounds:captured.bounds,pixels:captured.count,size:[captured.w,captured.h]}));
+   if(process.env.DB3D_SCREENSHOTS==='1')console.log('DB3D_PREVIEW_'+name+':'+captured.preview);
+  }
+ }
  try{
   const mobile=await pageFor({width:390,height:844},true);
+  if(await mobile.page.locator('#db3dStage').getAttribute('data-renderer')==='webgl')await checkVisualPoses(mobile.page);
   await mobile.page.evaluate(()=>{
    const v=document.getElementById('db3dViewport');
    for(const [type,x] of [['pointerdown',150],['pointermove',198],['pointerup',198]]){
@@ -78,6 +113,6 @@ const assert=require('node:assert/strict');
   await desktop.page.keyboard.press('ArrowLeft');
   assert.equal(desktop.failures.length,0,'Desktop JS errors: '+desktop.failures.join('; '));
   await desktop.page.close();
-  console.log('PASS: pixel-faithful original DB faces, deep single-piece extrusion, mobile + desktop rotation.');
+  console.log('PASS: thin contour-preserving DB with no clipped front, angle, side or back; mouse and touch.');
  }finally{await browser.close()}
 })().catch(err=>{console.error(err);process.exit(1)});
