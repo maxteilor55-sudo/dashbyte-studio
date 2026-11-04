@@ -82,6 +82,8 @@ jobs:
                Math.max(...layout.bottoms)>layout.viewport+3||layout.overflow>4||
                layout.percentages.join(',')!=='99,75,10,5')
               throw Error('Telegram mobile project grid does not fit: '+JSON.stringify(layout));
+            const arthurResponse=await page.request.get(base+'arthur.html');
+            if(!arthurResponse.ok())throw Error('Arthur progress page unavailable: '+arthurResponse.status());
             await page.locator('.project[data-project="arsenal"]').click({timeout:16000});
             await page.waitForURL(/\/arsenal\.html#tgWebAppVersion/,{timeout:25000});
             await page.locator('.site-header').waitFor({state:'attached',timeout:25000});
@@ -92,10 +94,11 @@ jobs:
               title:document.title
             }));
             console.log('ARSENAL '+JSON.stringify(ars));
-            if(!ars.returnLink||ars.fullscreenCalls<1||parseFloat(ars.top)<70||parseFloat(ars.top)>116)
-              throw Error('Arsenal glass header or return navigation broken: '+JSON.stringify(ars));
-            await page.locator('#db-arsenal-chooser-link').evaluate(el=>el.click());
-            await page.waitForURL(u=>u.pathname==='/'&&u.hash.includes('tgWebAppVersion'),{timeout:25000});
+            if(ars.fullscreenCalls<1||parseFloat(ars.top)<70||parseFloat(ars.top)>116)
+              throw Error('Arsenal glass header broken: '+JSON.stringify(ars));
+            // Arsenal is a standalone REG.RU client site; the old chooser shortcut
+            // was deliberately removed. Reopen the dashboard directly for this test.
+            await goto(base+tgFragment);
             await page.locator('.project[data-project="dashbyte"]').click({timeout:16000});
             await page.waitForURL(u=>u.pathname.endsWith('/dashbyte.html')&&u.hash.includes('tgWebAppVersion')&&u.searchParams.has('fresh'),{timeout:60000});
             await page.locator('#topbar').waitFor({state:'attached',timeout:60000});
