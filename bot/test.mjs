@@ -134,3 +134,89 @@ test('modern Telegram initData with signature passes HMAC, and modified signatur
    assert.equal(count,1,'invalid data must not send a Telegram message');
  }finally{globalThis.fetch=originalFetch}
 });
+
+
+test('Arsenal endpoint: rejects foreign origins and missing server configuration',async()=>{
+  const url='https://example.workers.dev/api/arsenal-lead';
+  const body=JSON.stringify({name:'Иван',phone:'+7 999 123-45-67',service:'Навес для автомобиля',details:'',privacy:true,turnstile:'token',started:Date.now()-8000});
+  const bad=await bot.fetch(new Request(url,{method:'POST',headers:{Origin:'https://evil.test','Content-Type':'application/json'},body}),env);
+  assert.equal(bad.status,403);
+  const missing=await bot.fetch(new Request(url,{method:'POST',headers:{Origin:'https://navesy59.ru','Content-Type':'application/json'},body}),env);
+  assert.equal(missing.status,503);
+  const options=await bot.fetch(new Request(url,{method:'OPTIONS',headers:{Origin:'https://navesy59.ru'}}),env);
+  assert.equal(options.status,204);
+  assert.equal(options.headers.get('Access-Control-Allow-Origin'),'https://navesy59.ru');
+});
+
+test('Arsenal endpoint: delivers only to client chat after Turnstile hostname/action verification',async()=>{
+  const real=globalThis.fetch;
+  const urls=[],messages=[];
+  const apiEnv={...env,ARSENAL_CHAT_ID:'123456789',ARSENAL_TURNSTILE_SECRET:'unit-test-secret'};
+  globalThis.fetch=async(url,opts)=>{
+    urls.push(String(url));
+    if(String(url).includes('siteverify')){
+      const body=new URLSearchParams(opts.body);
+      assert.equal(body.get('secret'),'unit-test-secret');
+      return new Response(JSON.stringify({success:true,hostname:'navesy59.ru',action:'arsenal_contact'}),{status:200});
+    }
+    messages.push(JSON.parse(opts.body));
+    return new Response(JSON.stringify({ok:true,result:{message_id:101}}),{status:200});
+  };
+  try {
+    const body={name:'Иван',phone:'+7 999 123-45-67',service:'Навес для автомобиля',
+      details:'Навес 6×4',privacy:true,turnstile:'valid-token',started:Date.now()-10000,website:''};
+    const result=await bot.fetch(new Request('https://example.workers.dev/api/arsenal-lead',{
+      method:'POST',headers:{Origin:'https://navesy59.ru','Content-Type':'application/json'},
+      body:JSON.stringify(body)}),apiEnv);
+    assert.equal(result.status,200);
+    assert.equal((await result.json()).ok,true);
+    assert.equal(messages.length,1);
+    assert.equal(messages[0].chat_id,'123456789');
+    assert.match(messages[0].text,/АРСЕНАЛ/);
+    assert.match(messages[0].text,/Навес 6×4/);
+    assert.equal(urls.length,2);
+  }finally {globalThis.fetch=real}
+});
+
+test('Arsenal endpoint: rejects invalid challenge without notifying client',async()=>{
+  const real=globalThis.fetch;
+  let delivered=0;
+  const apiEnv={...env,ARSENAL_CHAT_ID:'123456789',ARSENAL_TURNSTILE_SECRET:'unit-test-secret'};
+  globalThis.fetch=async(url,opts)=>{
+    if(String(url).includes('siteverify'))
+      return new Response(JSON.stringify({success:true,hostname:'evil.test',action:'arsenal_contact'}),{status:200});
+    delivered++;
+    return new Response(JSON.stringify({ok:true,result:{}}),{status:200});
+  };
+  try {
+    const payload={name:'Иван',phone:'+7 999 123-45-67',service:'Гараж из сэндвич-панелей',
+      details:'',privacy:true,turnstile:'bad-token',website:'',started:Date.now()-10000};
+    const result=await bot.fetch(new Request('https://example.workers.dev/api/arsenal-lead',{
+      method:'POST',headers:{Origin:'https://navesy59.ru','Content-Type':'application/json'},
+      body:JSON.stringify(payload)}),apiEnv);
+    assert.equal(result.status,403);
+    assert.equal(delivered,0);
+  }finally {globalThis.fetch=real}
+});
+
+test('Arsenal endpoint: cannot redirect messages to DashByte owner via client payload',async()=>{
+  const real=globalThis.fetch;
+  const sent=[];
+  const apiEnv={...env,ARSENAL_CHAT_ID:'123456789',TELEGRAM_OWNER_CHAT_ID:'333444555',ARSENAL_TURNSTILE_SECRET:'unit-test-secret'};
+  globalThis.fetch=async(url,opts)=>{
+    if(String(url).includes('siteverify'))
+      return new Response(JSON.stringify({success:true,hostname:'navesy59.ru',action:'arsenal_contact'}),{status:200});
+    sent.push(JSON.parse(opts.body));
+    return new Response(JSON.stringify({ok:true,result:{message_id:1}}),{status:200});
+  };
+  try{
+    const data={name:'Тест',phone:'+7 999 111-22-33',service:'Другое',
+      details:'Запрос',privacy:true,website:'',turnstile:'token',started:Date.now()-10000,
+      chat_id:'333444555'};
+    const res=await bot.fetch(new Request('https://example.workers.dev/api/arsenal-lead',{
+      method:'POST',headers:{Origin:'https://navesy59.ru','Content-Type':'application/json'},
+      body:JSON.stringify(data)}),apiEnv);
+    assert.equal(res.status,200);
+    assert.deepEqual(sent.map(x=>x.chat_id),['123456789']);
+  }finally{globalThis.fetch=real}
+});
