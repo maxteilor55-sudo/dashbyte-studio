@@ -197,6 +197,128 @@ async function handleLead(request,env){
     return leadJson(origin,502,{ok:false,error:'delivery_failed'});
   }
 }
+
+/* Arsenal public REG.RU form -> Alexander's private Telegram chat.
+ * Different endpoint and recipient from DashByte's signed Mini App leads.
+ * Requires Cloudflare Worker secrets: ARSENAL_CHAT_ID, ARSENAL_TURNSTILE_SECRET.
+ * Public sitekey belongs in assets/arsenal-leads-config.js, never a bot token.
+ */
+const ARSENAL_ORIGIN = 'https://navesy59.ru';
+const ARSENAL_SERVICES = new Set([
+  'Навес для автомобиля','Арочный навес','Односкатный навес','Навес с хозблоком',
+  'Козырёк над крыльцом','Гараж из сэндвич-панелей','Холодный гараж',
+  'Каркас гаража','Металлическая терраса','Входная группа',
+  'Ограждения и заборы','Металлические перила','Лестница для дома',
+  'Пожарная лестница','Сварка металлоконструкций','Другое'
+]);
+function arsenalHeaders(origin) {
+  return {
+    'Content-Type':'application/json; charset=utf-8',
+    'Cache-Control':'no-store',
+    'Vary':'Origin',
+    ...(origin===ARSENAL_ORIGIN?{
+      'Access-Control-Allow-Origin':ARSENAL_ORIGIN,
+      'Access-Control-Allow-Methods':'POST, OPTIONS',
+      'Access-Control-Allow-Headers':'Content-Type',
+      'Access-Control-Max-Age':'600'
+    }:{})
+  };
+}
+function arsenalJson(origin,code,data) {
+  return new Response(JSON.stringify(data),{status:code,headers:arsenalHeaders(origin)});
+}
+async function verifyArsenalTurnstile(request,env,token) {
+  if(typeof token!=='string'||token.length<1||token.length>2048)return false;
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),10000);
+  try {
+    const response=await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify',{
+      method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body:new URLSearchParams({
+        secret:env.ARSENAL_TURNSTILE_SECRET,
+        response:token,
+        remoteip:request.headers.get('CF-Connecting-IP')||''
+      }),
+      signal:controller.signal
+    });
+    if(!response.ok)return false;
+    const data=await response.json();
+    return data?.success===true && data.hostname==='navesy59.ru' &&
+      data.action==='arsenal_contact';
+  }catch(_) {return false}
+  finally {clearTimeout(timeout)}
+}
+async function handleArsenalLead(request,env) {
+  const origin=request.headers.get('Origin')||'';
+  if(request.method==='OPTIONS'){
+    if(origin!==ARSENAL_ORIGIN)return arsenalJson(origin,403,{ok:false});
+    return new Response(null,{status:204,headers:arsenalHeaders(origin)});
+  }
+  if(request.method!=='POST')return arsenalJson(origin,405,{ok:false});
+  if(origin!==ARSENAL_ORIGIN)return arsenalJson(origin,403,{ok:false,error:'origin'});
+  if(!/^application\/json(?:\s*;|$)/i.test(request.headers.get('content-type')||''))
+    return arsenalJson(origin,415,{ok:false,error:'content_type'});
+  if(Number(request.headers.get('content-length')||0)>6500)
+    return arsenalJson(origin,413,{ok:false,error:'payload_too_large'});
+
+  // Fail closed if not configured: no accidental public bot relay.
+  const chatId=String(env.ARSENAL_CHAT_ID||'').trim();
+  if(!env.TELEGRAM_BOT_TOKEN||!env.ARSENAL_TURNSTILE_SECRET||
+     !/^\d{5,20}$/.test(chatId))
+    return arsenalJson(origin,503,{ok:false,error:'not_configured'});
+
+  let data;
+  try {
+    const raw=await request.text();
+    if(raw.length>6500)return arsenalJson(origin,413,{ok:false});
+    data=JSON.parse(raw);
+  }catch(_) {return arsenalJson(origin,400,{ok:false,error:'invalid_json'})}
+  if(!data||typeof data!=='object'||Array.isArray(data))
+    return arsenalJson(origin,400,{ok:false,error:'invalid_json'});
+
+  // Honeypot; return the same result to avoid signaling detection.
+  if(clean(data.website,160))return arsenalJson(origin,200,{ok:true});
+  const name=clean(data.name,80),phone=clean(data.phone,30),
+        service=clean(data.service,80),details=clean(data.details,1000);
+  const digits=phone.replace(/\D/g,'');
+  if(data.privacy!==true||name.length<2||digits.length<10||digits.length>15||
+     !ARSENAL_SERVICES.has(service))
+    return arsenalJson(origin,400,{ok:false,error:'validation'});
+  const started=Number(data.started);
+  const elapsed=Date.now()-started;
+  if(!Number.isFinite(started)||elapsed<2000||elapsed>60*60*1000)
+    return arsenalJson(origin,400,{ok:false,error:'form_time'});
+
+  if(env.ARSENAL_RATE_LIMITER){
+    const ip=request.headers.get('CF-Connecting-IP')||'';
+    const limit=await env.ARSENAL_RATE_LIMITER.limit({key:'arsenal:'+ip});
+    if(!limit.success)return arsenalJson(origin,429,{ok:false,error:'rate_limited'});
+  }
+  if(!await verifyArsenalTurnstile(request,env,data.turnstile))
+    return arsenalJson(origin,403,{ok:false,error:'turnstile'});
+
+  const text=[
+    '🔔 НОВАЯ ЗАЯВКА · АРСЕНАЛ',
+    '',
+    '👤 Имя: '+name,
+    '📞 Телефон: '+phone,
+    '🏗 Услуга: '+service,
+    '📝 Пожелания: '+(details||'Не указаны'),
+    '',
+    '🌐 Источник: navesy59.ru',
+    '☑️ Согласие на обработку персональных данных: отмечено'
+  ].join('\n');
+  try {
+    await telegram(env,'sendMessage',{chat_id:chatId,text,disable_web_page_preview:true});
+    return arsenalJson(origin,200,{ok:true});
+  }catch(err) {
+    // Never log names, phone numbers, bot token or recipient chat ID.
+    console.error('Arsenal lead delivery failed:',String(err).replaceAll(env.TELEGRAM_BOT_TOKEN,'[REDACTED]').replaceAll(chatId,'[REDACTED]'));
+    return arsenalJson(origin,502,{ok:false,error:'delivery_failed'});
+  }
+}
+
 export default {
   async fetch(request,env) {
     const url=new URL(request.url);
@@ -204,6 +326,7 @@ export default {
       return new Response('DashByte Telegram bot: OK',{status:200});
     }
     if(url.pathname==='/api/lead')return handleLead(request,env);
+    if(url.pathname==='/api/arsenal-lead')return handleArsenalLead(request,env);
     if (url.pathname!=='/webhook' || request.method!=='POST') {
       return new Response('Not found',{status:404});
     }
