@@ -16,10 +16,23 @@
 
 1. **Александр:** откройте [@DashByteStudioBot](https://t.me/DashByteStudioBot)
    и отправьте `/start`. Бот не может первым начать личный диалог.
-2. **Cloudflare:** откройте Worker `dashbyte-studio-bot` и
-   задеплойте обновлённый `bot/worker.js` через Wrangler или Dashboard,
-   сохранив текущие `TELEGRAM_BOT_TOKEN` и `TELEGRAM_WEBHOOK_SECRET`.
-   GitHub-коммит не публикует Worker автоматически.
+2. **Cloudflare → Worker → Settings → Builds:** подключите GitHub к
+   *существующему* Worker `dashbyte-studio-bot` (не создавайте новый).
+   В окне настройки сборки выберите:
+   - GitHub account: `maxteilor55-sudo`
+   - Repository: `dashbyte-studio`
+   - Branch: `main`
+   - Root directory: `bot`
+   - Build command: `npm run check` (проверка кода и тесты)
+   - Deploy command: `npx wrangler deploy`
+   - Preview command: по умолчанию `npx wrangler preview`
+   В папке `bot` уже есть `wrangler.toml` с именем Worker и
+   `package.json` с Wrangler. После сохранения Git integration
+   новые коммиты смогут запускать автоматические публикации.
+   **Внимание:** подключение GitHub в ChatGPT не даёт доступа менять
+   настройки Cloudflare. Подтвердить Git installation и Build settings
+   нужно в панели самого Cloudflare. Секреты Runtime Variables не переносить
+   в Build Variables и не хранить в GitHub.
 3. **Cloudflare → Worker → Settings → Variables and Secrets:**
    - `ARSENAL_CHAT_ID`: персональный числовой chat ID Александра,
      полученный у него напрямую. Хранить как Secret.
