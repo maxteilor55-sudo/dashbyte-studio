@@ -23,6 +23,41 @@ jobs:
         run: python3 -m pip install --quiet --break-system-packages pillow cairosvg
       - name: Prepare static site files for ispmanager
         run: python3 scripts/package-arsenal.py
+      - name: Validate legal data, SEO and archive integrity
+        run: |
+          python3 - <<'PY'
+          from zipfile import ZipFile
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+          p = Path('arsenal-upload.zip')
+          assert p.stat().st_size > 3_000_000
+          with ZipFile(p) as z:
+              assert z.testzip() is None, 'Corrupted ZIP member'
+              files=set(z.namelist())
+              services={'navesy.html','garazhi.html','lestnicy.html','ograzhdeniya.html',
+                        'terrasy.html','vhodnye-gruppy.html','svarka.html'}
+              required={'index.html','arsenal-privacy.html','robots.txt','sitemap.xml',
+                        '.htaccess','favicon.ico','apple-touch-icon.png'} | services
+              assert required <= files, sorted(required-files)
+              home=z.read('index.html').decode('utf-8')
+              policy=z.read('arsenal-privacy.html').decode('utf-8')
+              robots=z.read('robots.txt').decode('utf-8')
+              smap=z.read('sitemap.xml').decode('utf-8')
+              assert '<title>Навесы, гаражи' in home
+              assert home.count('application/ld+json') >= 1
+              assert 'ООО «ТД АРСЕНАЛ»' in policy and '2863637@gmail.com' in policy
+              assert 'Перед утверждением окончательной редакции' not in policy
+              assert 'https://navesy59.ru/sitemap.xml' in robots
+              ET.fromstring(smap)
+              for f in services:
+                  assert './'+f in home, f
+                  page=z.read(f).decode('utf-8')
+                  assert '<h1>' in page and '<link rel="canonical"' in page
+                  assert 'application/ld+json' in page
+                  assert 'https://navesy59.ru/'+f in smap
+              assert 'пароль' not in policy.lower()
+              print('ARSENAL_RELEASE_VALIDATED', len(files), p.stat().st_size)
+          PY
       - name: Commit downloadable ZIP
         run: |
           git add arsenal-upload.zip
