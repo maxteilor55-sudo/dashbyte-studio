@@ -1,0 +1,7 @@
+/* Scoped form privacy and Turnstile elements; preserve Arsenal's approved layout. */
+.ars-leads-consent{display:flex;align-items:flex-start;gap:11px;margin:15px 0 12px;font-size:12px;line-height:1.55;color:#d9c8b8;cursor:pointer}
+.ars-leads-consent input{flex:0 0 auto;width:17px;height:17px;margin:1px 0 0;accent-color:#d9b187}
+.ars-leads-consent a{color:#e9c097;text-decoration:underline;text-underline-offset:3px}
+.ars-leads-turnstile{margin:12px 0;max-width:100%;overflow:hidden}
+.ars-leads-trap{position:absolute!important;left:-10000px!important;top:auto!important;height:1px!important;width:1px!important;overflow:hidden!important;pointer-events:none!important}
+#contact-form .form-submit:disabled{opacity:.66;cursor:wait}
