@@ -1,5 +1,13 @@
 name: Build Arsenal REG.RU deployment ZIP (manual recovery)
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/package-arsenal.yml'
+      - 'scripts/arsenal-seo.py'
+      - 'scripts/package-arsenal.py'
+      - 'arsenal-privacy.html'
   workflow_dispatch:
 permissions:
   contents: write
