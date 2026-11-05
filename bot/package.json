@@ -1,0 +1,17 @@
+{
+  "name": "dashbyte-studio-bot-worker",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test test.mjs",
+    "deploy": "wrangler deploy",
+    "check": "node --check worker.js && node --test test.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "^4.68.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
