@@ -22,6 +22,15 @@ seo = importlib.util.module_from_spec(seo_spec)
 seo_spec.loader.exec_module(seo)
 html = seo.patch_homepage(html)
 service_pages = seo.service_files()
+# This keeps the manual form unchanged until the Cloudflare endpoint and public
+# Turnstile sitekey are configured in assets/arsenal-leads-config.js on REG.RU.
+html = html.replace("</head>", (
+    '<link rel="stylesheet" href="./assets/arsenal-leads.css?v=20261105a">\n'
+    '<script defer src="./assets/arsenal-leads-config.js?v=20261105a"></script>\n'
+    '<script defer src="./assets/arsenal-leads.js?v=20261105a"></script>\n'
+    '</head>'
+), 1)
+
 
 assert "<html" in html.lower() and "</html>" in html.lower()
 assert len(html) > 1_000_000, "Refusing to package truncated client site"
@@ -130,8 +139,11 @@ instructions = """
    Проверьте HTTPS, www-редирект, главную и страницы услуг.
 6. Сразу проверьте favicon.ico, arsenal-privacy.html и ссылку в футере на DashByte-бота.
 7. Не оставляйте публично доступные ZIP, backup HTML и служебные txt.
-8. Исходная форма демонстрационная. Для реальной доставки заявок нужен
-   отдельный обработчик. Метрика и Директ в этом пакете не подключены.
+8. Пакет содержит интеграцию заявок с DashByte Telegram-ботом.
+   До настройки Cloudflare она остаётся в безопасном ручном режиме.
+   После публикации укажите публичные URL Worker и Turnstile sitekey
+   в assets/arsenal-leads-config.js. Токены и Telegram ID НЕ кладите в сайт.
+   Метрика и Директ этим пакетом не подключаются.
 9. Согласуйте с владельцем юрадрес, указанный по реестровым справочникам.
 10. Добавьте sitemap.xml в Яндекс Вебмастер и отправьте страницы на переобход.
 11. ZIP заменяет index.html и статику: сначала обязательно сделайте бэкап.
