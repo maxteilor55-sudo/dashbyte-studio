@@ -12,3 +12,10 @@ compatibility_date = "2026-10-01"
 # Both this and TELEGRAM_BOT_TOKEN must be configured in deployed Worker,
 # not in this public TOML / GitHub Pages JavaScript.
 # Optional Cloudflare Rate Limiting binding: LEAD_RATE_LIMITER.
+
+# REG.RU Arsenal site form (separate from studio leads):
+# ARSENAL_CHAT_ID — private numeric Telegram recipient ID. Worker Secret only.
+# ARSENAL_TURNSTILE_SECRET — Turnstile private key, Worker Secret only.
+# Public Turnstile sitekey and public /api/arsenal-lead Worker URL belong
+# in assets/arsenal-leads-config.js on REG.RU after deploying this Worker.
+# See ARSENAL_TELEGRAM_SETUP.md. Do not store client IDs or tokens here.
