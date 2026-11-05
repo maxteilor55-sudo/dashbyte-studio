@@ -324,7 +324,7 @@ DirectoryIndex index.html
 Options -Indexes
 <IfModule mod_rewrite.c>
 RewriteEngine On
-RewriteCond %{HTTP_HOST} ^www\.navesy59\.ru$ [NC,OR]
+RewriteCond %{HTTP_HOST} ^www\\.navesy59\\.ru$ [NC,OR]
 RewriteCond %{HTTPS} !=on
 RewriteRule ^ https://navesy59.ru%{REQUEST_URI} [R=301,L,NE]
 </IfModule>
