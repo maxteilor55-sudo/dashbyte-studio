@@ -5,6 +5,7 @@ on:
       - main
     paths:
       - 'bot/worker.js'
+      - 'bot/package.json'
       - 'bot/test.mjs'
       - '.github/workflows/verify-arsenal-leads.yml'
   workflow_dispatch:
