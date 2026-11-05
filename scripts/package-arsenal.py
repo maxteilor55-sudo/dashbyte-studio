@@ -6,6 +6,7 @@ import re
 import io
 import base64
 import hashlib
+import importlib.util
 
 import cairosvg
 from PIL import Image
@@ -15,6 +16,13 @@ source = root / "arsenal.html"
 assert source.is_file(), "arsenal.html not found"
 from upgrade_arsenal import patch
 html = patch(source.read_text(encoding="utf-8"))
+# SEO is assembled only in the deployable REG.RU site, not the client demo.
+seo_spec = importlib.util.spec_from_file_location("arsenal_seo", root / "scripts/arsenal-seo.py")
+seo = importlib.util.module_from_spec(seo_spec)
+seo_spec.loader.exec_module(seo)
+html = seo.patch_homepage(html)
+service_pages = seo.service_files()
+
 assert "<html" in html.lower() and "</html>" in html.lower()
 assert len(html) > 1_000_000, "Refusing to package truncated client site"
 
@@ -111,14 +119,22 @@ archive = root / "arsenal-upload.zip"
 instructions = """
 АРСЕНАЛ — файл для размещения на хостинге REG.RU
 1. ispmanager → Менеджер файлов → www → navesy59.ru
-2. Сохраните резервную копию существующего index.html, затем удалите шаблонный файл.
+2. Сохраните резервную копию действующего сайта (включая формы, скрипты и .htaccess).
+   Проверьте, что текущая форма заявок работает: исходная версия из репозитория
+   демонстрационная и не отправляет заявки автоматически.
 3. Загрузите сюда arsenal-upload.zip и распакуйте архив в ТЕКУЩЕЙ папке.
    ПОДТВЕРДИТЕ замену старого index.html, если уже установлен сайт.
-4. Убедитесь, что index.html и папка assets лежат непосредственно в www/navesy59.ru.
-5. Проверьте сайт на тестовом адресе, прежде чем менять DNS у Webnames.
+4. Убедитесь, что index.html, assets, .htaccess, robots.txt и sitemap.xml
+   лежат непосредственно в www/navesy59.ru. Страницы услуг *.html — там же.
+5. DNS менять не нужно, если navesy59.ru уже работает на REG.RU.
+   Проверьте HTTPS, www-редирект, главную и страницы услуг.
 6. Сразу проверьте favicon.ico, arsenal-privacy.html и ссылку в футере на DashByte-бота.
 7. Не оставляйте публично доступные ZIP, backup HTML и служебные txt.
-8. Форма пока демонстрационная — для реальной доставки заявок нужен отдельный обработчик.
+8. Исходная форма демонстрационная. Для реальной доставки заявок нужен
+   отдельный обработчик. Метрика и Директ в этом пакете не подключены.
+9. Согласуйте с владельцем юрадрес, указанный по реестровым справочникам.
+10. Добавьте sitemap.xml в Яндекс Вебмастер и отправьте страницы на переобход.
+11. ZIP заменяет index.html и статику: сначала обязательно сделайте бэкап.
 ИСТОЧНИК: опубликованный arsenal.html из репозитория DashByte.
 """.lstrip()
 def add_public_file(z, name, data):
@@ -133,19 +149,20 @@ with ZipFile(archive, "w", compression=ZIP_DEFLATED, compresslevel=6) as z:
     add_public_file(z, "favicon.ico", ico_bytes.getvalue())
     add_public_file(z, "apple-touch-icon.png", apple_bytes.getvalue())
     z.write(root / 'arsenal-privacy.html', 'arsenal-privacy.html')
-    add_public_file(z, 'robots.txt', 'User-agent: *\nAllow: /\nSitemap: https://navesy59.ru/sitemap.xml\n')
-    add_public_file(z, 'sitemap.xml', '<?xml version="1.0" encoding="UTF-8"?>\n'
-      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-      '<url><loc>https://navesy59.ru/</loc></url>'
-      '<url><loc>https://navesy59.ru/arsenal-privacy.html</loc></url>'
-      '</urlset>\n')
+    add_public_file(z, 'robots.txt', seo.robots())
+    add_public_file(z, 'sitemap.xml', seo.sitemap())
+    add_public_file(z, '.htaccess', seo.htaccess())
+    for filename, page_html in service_pages.items():
+        add_public_file(z, filename, page_html)
     for filename,content in sorted(inline_assets.items()):
         add_public_file(z, filename, content)
     for p in sorted(chosen):
         z.write(p, p.relative_to(root).as_posix())
 
 print("ARCHIVE",archive.name,"BYTES",archive.stat().st_size)
-print("FILES",len(chosen)+6+len(inline_assets))
+print("FILES",len(chosen)+7+len(inline_assets)+len(service_pages))
+print("SEO_SERVICE_PAGES",len(service_pages))
+assert len(service_pages) >= 6
 for p in sorted(chosen):
     print("INCLUDED",p.relative_to(root).as_posix(),p.stat().st_size)
 missing=[]
