@@ -7,6 +7,9 @@ on:
       - '.github/workflows/package-arsenal.yml'
       - 'scripts/arsenal-seo.py'
       - 'scripts/package-arsenal.py'
+      - 'scripts/upgrade_arsenal.py'
+      - 'assets/arsenal-compliance.js'
+      - 'assets/arsenal-compliance.css'
       - 'arsenal-privacy.html'
       - 'assets/arsenal-leads-config.js'
       - 'assets/arsenal-leads.js'
@@ -66,12 +69,20 @@ jobs:
               assert 'Отправить заявку' in home
               assert 'Заявка передана в Telegram!' in home
               assert 'window.ARSENAL_TURNSTILE_SITEKEY' in home
+              consent=z.read('assets/arsenal-compliance.js').decode('utf-8')
+              assert 'arsenal-compliance.js?v=20261106m' in home
+              assert '109304299' in consent and 'arsenal-cookie-choice-v2' in consent
+              assert "'arsenal_lead_delivered'" in consent
+              assert "if(choice==='accepted')enableAnalytics()" in consent
+              assert 'window.arsenalReportLeadSuccess?.();' in home
+              assert 'Яндекс.Метрика' in policy and '109304299' in policy
               import re, subprocess
               inline=re.search(r'<script id="arsenal-leads-inline-app">([\s\S]*?)</script>',home)
               assert inline, 'Inline production form script not found'
               pathlib=Path('/tmp/arsenal-reg-ru-inline.js')
               pathlib.write_text(inline.group(1),encoding='utf-8')
               subprocess.run(['node','--check',str(pathlib)],check=True)
+              subprocess.run(['node','--check','assets/arsenal-compliance.js'],check=True)
               assert 'ARSENAL_CHAT_ID' not in config and 'TELEGRAM_BOT_TOKEN' not in config
               ET.fromstring(smap)
               for f in services:
@@ -79,6 +90,7 @@ jobs:
                   page=z.read(f).decode('utf-8')
                   assert '<h1>' in page and '<link rel="canonical"' in page
                   assert 'application/ld+json' in page
+                  assert 'arsenal-compliance.js?v=20261106m' in page
                   assert 'https://navesy59.ru/'+f in smap
               assert 'пароль' not in policy.lower()
               print('ARSENAL_RELEASE_VALIDATED', len(files), p.stat().st_size)
