@@ -1,7 +1,22 @@
-/* Scoped form privacy and Turnstile elements; preserve Arsenal's approved layout. */
-.ars-leads-consent{display:flex;align-items:flex-start;gap:11px;margin:15px 0 12px;font-size:12px;line-height:1.55;color:#d9c8b8;cursor:pointer}
-.ars-leads-consent input{flex:0 0 auto;width:17px;height:17px;margin:1px 0 0;accent-color:#d9b187}
+/* Arsenal form integration: bronze/graphite UX matching the approved site. */
+.ars-leads-consent{display:flex;align-items:flex-start;gap:11px;margin:18px 0 12px;font-size:12px;line-height:1.55;color:#d9c8b8;cursor:pointer}
+.ars-leads-consent input{flex:0 0 auto;width:18px;height:18px;margin:2px 0 0;accent-color:#d9b187}
 .ars-leads-consent a{color:#e9c097;text-decoration:underline;text-underline-offset:3px}
-.ars-leads-turnstile{margin:12px 0;max-width:100%;overflow:hidden}
+.ars-leads-turnstile{margin:14px 0 5px;max-width:100%;min-height:65px;overflow:hidden}
+.ars-leads-hint{color:#cab8a5;font-size:12px;line-height:1.5;margin:5px 0 13px}
 .ars-leads-trap{position:absolute!important;left:-10000px!important;top:auto!important;height:1px!important;width:1px!important;overflow:hidden!important;pointer-events:none!important}
-#contact-form .form-submit:disabled{opacity:.66;cursor:wait}
+#contact-form .form-submit:disabled{opacity:.68;cursor:progress}
+#contact-form .ars-leads-result{display:flex;align-items:flex-start;gap:14px;text-align:left;padding:18px 16px!important;min-height:90px;border-radius:17px;border:1px solid rgba(220,173,124,.33);background:linear-gradient(130deg,rgba(103,79,59,.32),rgba(25,21,19,.72));box-shadow:0 14px 45px #0002;animation:ars-leads-appear .36s cubic-bezier(.2,.8,.2,1) both}
+#contact-form .ars-leads-result .ars-leads-emblem{width:38px;height:38px;min-width:38px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(218,176,126,.6);border-radius:12px;background:rgba(224,186,140,.12);color:#ebc293;font-size:21px;font-weight:850}
+#contact-form .ars-leads-result .ars-leads-result-copy{min-width:0;flex:1}
+#contact-form .ars-leads-result strong{display:block;font-size:15px;line-height:1.45;letter-spacing:-.015em;color:#f9ebd9}
+#contact-form .ars-leads-result p{margin:5px 0 0;font-size:12px;line-height:1.65;color:#d6c1ae}
+#contact-form .ars-leads-success{border-color:#89bd9c77;background:linear-gradient(130deg,#2e563736,#171f1bda)}
+#contact-form .ars-leads-success .ars-leads-emblem{color:#b3e0b9;border-color:#87c49b70;background:#87c49b1a;animation:ars-leads-check .5s cubic-bezier(.2,.8,.2,1) both}
+#contact-form .ars-leads-sending .ars-leads-emblem{animation:ars-leads-spin 1s linear infinite}
+#contact-form .ars-leads-error{border-color:#dd926b80;background:linear-gradient(130deg,#4e302a66,#241b18f5)}
+#contact-form .ars-leads-error .ars-leads-emblem{color:#f8b499;border-color:#d58a6f75;background:#a550381c}
+@keyframes ars-leads-appear{from{opacity:0;transform:translateY(9px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes ars-leads-check{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
+@keyframes ars-leads-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){#contact-form .ars-leads-result,#contact-form .ars-leads-result .ars-leads-emblem{animation:none!important}}
