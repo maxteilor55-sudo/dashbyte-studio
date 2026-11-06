@@ -83,11 +83,12 @@ assert 'ars-contact-actions' in html and 'href="tel:+79082400998"' in html
 assert 'https://max.ru/join/' in html and 'id="contact-form"' in html
 
 
-# RELEASE 2026-11-07: verified photo captions sourced from the client's
-# portfolio messages. Only photo/project matches that can be visually checked
-# receive locations and dates; unverified images are left unlabelled.
+# RELEASE 2026-11-07 r2: captions for every gallery image. Verified locations/
+# dates come from matched MAX photos. Images without confirmed locations use
+# factual photographic descriptions instead of invented addresses/years.
 from html import escape as escape_gallery_text
 gallery_locations = {
+    4: ("Пермский край, д. Ежи", "Ноябрь 2025 г.", "2025-11"),
     5: ("Пермский край, д. Гари", "Декабрь 2025 г.", "2025-12"),
     6: ("Пермь, м/р Железнодорожный", "Август 2025 г.", "2025-08"),
     7: ("Пермь, м/р Железнодорожный", "Август 2025 г.", "2025-08"),
@@ -102,24 +103,52 @@ gallery_locations = {
     30: ("Пермский край, д. Гари", "Декабрь 2025 г.", "2025-12"),
     33: ("Пермь, м/р Ива", "Май 2025 г.", "2025-05"),
 }
+gallery_details = {
+    1: "Металлический гараж · секционные ворота и входная дверь",
+    2: "Гараж · внешний вид со стороны въезда",
+    3: "Гараж · боковой фасад и входной проём",
+    9: "Несущий металлокаркас на бетонном основании",
+    10: "Арочный автомобильный навес с готовой кровлей",
+    11: "Арочные металлические фермы и кровельное покрытие",
+    14: "Навес с металлическими опорами у въезда",
+    15: "Прямой навес на стальных стойках",
+    16: "Отделка карниза и конструкция навеса",
+    17: "Навес на фермах над хозяйственной постройкой",
+    18: "Монтаж несущих стоек и продольных балок",
+    19: "Металлические балки навеса · вид изнутри",
+    20: "Соединения балок и стоек каркаса",
+    21: "Холодный гараж с открытым навесом",
+    22: "Боковая металлическая облицовка гаража",
+    25: "Арочный навес с поликарбонатной кровлей",
+    26: "Навес с прямой кровлей и стальными опорами",
+    31: "Залитое бетонное основание под металлоконструкцию",
+    32: "Армирование основания перед заливкой",
+}
 gallery_count = 0
 def enrich_gallery_photo(match):
     global gallery_count
     gallery_count += 1
     card = match.group(0)
-    if gallery_count not in gallery_locations:
-        return card
-    location, date, machine_date = gallery_locations[gallery_count]
     closure = "</h3></div></article>"
     assert card.count(closure) == 1, "Unexpected gallery markup at card %d" % gallery_count
-    stamp = ('<div class="ars-gallery-geo">'
-             '<span class="ars-gallery-place">' + escape_gallery_text(location) + '</span>'
-             '<time datetime="' + machine_date + '">' + escape_gallery_text(date) + '</time>'
-             '</div>')
+    if gallery_count in gallery_locations:
+        location, date, machine_date = gallery_locations[gallery_count]
+        stamp = ('<div class="ars-gallery-geo">'
+                 '<span class="ars-gallery-place">' + escape_gallery_text(location) + '</span>'
+                 '<time datetime="' + machine_date + '">' + escape_gallery_text(date) + '</time>'
+                 '</div>')
+    else:
+        assert gallery_count in gallery_details, "Missing photo caption #%d" % gallery_count
+        stamp = ('<div class="ars-gallery-geo">'
+                 '<span class="ars-gallery-detail">' + escape_gallery_text(gallery_details[gallery_count]) + '</span>'
+                 '</div>')
     return card.replace(closure, "</h3>" + stamp + "</div></article>", 1)
 html = re.sub(r'<article class="project"[\s\S]*?</article>', enrich_gallery_photo, html)
 assert gallery_count == 33, "Refusing to change gallery with unexpected ordering"
-assert html.count('class="ars-gallery-geo"') == len(gallery_locations)
+assert len(gallery_locations) == 14 and len(gallery_details) == 19
+assert set(gallery_locations).isdisjoint(gallery_details)
+assert sorted(list(gallery_locations) + list(gallery_details)) == list(range(1, 34))
+assert html.count('class="ars-gallery-geo"') == gallery_count
 # Two photographic cards per row, including on mobile. Existing lightbox,
 # filters, assets and all contact-form event handlers remain untouched.
 gallery_style = """<style id="arsenal-gallery-20261107">
@@ -130,6 +159,7 @@ gallery_style = """<style id="arsenal-gallery-20261107">
 #gallery-grid .project-meta>span{font-size:10px;letter-spacing:.075em}
 #gallery-grid .project-meta h3{font-size:clamp(13px,1.35vw,18px);line-height:1.35;letter-spacing:-.012em;margin-top:5px;overflow-wrap:anywhere}
 #gallery-grid .ars-gallery-geo{display:grid;gap:5px;margin-top:11px;padding-top:11px;border-top:1px solid rgba(231,206,173,.16);font-size:12px;line-height:1.45;color:#e3d4c3}
+#gallery-grid .ars-gallery-detail{font-size:11px;line-height:1.45;color:#e3d4c3}
 #gallery-grid .ars-gallery-place::before{content:"⌖";margin-right:6px;color:#d9ab7a}
 #gallery-grid .ars-gallery-geo time{color:#c49c74;font-weight:650;font-size:11px}
 @media(max-width:600px){
@@ -141,6 +171,7 @@ gallery_style = """<style id="arsenal-gallery-20261107">
  #gallery-grid .project-meta h3{font-size:12px;line-height:1.3}
  #gallery-grid .ars-gallery-geo{font-size:10px;gap:4px;margin-top:9px;padding-top:9px}
  #gallery-grid .ars-gallery-geo time{font-size:10px}
+ #gallery-grid .ars-gallery-detail{font-size:10px;line-height:1.42}
 }
 </style>"""
 assert html.count("</head>") == 1
@@ -171,6 +202,35 @@ service_style = """<style id="arsenal-services-grid-2up-20261107">
 </style>"""
 assert html.count("</head>")==1
 html = html.replace("</head>", service_style + "\n</head>", 1)
+
+# Force the actual shipping DOM grid to two columns as well, independently of
+# browser cache or earlier mobile CSS in the original long-lived stylesheet.
+# Both declarations carry !important and every card (including 'wide') has an
+# explicit grid-column override. The service links and content are unchanged.
+grid_original = '<div class="service-grid">'
+grid_published = (
+    '<div class="service-grid" data-arsenal-grid="2up-r2" '
+    'style="display:grid!important;'
+    'grid-template-columns:repeat(2,minmax(0,1fr))!important;'
+    'gap:10px!important;align-items:stretch!important">'
+)
+assert html.count(grid_original) == 1, "Service grid count changed"
+html = html.replace(grid_original, grid_published, 1)
+assert html.count('class="service-card') == 11
+html = re.sub(
+    r'<a class="service-card([^"]*)"',
+    lambda m: '<a class="service-card' + m.group(1) +
+        '" style="grid-column:auto!important;min-width:0!important"',
+    html
+)
+assert html.count('style="grid-column:auto!important;min-width:0!important"') == 11
+assert html.count("</head>") == 1
+html = html.replace(
+    "</head>",
+    '<meta name="arsenal-release" content="services-2up-captions-20261107-r2">\n</head>',
+    1
+)
+
 
 # The carousel currently has sample *unverified* location/year values.
 # Hide them until the owner provides real captions, without changing pictures,

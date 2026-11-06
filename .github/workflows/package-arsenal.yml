@@ -88,9 +88,15 @@ jobs:
               assert 'ars-showcase__demo' not in home
               assert 'id="arsenal-gallery-20261107"' in home
               assert 'id="arsenal-services-grid-2up-20261107"' in home
+              assert 'data-arsenal-grid="2up-r2"' in home
+              assert 'grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important' in home
+              assert home.count('style="grid-column:auto!important;min-width:0!important"') == 11
+              assert 'name="arsenal-release" content="services-2up-captions-20261107-r2"' in home
+              assert 'Пермский край, д. Ежи' in home
+              assert 'Несущий металлокаркас на бетонном основании' in home
               assert '#services .service-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important' in home
               assert '#services .service-grid>.service-card.wide{min-height:255px!important' in home
-              assert home.count('class="ars-gallery-geo"') == 13
+              assert home.count('class="ars-gallery-geo"') == 33
               assert 'grid-template-columns:repeat(2,minmax(0,1fr))' in home
               assert 'Места и годы указаны для примера' not in home
               assert 'Ссылка MAX открывает группу' not in home
