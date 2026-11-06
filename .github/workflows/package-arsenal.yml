@@ -70,10 +70,15 @@ jobs:
               assert 'Заявка передана в Telegram!' in home
               assert 'window.ARSENAL_TURNSTILE_SITEKEY' in home
               consent=z.read('assets/arsenal-compliance.js').decode('utf-8')
-              assert 'arsenal-compliance.js?v=20261106m' in home
-              assert '109304299' in consent and 'arsenal-cookie-choice-v2' in consent
+              assert 'arsenal-compliance.js?v=20261107w' in home
+              assert '109304299' in consent and 'arsenal-cookie-choice-v3' in consent
               assert "'arsenal_lead_delivered'" in consent
               assert "if(choice==='accepted')enableAnalytics()" in consent
+              assert 'webvisor:true' in consent
+              assert 'ym-disable-keys' in consent
+              assert 'Разрешить аналитику и Вебвизор' in consent
+              assert 'Вебвизор (записи взаимодействий' in policy
+              assert 'arsenal-cookie-choice-v3' in policy
               assert 'window.arsenalReportLeadSuccess?.();' in home
               assert 'Яндекс.Метрика' in policy and '109304299' in policy
               import re, subprocess
@@ -90,7 +95,7 @@ jobs:
                   page=z.read(f).decode('utf-8')
                   assert '<h1>' in page and '<link rel="canonical"' in page
                   assert 'application/ld+json' in page
-                  assert 'arsenal-compliance.js?v=20261106m' in page
+                  assert 'arsenal-compliance.js?v=20261107w' in page
                   assert 'https://navesy59.ru/'+f in smap
               assert 'пароль' not in policy.lower()
               print('ARSENAL_RELEASE_VALIDATED', len(files), p.stat().st_size)
