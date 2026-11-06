@@ -57,7 +57,21 @@ jobs:
               config=z.read('assets/arsenal-leads-config.js').decode('utf-8')
               assert 'https://dashbyte-studio-bot.maxteilor55.workers.dev/api/arsenal-lead' in config
               assert '0x4AAAAAAF1BuI0o7tkWo3mA' in config
-              assert 'arsenal-leads.js' in home and 'arsenal-leads-config.js' in home
+              # REG.RU now embeds the complete app, not an external script.
+              assert 'id="arsenal-leads-inline-app"' in home
+              assert 'id="arsenal-leads-inline-styles"' in home
+              assert 'applicationText=' not in home
+              assert 'Сформировать заявку' not in home
+              assert 'Демонстрационный режим' not in home
+              assert 'Отправить заявку' in home
+              assert 'Заявка передана в Telegram!' in home
+              assert 'window.ARSENAL_TURNSTILE_SITEKEY' in home
+              import re, subprocess
+              inline=re.search(r'<script id="arsenal-leads-inline-app">([\\s\\S]*?)</script>',home)
+              assert inline, 'Inline production form script not found'
+              pathlib=Path('/tmp/arsenal-reg-ru-inline.js')
+              pathlib.write_text(inline.group(1),encoding='utf-8')
+              subprocess.run(['node','--check',str(pathlib)],check=True)
               assert 'ARSENAL_CHAT_ID' not in config and 'TELEGRAM_BOT_TOKEN' not in config
               ET.fromstring(smap)
               for f in services:
