@@ -57,6 +57,48 @@ html=html.replace("</body>",'<script id="arsenal-leads-inline-app">\n'+form_conf
 assert "Демонстрационный режим" not in html
 assert 'id="arsenal-leads-inline-app"' in html
 
+# Remove only provisional marketing copy from the published REG.RU build.
+# Keep all navigation, gallery images, MAX/telephone links and the live lead form.
+provisional_copy = {
+    '<div class="ars-showcase__demo"><strong>ДЕМО</strong><span>Места и годы указаны для примера. Точные данные уточняются.</span></div>': '',
+    '<p class="ars-contact-footnote">Ссылка MAX открывает группу. Для прямой переписки добавим личные ссылки Telegram и MAX после подтверждения контактов.</p>': '',
+    '<span class="ars-showcase__image-label" id="ars-showcase-kind">ПРОЕКТЫ / ДЕМО</span>':
+        '<span class="ars-showcase__image-label" id="ars-showcase-kind">МЕТАЛЛОКОНСТРУКЦИИ</span>',
+    '<div class="ars-showcase__meta"><span id="ars-showcase-place">Пермь · пример места</span><span id="ars-showcase-year">2026</span></div>':
+        '<div class="ars-showcase__meta" style="display:none"><span id="ars-showcase-place"></span><span id="ars-showcase-year"></span></div>',
+    'Можно подготовить текст заявки и связаться с нами по телефону ':
+        'Оставьте заявку — мы свяжемся с вами. Или позвоните по телефону '
+}
+for old, new in provisional_copy.items():
+    assert html.count(old) == 1, "Unexpected published Arsenal text: " + old[:80]
+    html = html.replace(old, new, 1)
+assert 'ars-contact-actions' in html and 'href="tel:+79082400998"' in html
+assert 'https://max.ru/join/' in html and 'id="contact-form"' in html
+
+# The carousel currently has sample *unverified* location/year values.
+# Hide them until the owner provides real captions, without changing pictures,
+# motion, carousel controls, or any other page behavior.
+def published_showcase_js():
+    js = (root / "assets/arsenal-showcase-v1.js").read_text(encoding="utf-8")
+    js, count = re.subn(r"place:'[^']*',year:'20[0-9]{2}',", "place:'',year:'',", js)
+    assert count == 6, f"Expected exactly 6 unverified case captions, got {count}"
+    old_alt = "layer.alt='Пример карточки: '+item.title+'. '+label;"
+    assert old_alt in js
+    js = js.replace(old_alt, "layer.alt='Фотография конструкции: '+item.title;", 1)
+    old_announce = "announce.textContent=item.title+'. '+item.place+'. '+item.year+'. Демонстрационные данные.';"
+    assert old_announce in js
+    js = js.replace(old_announce, "announce.textContent=item.title;", 1)
+    old_sticker = (
+        "if(!approved){\n"
+        "  const sticker=document.createElement('span');sticker.className='ars-demo-label';sticker.textContent='Фото для примера';\n"
+        "  card.appendChild(sticker);\n"
+        " }"
+    )
+    assert old_sticker in js
+    js = js.replace(old_sticker, "", 1)
+    assert "Демонстрационные данные" not in js and "Фото для примера" not in js
+    return js
+
 
 assert "<html" in html.lower() and "</html>" in html.lower()
 assert len(html) > 1_000_000, "Refusing to package truncated client site"
@@ -202,7 +244,11 @@ with ZipFile(archive, "w", compression=ZIP_DEFLATED, compresslevel=6) as z:
     for filename,content in sorted(inline_assets.items()):
         add_public_file(z, filename, content)
     for p in sorted(chosen):
-        z.write(p, p.relative_to(root).as_posix())
+        rel = p.relative_to(root).as_posix()
+        if rel == "assets/arsenal-showcase-v1.js":
+            add_public_file(z, rel, published_showcase_js())
+        else:
+            z.write(p, rel)
 
 print("ARCHIVE",archive.name,"BYTES",archive.stat().st_size)
 print("FILES",len(chosen)+7+len(inline_assets)+len(service_pages))
