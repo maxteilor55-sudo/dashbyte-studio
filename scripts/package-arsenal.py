@@ -22,14 +22,40 @@ seo = importlib.util.module_from_spec(seo_spec)
 seo_spec.loader.exec_module(seo)
 html = seo.patch_homepage(html)
 service_pages = seo.service_files()
-# This keeps the manual form unchanged until the Cloudflare endpoint and public
-# Turnstile sitekey are configured in assets/arsenal-leads-config.js on REG.RU.
-html = html.replace("</head>", (
-    '<link rel="stylesheet" href="./assets/arsenal-leads.css?v=20261105a">\n'
-    '<script defer src="./assets/arsenal-leads-config.js?v=20261106c"></script>\n'
-    '<script defer src="./assets/arsenal-leads.js?v=20261105a"></script>\n'
-    '</head>'
-), 1)
+# The old inline "copy your application" listener MUST be removed in the
+# standalone REG.RU build. Leaving it in place caused demo submissions to run.
+legacy_start = "const form=document.getElementById('contact-form'),result=document.getElementById('form-result');let applicationText='';"
+legacy_end = "const float=document.getElementById('float-cta');"
+assert html.count(legacy_start)==1 and legacy_end in html, "Unexpected legacy form markup"
+start=html.index(legacy_start)
+end=html.index(legacy_end,start)
+html=html[:start]+"// Arsenal contact form handled by embedded production Telegram integration.\\n      "+html[end:]
+assert "applicationText=" not in html, "Old demo form handler was not removed"
+
+# Never submit a fallback GET with personal data if JavaScript is disabled.
+old_form='<form id="contact-form">'
+assert html.count(old_form)==1
+html=html.replace(old_form,'<form id="contact-form" action="#" method="post" onsubmit="return false">',1)
+html=html.replace('Сформировать заявку <span class="arrow">↗</span>',
+                  'Отправить заявку <span class="arrow">↗</span>',1)
+old_disclaimer=("Демонстрационный режим: заявка создаётся только на вашем устройстве "
+                "и не отправляется автоматически. Для обращения используйте телефон.")
+assert old_disclaimer in html
+html=html.replace(old_disclaimer,("Заявка отправляется через защищённую форму. "
+                    "Если отправка недоступна, позвоните по указанному номеру."),1)
+
+# Embed the whole tiny form client code in index.html. Previously the external
+# asset sometimes failed to initialize (stale cache/404/Turnstile delay), so the
+# demo handler silently took over. Inline code is part of the audited HTML ZIP.
+form_css=(root/"assets/arsenal-leads.css").read_text(encoding="utf-8")
+form_config=(root/"assets/arsenal-leads-config.js").read_text(encoding="utf-8")
+form_js=(root/"assets/arsenal-leads.js").read_text(encoding="utf-8")
+assert "</script" not in (form_config+form_js).lower()
+assert "</style" not in form_css.lower()
+html=html.replace("</head>",'<style id="arsenal-leads-inline-styles">\\n'+form_css+'\\n</style>\\n</head>',1)
+html=html.replace("</body>",'<script id="arsenal-leads-inline-app">\\n'+form_config+'\\n'+form_js+'\\n</script>\\n</body>',1)
+assert "Демонстрационный режим" not in html
+assert 'id="arsenal-leads-inline-app"' in html
 
 
 assert "<html" in html.lower() and "</html>" in html.lower()
@@ -129,8 +155,9 @@ instructions = """
 АРСЕНАЛ — файл для размещения на хостинге REG.RU
 1. ispmanager → Менеджер файлов → www → navesy59.ru
 2. Сохраните резервную копию действующего сайта (включая формы, скрипты и .htaccess).
-   Проверьте, что текущая форма заявок работает: исходная версия из репозитория
-   демонстрационная и не отправляет заявки автоматически.
+   В обновлении старый демонстрационный обработчик формы удалён.
+   Защита Turnstile и код доставки теперь встроены в index.html, чтобы
+   форма не зависела от загрузки отдельного JS-файла.
 3. Загрузите сюда arsenal-upload.zip и распакуйте архив в ТЕКУЩЕЙ папке.
    ПОДТВЕРДИТЕ замену старого index.html, если уже установлен сайт.
 4. Убедитесь, что index.html, assets, .htaccess, robots.txt и sitemap.xml
