@@ -146,6 +146,32 @@ gallery_style = """<style id="arsenal-gallery-20261107">
 assert html.count("</head>") == 1
 html = html.replace("</head>", gallery_style + "\n</head>", 1)
 
+
+# Mobile-friendly, two-column service cards (NOT just the separate photo gallery).
+# Override the earlier mobile \`.service-grid{grid-template-columns:1fr}\` rule
+# without touching gallery filtering, navigation, scripts or external pages.
+service_style = """<style id="arsenal-services-grid-2up-20261107">
+#services .service-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:clamp(10px,1.6vw,18px)!important;align-items:stretch}
+#services .service-grid>.service-card,#services .service-grid>.service-card.wide{grid-column:auto!important;min-width:0}
+@media(max-width:680px){
+ #services .wrap{padding-left:clamp(12px,3.8vw,20px);padding-right:clamp(12px,3.8vw,20px)}
+ #services .service-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+ #services .service-grid>.service-card,#services .service-grid>.service-card.wide{min-height:255px!important;padding:14px 10px 13px!important;border-radius:16px!important;grid-column:auto!important;display:flex;flex-direction:column;justify-content:flex-end}
+ #services .service-card .num{top:9px!important;left:9px!important;max-width:calc(100% - 46px);padding:6px 7px!important;font-size:8.5px!important;line-height:1.25;letter-spacing:.015em!important;border-radius:12px!important;overflow-wrap:anywhere;white-space:normal}
+ #services .service-card .circle{top:9px!important;right:9px!important;width:29px!important;height:29px!important;border-radius:10px!important;font-size:16px!important}
+ #services .service-card h3{font-size:clamp(14px,3.8vw,18px)!important;line-height:1.13!important;letter-spacing:-.035em!important;margin:0 0 8px!important;overflow-wrap:anywhere;hyphens:auto}
+ #services .service-card p{font-size:clamp(10px,2.7vw,12px)!important;line-height:1.38!important;max-width:100%;overflow-wrap:anywhere}
+}
+@media(max-width:359px){
+ #services .service-grid>.service-card,#services .service-grid>.service-card.wide{min-height:272px!important;padding:12px 8px!important}
+ #services .service-card .num{font-size:8px!important}
+ #services .service-card h3{font-size:13px!important}
+ #services .service-card p{font-size:10px!important}
+}
+</style>"""
+assert html.count("</head>")==1
+html = html.replace("</head>", service_style + "\n</head>", 1)
+
 # The carousel currently has sample *unverified* location/year values.
 # Hide them until the owner provides real captions, without changing pictures,
 # motion, carousel controls, or any other page behavior.
