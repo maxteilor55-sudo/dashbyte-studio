@@ -22,6 +22,13 @@ seo = importlib.util.module_from_spec(seo_spec)
 seo_spec.loader.exec_module(seo)
 html = seo.patch_homepage(html)
 service_pages = seo.service_files()
+# Cache-bust consent text for existing browsers (including mobile Telegram).
+old_consent_asset = 'arsenal-compliance.js?v=20261107w'
+new_consent_asset = 'arsenal-compliance.js?v=20261107x'
+assert old_consent_asset in html
+html = html.replace(old_consent_asset, new_consent_asset)
+service_pages = {path: page.replace(old_consent_asset, new_consent_asset)
+                 for path, page in service_pages.items()}
 # The old inline "copy your application" listener MUST be removed in the
 # standalone REG.RU build. Leaving it in place caused demo submissions to run.
 legacy_start = "const form=document.getElementById('contact-form'),result=document.getElementById('form-result');let applicationText='';"
@@ -74,6 +81,70 @@ for old, new in provisional_copy.items():
     html = html.replace(old, new, 1)
 assert 'ars-contact-actions' in html and 'href="tel:+79082400998"' in html
 assert 'https://max.ru/join/' in html and 'id="contact-form"' in html
+
+
+# RELEASE 2026-11-07: verified photo captions sourced from the client's
+# portfolio messages. Only photo/project matches that can be visually checked
+# receive locations and dates; unverified images are left unlabelled.
+from html import escape as escape_gallery_text
+gallery_locations = {
+    5: ("Пермский край, д. Гари", "Декабрь 2025 г.", "2025-12"),
+    6: ("Пермь, м/р Железнодорожный", "Август 2025 г.", "2025-08"),
+    7: ("Пермь, м/р Железнодорожный", "Август 2025 г.", "2025-08"),
+    8: ("Пермь, м/р Ива", "Май 2025 г.", "2025-05"),
+    12: ("Пермский край, Верхняя Курья", "Декабрь 2025 г.", "2025-12"),
+    13: ("Пермский край, Верхняя Курья", "Декабрь 2025 г.", "2025-12"),
+    23: ("Пермь, м/р Акуловский", "Декабрь 2025 г.", "2025-12"),
+    24: ("Пермь, м/р Акуловский", "Декабрь 2025 г.", "2025-12"),
+    27: ("Пермский край, д. Гари", "Декабрь 2025 г.", "2025-12"),
+    28: ("Пермский край, д. Гари", "Декабрь 2025 г.", "2025-12"),
+    29: ("Пермский край, д. Гари", "Декабрь 2025 г.", "2025-12"),
+    30: ("Пермский край, д. Гари", "Декабрь 2025 г.", "2025-12"),
+    33: ("Пермь, м/р Ива", "Май 2025 г.", "2025-05"),
+}
+gallery_count = 0
+def enrich_gallery_photo(match):
+    global gallery_count
+    gallery_count += 1
+    card = match.group(0)
+    if gallery_count not in gallery_locations:
+        return card
+    location, date, machine_date = gallery_locations[gallery_count]
+    closure = "</h3></div></article>"
+    assert card.count(closure) == 1, "Unexpected gallery markup at card %d" % gallery_count
+    stamp = ('<div class="ars-gallery-geo">'
+             '<span class="ars-gallery-place">' + escape_gallery_text(location) + '</span>'
+             '<time datetime="' + machine_date + '">' + escape_gallery_text(date) + '</time>'
+             '</div>')
+    return card.replace(closure, "</h3>" + stamp + "</div></article>", 1)
+html = re.sub(r'<article class="project"[\s\S]*?</article>', enrich_gallery_photo, html)
+assert gallery_count == 33, "Refusing to change gallery with unexpected ordering"
+assert html.count('class="ars-gallery-geo"') == len(gallery_locations)
+# Two photographic cards per row, including on mobile. Existing lightbox,
+# filters, assets and all contact-form event handlers remain untouched.
+gallery_style = """<style id="arsenal-gallery-20261107">
+#gallery-grid.gallery-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(9px,1.5vw,20px)}
+#gallery-grid .project{min-width:0;border-radius:18px;overflow:hidden;background:linear-gradient(150deg,#302721,#211a17 78%);border:1px solid rgba(225,197,165,.2)}
+#gallery-grid .project .project-visual{aspect-ratio:1.12}
+#gallery-grid .project-meta{padding:14px 15px 17px}
+#gallery-grid .project-meta>span{font-size:10px;letter-spacing:.075em}
+#gallery-grid .project-meta h3{font-size:clamp(13px,1.35vw,18px);line-height:1.35;letter-spacing:-.012em;margin-top:5px;overflow-wrap:anywhere}
+#gallery-grid .ars-gallery-geo{display:grid;gap:5px;margin-top:11px;padding-top:11px;border-top:1px solid rgba(231,206,173,.16);font-size:12px;line-height:1.45;color:#e3d4c3}
+#gallery-grid .ars-gallery-place::before{content:"⌖";margin-right:6px;color:#d9ab7a}
+#gallery-grid .ars-gallery-geo time{color:#c49c74;font-weight:650;font-size:11px}
+@media(max-width:600px){
+ #gallery-grid.gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ #gallery-grid .project{border-radius:14px}
+ #gallery-grid .project .project-visual{aspect-ratio:1.04}
+ #gallery-grid .project-meta{padding:10px 10px 13px}
+ #gallery-grid .project-meta>span{font-size:9px;letter-spacing:.03em}
+ #gallery-grid .project-meta h3{font-size:12px;line-height:1.3}
+ #gallery-grid .ars-gallery-geo{font-size:10px;gap:4px;margin-top:9px;padding-top:9px}
+ #gallery-grid .ars-gallery-geo time{font-size:10px}
+}
+</style>"""
+assert html.count("</head>") == 1
+html = html.replace("</head>", gallery_style + "\n</head>", 1)
 
 # The carousel currently has sample *unverified* location/year values.
 # Hide them until the owner provides real captions, without changing pictures,

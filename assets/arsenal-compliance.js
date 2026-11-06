@@ -60,7 +60,7 @@ const ready=()=>{
   p.textContent='С вашего согласия Яндекс.Метрика собирает статистику и записывает взаимодействия со страницами (Вебвизор, карты скроллинга и аналитика форм). Содержимое полей заявок скрыто от записи. Без согласия необязательная аналитика выключена. Подробнее — в политике конфиденциальности.';
   const buttons=document.createElement('div');buttons.className='ars-cookie-row';
   const yes=document.createElement('button');
-  yes.type='button';yes.className='ars-cookie-yes';yes.textContent='Разрешить аналитику и Вебвизор';
+  yes.type='button';yes.className='ars-cookie-yes';yes.textContent='Разрешить аналитику';
   const only=document.createElement('button');
   only.type='button';only.className='ars-cookie-only';only.textContent='Только необходимые';
   const link=document.createElement('a');link.className='ars-cookie-more';
