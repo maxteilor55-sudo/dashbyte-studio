@@ -20,8 +20,8 @@ HEAD = '''<!-- ARSENAL: actual public domain metadata and icons -->
 <meta property="og:description" content="Изготовление и монтаж навесов, гаражей, лестниц, ограждений и металлоконструкций в Перми и Пермском крае.">
 <meta property="og:image" content="https://navesy59.ru/assets/arsenal-frame-updated-20261030.webp">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="stylesheet" href="./assets/arsenal-compliance.css?v=20261103c">
-<script defer src="./assets/arsenal-compliance.js?v=20261103c"></script>
+<link rel="stylesheet" href="./assets/arsenal-compliance.css?v=20261106m">
+<script defer src="./assets/arsenal-compliance.js?v=20261106m"></script>
 '''
 FOOTER = '''<nav class="ars-legal-links" aria-label="Правовые документы">
 <a href="./arsenal-privacy.html">Политика конфиденциальности</a>
