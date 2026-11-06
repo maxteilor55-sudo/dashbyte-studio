@@ -80,6 +80,22 @@ jobs:
               assert 'Вебвизор (записи взаимодействий' in policy
               assert 'arsenal-cookie-choice-v3' in policy
               assert 'window.arsenalReportLeadSuccess?.();' in home
+              # Only the provisional UI is removed, never real functionality.
+              assert 'ars-showcase__demo' not in home
+              assert 'Места и годы указаны для примера' not in home
+              assert 'Ссылка MAX открывает группу' not in home
+              assert 'После подтверждения контактов' not in home
+              assert 'ПРОЕКТЫ / ДЕМО' not in home
+              assert 'Пермь · пример места' not in home
+              assert 'Группа в MAX' in home and 'https://max.ru/join/' in home
+              assert 'href="tel:+79082400998"' in home
+              assert 'id="contact-form"' in home
+              assert 'arsenal-leads-inline-app' in home
+              assert 'Оставьте заявку — мы свяжемся с вами.' in home
+              showcase=z.read('assets/arsenal-showcase-v1.js').decode('utf-8')
+              assert "place:'',year:''," in showcase and "place:'Пермь" not in showcase
+              assert "Демонстрационные данные" not in showcase
+              assert "Фото для примера" not in showcase
               assert 'Яндекс.Метрика' in policy and '109304299' in policy
               import re, subprocess
               inline=re.search(r'<script id="arsenal-leads-inline-app">([\s\S]*?)</script>',home)
