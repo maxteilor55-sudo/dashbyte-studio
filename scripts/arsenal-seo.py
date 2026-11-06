@@ -157,6 +157,54 @@ def _org():
                        {"@type": "AdministrativeArea", "name": "Пермский край"}]
     }
 
+
+# Reuse photographs already displayed on the Arsenal website. All numbers are
+# one-based positions in the original 33-photo gallery.
+PHOTO_SELECTIONS = {
+    "navesy.html": [12, 13, 10, 25, 8, 33],
+    "garazhi.html": [5, 4, 21, 27, 1, 29],
+    "lestnicy.html": [23, 24, "fire"],
+    "ograzhdeniya.html": ["fence", 23, 24],
+    "terrasy.html": [8, 33, 17],
+    "vhodnye-gruppy.html": [24, 23, 6, 7],
+    "svarka.html": [9, 18, 19, 20],
+}
+EXTRA_PHOTOS = {
+    "fire": {"src": "./assets/arsenal-fire-stairs-client.avif",
+             "alt": "Наружная металлическая пожарная лестница с площадкой и ограждением",
+             "label": "Наружная пожарная лестница", "place": "", "date": ""},
+    "fence": {"src": "./assets/arsenal-fences-client.avif",
+              "alt": "Металлические ограждения и заборы рядом с жилым домом",
+              "label": "Металлические ограждения и заборы", "place": "", "date": ""},
+}
+def _photo_catalog(html: str) -> list:
+    """Extract the existing gallery's pictures and verified MAX captions."""
+    projects = re.findall(r'<article class="project"[\s\S]*?</article>', html)
+    if len(projects) != 33:
+        raise RuntimeError(f"Unexpected gallery photo count: {len(projects)}")
+    items = []
+    for number, card in enumerate(projects, 1):
+        img = re.search(r'<img\b[^>]*\bsrc="([^"]+)"', card)
+        title = re.search(r'\bdata-title="([^"]+)"', card)
+        alt = re.search(r'\bdata-alt="([^"]+)"', card)
+        place = re.search(r'<span class="ars-gallery-place">([^<]+)</span>', card)
+        date = re.search(r'<time\b[^>]*>([^<]+)</time>', card)
+        if not img or not title or not alt:
+            raise RuntimeError(f"Missing media information on project {number}")
+        items.append({"src": img.group(1), "label": title.group(1),
+                      "alt": alt.group(1), "place": place.group(1) if place else "",
+                      "date": date.group(1) if date else ""})
+    return items
+
+def _media_for(p: dict, catalog: list) -> list:
+    return [dict(EXTRA_PHOTOS[k]) if isinstance(k, str) else dict(catalog[k-1])
+            for k in PHOTO_SELECTIONS[p["file"]]]
+
+def _media_caption(item: dict) -> str:
+    if item["place"] and item["date"]:
+        return item["place"] + " · " + item["date"]
+    return item["label"]
+
 def patch_homepage(html: str) -> str:
     if len(html) < 1_000_000 or "</head>" not in html or "</main>" not in html:
         raise RuntimeError("Refusing to SEO-patch incomplete client HTML")
@@ -190,39 +238,54 @@ def patch_homepage(html: str) -> str:
       '<script type="application/ld+json">' + _json(seo) + '</script>\n'
     )
     html = html.replace("</head>", head + "</head>", 1)
+    catalog = _photo_catalog(html)
     cards = "".join(
-      '<a href="./' + p["file"] + '"><span>' + escape(p["name"]) +
-      '</span><span aria-hidden="true">↗</span></a>'
+      '<a class="ars-seo-card" href="./' + p["file"] + '" aria-label="' +
+      escape(p["name"] + '. ' + _media_caption(_media_for(p, catalog)[0]), quote=True) + '">' +
+      '<img src="' + escape(_media_for(p, catalog)[0]["src"], quote=True) +
+      '" alt="' + escape(_media_for(p, catalog)[0]["alt"], quote=True) +
+      '" loading="lazy" decoding="async">' +
+      '<span class="ars-seo-card__shade" aria-hidden="true"></span>' +
+      '<span class="ars-seo-card__body"><strong>' + escape(p["name"]) +
+      '</strong><small>' + escape(_media_caption(_media_for(p, catalog)[0])) +
+      '</small><span class="ars-seo-card__open">Смотреть направление <span aria-hidden="true">↗</span></span></span></a>'
       for p in PAGES
     )
     section = (
       '\n<section class="ars-seo-services" aria-labelledby="ars-seo-title">'
       '<div class="wrap"><p class="ars-seo-eyebrow">АРСЕНАЛ · ПЕРМЬ И ПЕРМСКИЙ КРАЙ</p>'
       '<h2 id="ars-seo-title">Подробнее о наших работах</h2>'
-      '<p>Выберите направление, чтобы узнать, какие параметры нужны для расчёта '
-      'металлоконструкции и что важно учесть перед заказом.</p>'
+      '<p>Выберите направление, чтобы посмотреть реальные фотографии конструкций '
+      'и узнать, что важно учесть перед заказом.</p>'
       '<nav class="ars-seo-grid" aria-label="Подробные страницы услуг">' + cards + '</nav>'
-      '<p class="ars-seo-contact">Официальные реквизиты: ' + escape(COMPANY) +
-      ' · ИНН 5904362275 · <a href="mailto:' + EMAIL + '">' + EMAIL +
-      '</a></p></div></section>\n'
+      '</div></section>\n'
     )
     css = """<style id="arsenal-seo-styles">
-    .ars-seo-services{padding:clamp(45px,7vw,95px) 0;background:linear-gradient(145deg,#1d1714,#29201c);border-top:1px solid #d2ae8055}
+    .ars-seo-services{padding:clamp(38px,5.8vw,78px) 0;background:linear-gradient(145deg,#1d1714,#29201c);border-top:1px solid #d2ae8055;border-bottom:1px solid #d2ae8038}
     .ars-seo-services .ars-seo-eyebrow{color:#d2ae80;font-size:11px;font-weight:800;letter-spacing:.18em}
-    .ars-seo-services h2{font-size:clamp(28px,4.5vw,54px);line-height:1.1;letter-spacing:-.05em;margin:16px 0}
+    .ars-seo-services h2{font-size:clamp(29px,4.5vw,54px);line-height:1.1;letter-spacing:-.05em;margin:16px 0}
     .ars-seo-services p:not(.ars-seo-eyebrow){max-width:790px;color:#cdb9a7;font-size:15px;line-height:1.7}
-    .ars-seo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:27px 0}
-    .ars-seo-grid a{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:19px 20px;background:#ffffff0b;border:1px solid #ddbd9a45;border-radius:17px;color:#f1e9de;font-weight:700;font-size:14px;transition:background .2s,border-color .2s}
-    .ars-seo-grid a:hover{background:#e2ba8b17;border-color:#ddbd9a}
-    .ars-seo-grid a span:last-child{color:#dfb98d}
-    .ars-seo-services .ars-seo-contact{font-size:12px!important}
-    .ars-seo-services .ars-seo-contact a{color:#e8c399;text-decoration:underline;text-underline-offset:4px}
+    .ars-seo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(10px,1.8vw,18px);margin:27px 0}
+    .ars-seo-grid .ars-seo-card{min-width:0;position:relative;isolation:isolate;overflow:hidden;display:flex;align-items:flex-end;min-height:290px;aspect-ratio:1.14;border:1px solid #ddbd9a65;border-radius:22px;background:#342923;color:#f7f0e9;text-decoration:none;box-shadow:0 18px 36px #100c0a3f;transition:border-color .25s,transform .25s,box-shadow .25s}
+    .ars-seo-card>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .55s ease;z-index:-2}
+    .ars-seo-card__shade{position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,transparent 12%,#140f0ccb 72%,#100b0af5 100%)}
+    .ars-seo-grid .ars-seo-card:hover{transform:translateY(-4px);border-color:#eac69b;box-shadow:0 24px 45px #100c0a75}
+    .ars-seo-card:hover>img{transform:scale(1.045)}
+    .ars-seo-card__body{width:100%;display:flex;flex-direction:column;gap:7px;padding:clamp(15px,2vw,24px)}
+    .ars-seo-card__body strong{font-size:clamp(17px,2vw,25px);font-weight:850;line-height:1.18;letter-spacing:-.035em}
+    .ars-seo-card__body small{color:#e9d5bd;font-size:12px;line-height:1.4;font-weight:550;min-height:2.5em}
+    .ars-seo-card__open{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:6px;padding-top:11px;border-top:1px solid #eac69b55;text-transform:uppercase;letter-spacing:.06em;color:#e6bf95;font-size:10px;font-weight:800}
+    .ars-seo-card:focus-visible{outline:3px solid #e6bf95;outline-offset:3px}
     @media(max-width:760px){.ars-seo-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-    @media(max-width:480px){.ars-seo-grid{grid-template-columns:1fr}.ars-seo-grid a{padding:15px 17px}}
+    @media(max-width:480px){.ars-seo-services{padding:37px 0 45px}.ars-seo-grid{gap:9px}.ars-seo-grid .ars-seo-card{min-height:205px;aspect-ratio:.77;border-radius:17px}.ars-seo-card__body{padding:12px}.ars-seo-card__body strong{font-size:15px}.ars-seo-card__body small{font-size:10px;min-height:3em}.ars-seo-card__open{font-size:9px;line-height:1.25;letter-spacing:.015em}}
+    @media(prefers-reduced-motion:reduce){.ars-seo-grid .ars-seo-card,.ars-seo-card>img{transition:none}}
     </style>"""
     html = html.replace("</head>", css + "</head>", 1)
-    # The original closing main tag follows the contact form; preserve its code.
-    html = html.replace("</main>", section + "</main>", 1)
+    hero = re.search(r'<section\b[^>]*\bclass="hero"[^>]*>[\s\S]*?</section>', html)
+    if not hero:
+        raise RuntimeError("Arsenal hero cover not found")
+    html = html.replace(hero.group(0), hero.group(0) + section, 1)
+    assert html.index('id="ars-seo-title"') < html.index('id="ars-showcase"')
     assert all(('href="./' + p["file"] + '"') in html for p in PAGES)
     return html
 
@@ -241,11 +304,23 @@ h2{font-size:clamp(26px,3vw,39px);letter-spacing:-.04em;line-height:1.15;margin:
 .item{background:#ffffff09;border:1px solid #e3c5a828;border-radius:16px;padding:20px}.item h3{font-size:18px;margin:0 0 8px}.item p{font-size:14px;margin:0}
 details{padding:15px 0;border-bottom:1px solid #ffffff20}summary{font-weight:800;cursor:pointer}details p{font-size:14px;margin:10px 0 0}
 .links{display:flex;flex-wrap:wrap;gap:9px}.links a{text-decoration:none;border:1px solid #e3c5a845;border-radius:12px;padding:9px 12px;background:#ffffff0b;font-size:13px}
+
+.service-gallery__intro p{font-size:13px;line-height:1.65;color:#cdb9a7;margin-top:-7px;margin-bottom:22px}
+.service-photos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.service-photo{margin:0;min-width:0;background:#241d19;border:1px solid #e3c5a835;border-radius:16px;overflow:hidden}
+.service-photo img{display:block;width:100%;aspect-ratio:1.12;object-fit:cover;background:#352922}
+.service-photo figcaption{padding:12px 13px 14px;display:grid;gap:6px;color:#d6c3b3;line-height:1.4;font-size:12px}
+.service-photo figcaption strong{color:#f5ece3;font-size:13px;font-weight:750}
+.service-photo figcaption span{color:#d3ab86;font-size:11px}
+.service-contact{margin-top:30px;border-color:#dab38880;background:linear-gradient(130deg,#3b2b22,#241a16)}
+.service-contact__actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:23px}
+@media(max-width:760px){.service-photos{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}}
+@media(max-width:460px){.service-photo{border-radius:12px}.service-photo figcaption{padding:9px;font-size:11px}.service-photo figcaption strong{font-size:11px}.service-photo figcaption span{font-size:10px}.service-contact__actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.service-contact__actions .btn{font-size:12px;padding:12px 9px}}
 footer{border-top:1px solid #e4b88e31;padding:28px 0 50px;font-size:12px;color:#cdb9a7}footer a{color:#e6be94}footer .row{display:flex;gap:9px 25px;flex-wrap:wrap}
 @media(max-width:650px){header{padding:11px 13px}header nav{gap:8px}header nav a{font-size:11px}.hero{padding-top:48px}.grid{grid-template-columns:1fr}}
 """
 
-def make_service_page(p: dict) -> str:
+def make_service_page(p: dict, catalog: list) -> str:
     u = BASE + "/" + p["file"]
     pieces = "".join(
        '<div class="item"><h3>' + escape(a) + '</h3><p>' + escape(b) + '</p></div>'
@@ -257,6 +332,25 @@ def make_service_page(p: dict) -> str:
     )
     siblings = "".join('<a href="./' + q["file"] + '">' + escape(q["name"]) + '</a>'
                        for q in PAGES if q["file"] != p["file"])
+    photos = _media_for(p, catalog)
+    figures = "".join(
+        '<figure class="service-photo"><img src="' +
+        escape(photo["src"], quote=True) + '" alt="' +
+        escape(photo["alt"], quote=True) +
+        '" loading="lazy" decoding="async"><figcaption><strong>' +
+        escape(photo["label"]) + '</strong><span>' +
+        escape(_media_caption(photo)) + '</span></figcaption></figure>'
+        for photo in photos
+    )
+    gallery_title = ("Фотографии металлоконструкций" if p["file"] in
+                     ("terrasy.html", "svarka.html") else "Фотографии наших работ")
+    gallery_markup = (
+        '<section class="panel service-gallery" aria-labelledby="photos">'
+        '<div class="service-gallery__intro"><h2 id="photos">' +
+        gallery_title + '</h2><p>Реальные фотографии из галереи Арсенала. '
+        'Населённые пункты и даты указаны только там, где подтверждены.</p></div>'
+        '<div class="service-photos">' + figures + '</div></section>'
+    )
     data = {
       "@context": "https://schema.org",
       "@graph": [
@@ -286,25 +380,32 @@ def make_service_page(p: dict) -> str:
 <meta property="og:url" content="{u}"><meta property="og:image" content="{BASE}/assets/arsenal-frame-updated-20261030.webp">
 <script type="application/ld+json">{_json(data)}</script>
 <link rel="stylesheet" href="./assets/arsenal-compliance.css?v=20261106m">
-<script defer src="./assets/arsenal-compliance.js?v=20261107w"></script>
+<script defer src="./assets/arsenal-compliance.js?v=20261107x"></script>
 <style>{_CSS}</style></head>
 <body><div class="wrap"><header><a class="brand" href="./">А<span>РСЕНАЛ</span></a><nav aria-label="Главная навигация"><a href="./#services">Услуги</a><a href="./#projects">Наши работы</a><a href="./arsenal-privacy.html">Политика</a></nav></header>
 <main><div class="hero"><div class="eyebrow">МЕТАЛЛОКОНСТРУКЦИИ / ПЕРМЬ И ПЕРМСКИЙ КРАЙ</div>
 <h1>{escape(p['heading'])}</h1><p class="lead">{escape(p['lead'])}</p>
 <div class="hero-actions"><a class="btn" href="tel:{TEL}">Обсудить проект ↗</a><a class="btn ghost" href="./#projects">Смотреть работы</a></div></div>
 <section class="panel" aria-labelledby="solutions"><h2 id="solutions">Какие решения обсуждаем</h2><div class="grid">{pieces}</div></section>
+{gallery_markup}
 <section class="panel" aria-labelledby="details"><h2 id="details">Что потребуется для расчёта</h2><p>{escape(p['details'])}</p>
 <p>Стоимость и сроки обсуждаются индивидуально после уточнения объёма работ, материалов и условий монтажа. На сайте не публикуются непроверенные фиксированные цены.</p></section>
 <section class="panel" aria-labelledby="faq"><h2 id="faq">Частые вопросы</h2>{faqs}</section>
 <section class="panel" aria-labelledby="other"><h2 id="other">Другие направления Арсенала</h2>
 <nav class="links" aria-label="Другие услуги">{siblings}</nav>
 <p>Работаем с запросами из Перми и Пермского края. Для первичной консультации позвоните по телефону <a href="tel:{TEL}">{PHONE}</a> или напишите на <a href="mailto:{EMAIL}">{EMAIL}</a>.</p></section>
+<section class="panel service-contact" aria-labelledby="service-contact-title">
+<h2 id="service-contact-title">Обсудим ваш проект?</h2>
+<p>Расскажите, какая конструкция нужна. Мы уточним параметры и условия работы в Перми и Пермском крае.</p>
+<div class="service-contact__actions"><a class="btn" href="tel:{TEL}">Позвонить</a><a class="btn ghost" href="./#contacts">Связаться с нами</a></div>
+</section>
 </main><footer><div class="row"><span>© 2026 Арсенал · {escape(COMPANY)}</span><span>ИНН 5904362275</span><a href="./arsenal-privacy.html">Политика конфиденциальности</a><a href="./">На главную</a></div>
 <div>Юридический адрес: {escape(ADDRESS)}. Адрес не обозначает место приёма клиентов.</div></footer></div></body></html>
 """
 
-def service_files() -> dict:
-    return {p["file"]: make_service_page(p) for p in PAGES}
+def service_files(html: str) -> dict:
+    catalog = _photo_catalog(html)
+    return {p["file"]: make_service_page(p, catalog) for p in PAGES}
 
 def sitemap() -> str:
     from xml.sax.saxutils import escape as xesc

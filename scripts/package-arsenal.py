@@ -20,15 +20,11 @@ html = patch(source.read_text(encoding="utf-8"))
 seo_spec = importlib.util.spec_from_file_location("arsenal_seo", root / "scripts/arsenal-seo.py")
 seo = importlib.util.module_from_spec(seo_spec)
 seo_spec.loader.exec_module(seo)
-html = seo.patch_homepage(html)
-service_pages = seo.service_files()
 # Cache-bust consent text for existing browsers (including mobile Telegram).
 old_consent_asset = 'arsenal-compliance.js?v=20261107w'
 new_consent_asset = 'arsenal-compliance.js?v=20261107x'
 assert old_consent_asset in html
 html = html.replace(old_consent_asset, new_consent_asset)
-service_pages = {path: page.replace(old_consent_asset, new_consent_asset)
-                 for path, page in service_pages.items()}
 # The old inline "copy your application" listener MUST be removed in the
 # standalone REG.RU build. Leaving it in place caused demo submissions to run.
 legacy_start = "const form=document.getElementById('contact-form'),result=document.getElementById('form-result');let applicationText='';"
@@ -149,6 +145,10 @@ assert len(gallery_locations) == 14 and len(gallery_details) == 19
 assert set(gallery_locations).isdisjoint(gallery_details)
 assert sorted(list(gallery_locations) + list(gallery_details)) == list(range(1, 34))
 assert html.count('class="ars-gallery-geo"') == gallery_count
+# SEO cards use verified photo captions from the existing gallery.
+html = seo.patch_homepage(html)
+assert html.index('id="ars-seo-title"') < html.index('id="ars-showcase"')
+
 # Two photographic cards per row, including on mobile. Existing lightbox,
 # filters, assets and all contact-form event handlers remain untouched.
 gallery_style = """<style id="arsenal-gallery-20261107">
@@ -342,6 +342,13 @@ def optimize_photo_img(match):
     ending='/>' if tag.endswith('/>') else '>'
     return tag[:-len(ending)]+' '+' '.join(additions)+ending
 html=re.sub(r'<img\b[^>]*>',optimize_photo_img,html,flags=re.I|re.S)
+# Build seven service galleries from the same cacheable images as the homepage.
+service_pages = seo.service_files(html)
+assert len(service_pages) == 7
+assert all('href="./#contacts">Связаться с нами</a>' in page for page in service_pages.values())
+assert all('class="service-gallery"' in page for page in service_pages.values())
+assert all('arsenal-photo-' in page or 'arsenal-fences-client.avif' in page for page in service_pages.values())
+
 if inline_pattern.search(source.read_text(encoding="utf-8")) and not inline_assets:
     raise RuntimeError("Failed to externalize inline photos")
 print("HTML_OPTIMIZATION",original_html_size,"TO",len(html.encode("utf-8")),
