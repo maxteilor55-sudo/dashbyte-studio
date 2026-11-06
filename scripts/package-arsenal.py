@@ -346,7 +346,7 @@ html=re.sub(r'<img\b[^>]*>',optimize_photo_img,html,flags=re.I|re.S)
 service_pages = seo.service_files(html)
 assert len(service_pages) == 7
 assert all('href="./#contacts">Связаться с нами</a>' in page for page in service_pages.values())
-assert all('class="service-gallery"' in page for page in service_pages.values())
+assert all('class="panel service-gallery"' in page for page in service_pages.values())
 assert all('arsenal-photo-' in page or 'arsenal-fences-client.avif' in page for page in service_pages.values())
 
 if inline_pattern.search(source.read_text(encoding="utf-8")) and not inline_assets:
