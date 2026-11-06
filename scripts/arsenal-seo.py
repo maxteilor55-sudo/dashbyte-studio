@@ -285,6 +285,8 @@ def make_service_page(p: dict) -> str:
 <meta property="og:description" content="{escape(p['description'],quote=True)}">
 <meta property="og:url" content="{u}"><meta property="og:image" content="{BASE}/assets/arsenal-frame-updated-20261030.webp">
 <script type="application/ld+json">{_json(data)}</script>
+<link rel="stylesheet" href="./assets/arsenal-compliance.css?v=20261106m">
+<script defer src="./assets/arsenal-compliance.js?v=20261106m"></script>
 <style>{_CSS}</style></head>
 <body><div class="wrap"><header><a class="brand" href="./">А<span>РСЕНАЛ</span></a><nav aria-label="Главная навигация"><a href="./#services">Услуги</a><a href="./#projects">Наши работы</a><a href="./arsenal-privacy.html">Политика</a></nav></header>
 <main><div class="hero"><div class="eyebrow">МЕТАЛЛОКОНСТРУКЦИИ / ПЕРМЬ И ПЕРМСКИЙ КРАЙ</div>
