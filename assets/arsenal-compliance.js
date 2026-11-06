@@ -5,7 +5,7 @@
  * No visitor name, phone, or form message is passed to Yandex.
  */
 (()=>{'use strict';
-const storageKey='arsenal-cookie-choice-v2',expiry=180*864e5;
+const storageKey='arsenal-cookie-choice-v3',expiry=180*864e5;
 const counterId=109304299,goalId='arsenal_lead_delivered';
 function readChoice(){
   try{
@@ -29,7 +29,7 @@ function enableAnalytics(){
   document.head.appendChild(tag);
   window.ym(counterId,'init',{
     clickmap:true,trackLinks:true,accurateTrackBounce:true,
-    webvisor:false,sendTitle:true
+    webvisor:true,sendTitle:true
   });
 }
 window.arsenalReportLeadSuccess=function(){
@@ -39,6 +39,10 @@ window.arsenalReportLeadSuccess=function(){
   catch(_){return false;}
 };
 const ready=()=>{
+  // Before loading Webvisor, mask all form inputs including contact details.
+  document.querySelectorAll('#contact-form input,#contact-form textarea,#contact-form select').forEach(field=>{
+    field.classList.add('ym-disable-keys');
+  });
   // Defensive: remove obsolete chooser shortcuts.
   for(const id of ['db-arsenal-chooser-link','db-arsenal-desktop-return'])
     document.getElementById(id)?.remove();
@@ -53,10 +57,10 @@ const ready=()=>{
   const emblem=document.createElement('span');emblem.textContent='А';emblem.setAttribute('aria-hidden','true');
   heading.append(emblem,document.createTextNode('Приватность и cookies'));
   const p=document.createElement('p');
-  p.textContent='С вашего согласия подключаем Яндекс.Метрику для статистики посещений и эффективности сайта. Без согласия используем только необходимые настройки браузера. Подробности — в политике конфиденциальности.';
+  p.textContent='С вашего согласия Яндекс.Метрика собирает статистику и записывает взаимодействия со страницами (Вебвизор, карты скроллинга и аналитика форм). Содержимое полей заявок скрыто от записи. Без согласия необязательная аналитика выключена. Подробнее — в политике конфиденциальности.';
   const buttons=document.createElement('div');buttons.className='ars-cookie-row';
   const yes=document.createElement('button');
-  yes.type='button';yes.className='ars-cookie-yes';yes.textContent='Разрешить аналитику';
+  yes.type='button';yes.className='ars-cookie-yes';yes.textContent='Разрешить аналитику и Вебвизор';
   const only=document.createElement('button');
   only.type='button';only.className='ars-cookie-only';only.textContent='Только необходимые';
   const link=document.createElement('a');link.className='ars-cookie-more';
