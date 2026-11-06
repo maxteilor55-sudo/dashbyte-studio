@@ -26,7 +26,7 @@ service_pages = seo.service_files()
 # Turnstile sitekey are configured in assets/arsenal-leads-config.js on REG.RU.
 html = html.replace("</head>", (
     '<link rel="stylesheet" href="./assets/arsenal-leads.css?v=20261105a">\n'
-    '<script defer src="./assets/arsenal-leads-config.js?v=20261106b"></script>\n'
+    '<script defer src="./assets/arsenal-leads-config.js?v=20261106c"></script>\n'
     '<script defer src="./assets/arsenal-leads.js?v=20261105a"></script>\n'
     '</head>'
 ), 1)
