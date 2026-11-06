@@ -102,14 +102,26 @@ jobs:
           PY
       - name: Commit downloadable ZIP
         run: |
-          git add arsenal-upload.zip
-          if git diff --cached --quiet; then
-            echo 'Archive already matches current sources.'
-            exit 0
-          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "build: refresh Arsenal standalone hosting archive"
-          git fetch origin main
-          git rebase origin/main
-          git push origin HEAD:main
+          # Other commits can arrive while this job renders the ZIP.
+          # Rebuild from the CURRENT main at every retry to avoid rebasing
+          # an outdated binary ZIP, which always results in merge conflicts.
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            git reset --hard origin/main
+            python3 scripts/package-arsenal.py
+            git add arsenal-upload.zip
+            if git diff --cached --quiet; then
+              echo "Archive already matches main."
+              exit 0
+            fi
+            git commit -m "build: refresh Arsenal standalone hosting archive"
+            if git push origin HEAD:main; then
+              echo "Archive published."
+              exit 0
+            fi
+            echo "Concurrent update: rebuilding archive from latest main (attempt $attempt)."
+          done
+          echo "Could not publish archive after 5 attempts."
+          exit 1
