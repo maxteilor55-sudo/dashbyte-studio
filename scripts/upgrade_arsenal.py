@@ -21,7 +21,7 @@ HEAD = '''<!-- ARSENAL: actual public domain metadata and icons -->
 <meta property="og:image" content="https://navesy59.ru/assets/arsenal-frame-updated-20261030.webp">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="./assets/arsenal-compliance.css?v=20261106m">
-<script defer src="./assets/arsenal-compliance.js?v=20261106m"></script>
+<script defer src="./assets/arsenal-compliance.js?v=20261107w"></script>
 '''
 FOOTER = '''<nav class="ars-legal-links" aria-label="Правовые документы">
 <a href="./arsenal-privacy.html">Политика конфиденциальности</a>
