@@ -29,7 +29,7 @@ legacy_end = "const float=document.getElementById('float-cta');"
 assert html.count(legacy_start)==1 and legacy_end in html, "Unexpected legacy form markup"
 start=html.index(legacy_start)
 end=html.index(legacy_end,start)
-html=html[:start]+"// Arsenal contact form handled by embedded production Telegram integration.\\n      "+html[end:]
+html=html[:start]+"// Arsenal contact form handled by embedded production Telegram integration.\n      "+html[end:]
 assert "applicationText=" not in html, "Old demo form handler was not removed"
 
 # Never submit a fallback GET with personal data if JavaScript is disabled.
@@ -52,8 +52,8 @@ form_config=(root/"assets/arsenal-leads-config.js").read_text(encoding="utf-8")
 form_js=(root/"assets/arsenal-leads.js").read_text(encoding="utf-8")
 assert "</script" not in (form_config+form_js).lower()
 assert "</style" not in form_css.lower()
-html=html.replace("</head>",'<style id="arsenal-leads-inline-styles">\\n'+form_css+'\\n</style>\\n</head>',1)
-html=html.replace("</body>",'<script id="arsenal-leads-inline-app">\\n'+form_config+'\\n'+form_js+'\\n</script>\\n</body>',1)
+html=html.replace("</head>",'<style id="arsenal-leads-inline-styles">\n'+form_css+'\n</style>\n</head>',1)
+html=html.replace("</body>",'<script id="arsenal-leads-inline-app">\n'+form_config+'\n'+form_js+'\n</script>\n</body>',1)
 assert "Демонстрационный режим" not in html
 assert 'id="arsenal-leads-inline-app"' in html
 
