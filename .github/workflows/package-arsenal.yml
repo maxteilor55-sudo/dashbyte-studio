@@ -8,6 +8,9 @@ on:
       - 'scripts/arsenal-seo.py'
       - 'scripts/package-arsenal.py'
       - 'arsenal-privacy.html'
+      - 'assets/arsenal-leads-config.js'
+      - 'assets/arsenal-leads.js'
+      - 'assets/arsenal-leads.css'
   workflow_dispatch:
 permissions:
   contents: write
@@ -48,6 +51,11 @@ jobs:
               assert 'ООО «ТД АРСЕНАЛ»' in policy and '2863637@gmail.com' in policy
               assert 'Перед утверждением окончательной редакции' not in policy
               assert 'https://navesy59.ru/sitemap.xml' in robots
+              config=z.read('assets/arsenal-leads-config.js').decode('utf-8')
+              assert 'https://dashbyte-studio-bot.maxteilor55.workers.dev/api/arsenal-lead' in config
+              assert '0x4AAAAAAF1BuIOo7tkWo3mA' in config
+              assert 'arsenal-leads.js' in home and 'arsenal-leads-config.js' in home
+              assert 'ARSENAL_CHAT_ID' not in config and 'TELEGRAM_BOT_TOKEN' not in config
               ET.fromstring(smap)
               for f in services:
                   assert './'+f in home, f
