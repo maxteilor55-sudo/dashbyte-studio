@@ -53,7 +53,7 @@ jobs:
               assert 'https://navesy59.ru/sitemap.xml' in robots
               config=z.read('assets/arsenal-leads-config.js').decode('utf-8')
               assert 'https://dashbyte-studio-bot.maxteilor55.workers.dev/api/arsenal-lead' in config
-              assert '0x4AAAAAAF1BuIOo7tkWo3mA' in config
+              assert '0x4AAAAAAF1BuI0o7tkWo3mA' in config
               assert 'arsenal-leads.js' in home and 'arsenal-leads-config.js' in home
               assert 'ARSENAL_CHAT_ID' not in config and 'TELEGRAM_BOT_TOKEN' not in config
               ET.fromstring(smap)
