@@ -1,0 +1,85 @@
+name: Deploy Arsenal to REG.RU (manual SFTP)
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_domain:
+        description: "Type navesy59.ru to approve production deployment"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: arsenal-reg-ru-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: ${{ github.ref == 'refs/heads/main' && inputs.confirm_domain == 'navesy59.ru' }}
+    runs-on: ubuntu-latest
+    environment:
+      name: arsenal-production
+      url: https://navesy59.ru/
+    timeout-minutes: 15
+    steps:
+      - name: Checkout website from main
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Prepare Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install build and SFTP packages
+        run: python -m pip install --quiet 'Pillow>=10,<13' 'CairoSVG>=2.7,<3' 'paramiko>=3.4,<5'
+      - name: Build REG.RU archive
+        run: python scripts/package-arsenal.py
+      - name: Validate production archive
+        run: |
+          python -m zipfile -t arsenal-upload.zip
+          python - <<'PY'
+          import zipfile
+          from pathlib import PurePosixPath
+          with zipfile.ZipFile('arsenal-upload.zip') as z:
+              names = set(z.namelist())
+              pages = {'index.html','navesy.html','garazhi.html','lestnicy.html',
+                       'ograzhdeniya.html','terrasy.html','vhodnye-gruppy.html','svarka.html'}
+              assert pages <= names, pages-names
+              assert not any(p.startswith('/') or '..' in PurePosixPath(p).parts for p in names)
+              home = z.read('index.html').decode('utf-8')
+              assert 'class="ars-seo-card"' in home and 'id="contact-form"' in home
+              assert 'id="arsenal-leads-inline-app"' in home
+              for p in pages - {'index.html'}:
+                  page = z.read(p).decode('utf-8')
+                  assert 'class="panel service-gallery"' in page
+                  assert 'href="./#contacts">Связаться с нами</a>' in page
+              print('ARSENAL_RELEASE_VALIDATED',len(names))
+          PY
+      - name: Upload to REG.RU over verified SFTP
+        env:
+          ARSENAL_SFTP_HOST: ${{ secrets.ARSENAL_SFTP_HOST }}
+          ARSENAL_SFTP_PORT: ${{ secrets.ARSENAL_SFTP_PORT }}
+          ARSENAL_SFTP_USER: ${{ secrets.ARSENAL_SFTP_USER }}
+          ARSENAL_SFTP_PASSWORD: ${{ secrets.ARSENAL_SFTP_PASSWORD }}
+          ARSENAL_SFTP_REMOTE_DIR: ${{ secrets.ARSENAL_SFTP_REMOTE_DIR }}
+          ARSENAL_SFTP_HOST_KEY_SHA256: ${{ secrets.ARSENAL_SFTP_HOST_KEY_SHA256 }}
+        run: python scripts/deploy-arsenal-sftp.py
+      - name: Smoke-test live homepage
+        run: |
+          python - <<'PY'
+          import os,time,urllib.request
+          url = 'https://navesy59.ru/?verify=' + os.environ['GITHUB_SHA'][:12]
+          for n in range(3):
+              try:
+                  req=urllib.request.Request(url,headers={'Cache-Control':'no-cache'})
+                  with urllib.request.urlopen(req,timeout=18) as response:
+                      text=response.read().decode('utf-8','replace')
+                      assert response.status==200
+                      assert 'class="ars-seo-card"' in text and 'id="contact-form"' in text
+                  print('ARSENAL_LIVE_SITE_OK'); break
+              except Exception:
+                  if n==2: raise
+                  time.sleep(5)
+          PY
