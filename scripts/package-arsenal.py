@@ -26,7 +26,7 @@ service_pages = seo.service_files()
 # Turnstile sitekey are configured in assets/arsenal-leads-config.js on REG.RU.
 html = html.replace("</head>", (
     '<link rel="stylesheet" href="./assets/arsenal-leads.css?v=20261105a">\n'
-    '<script defer src="./assets/arsenal-leads-config.js?v=20261105a"></script>\n'
+    '<script defer src="./assets/arsenal-leads-config.js?v=20261106b"></script>\n'
     '<script defer src="./assets/arsenal-leads.js?v=20261105a"></script>\n'
     '</head>'
 ), 1)
@@ -140,9 +140,12 @@ instructions = """
 6. Сразу проверьте favicon.ico, arsenal-privacy.html и ссылку в футере на DashByte-бота.
 7. Не оставляйте публично доступные ZIP, backup HTML и служебные txt.
 8. Пакет содержит интеграцию заявок с DashByte Telegram-ботом.
-   До настройки Cloudflare она остаётся в безопасном ручном режиме.
-   После публикации укажите публичные URL Worker и Turnstile sitekey
-   в assets/arsenal-leads-config.js. Токены и Telegram ID НЕ кладите в сайт.
+   Публичный URL Worker и публичный sitekey Turnstile УЖЕ внесены в
+   assets/arsenal-leads-config.js — изменять файл вручную не требуется.
+   В Cloudflare должны быть настроены ARSENAL_CHAT_ID, TELEGRAM_BOT_TOKEN
+   и ARSENAL_TURNSTILE_SECRET; Александру нужно сначала запустить бота.
+   НИКОГДА не добавляйте токены, приватный secret key или Telegram ID в HTML.
+   Проверьте отправку ТЕСТОВОЙ заявки после распаковки.
    Метрика и Директ этим пакетом не подключаются.
 9. Согласуйте с владельцем юрадрес, указанный по реестровым справочникам.
 10. Добавьте sitemap.xml в Яндекс Вебмастер и отправьте страницы на переобход.
