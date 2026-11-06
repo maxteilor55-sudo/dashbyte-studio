@@ -4,4 +4,4 @@
  * Automatically packaged into arsenal-upload.zip by GitHub Actions.
  */
 window.ARSENAL_LEADS_ENDPOINT = 'https://dashbyte-studio-bot.maxteilor55.workers.dev/api/arsenal-lead';
-window.ARSENAL_TURNSTILE_SITEKEY = '0x4AAAAAAF1BuIOo7tkWo3mA';
+window.ARSENAL_TURNSTILE_SITEKEY = '0x4AAAAAAF1BuI0o7tkWo3mA';
