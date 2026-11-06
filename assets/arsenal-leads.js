@@ -152,6 +152,8 @@
         if (!response.ok || payload?.ok!==true || hp.value) {
           throw new Error(payload?.error || 'delivery_failed');
         }
+        // Count only confirmed Telegram deliveries, never failed attempts.
+        window.arsenalReportLeadSuccess?.();
         show('success','Заявка передана в Telegram!',
           'Telegram подтвердил приём сообщения для менеджера «Арсенала». Ожидайте связи по указанному номеру.');
         form.reset();
