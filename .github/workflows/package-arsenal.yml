@@ -12,6 +12,9 @@ on:
       - 'assets/arsenal-leads.js'
       - 'assets/arsenal-leads.css'
   workflow_dispatch:
+concurrency:
+  group: arsenal-reg-ru-deployment-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: write
 jobs:
