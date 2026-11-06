@@ -19,3 +19,5 @@ compatibility_date = "2026-10-01"
 # Public Turnstile sitekey and public /api/arsenal-lead Worker URL belong
 # in assets/arsenal-leads-config.js on REG.RU after deploying this Worker.
 # See ARSENAL_TELEGRAM_SETUP.md. Do not store client IDs or tokens here.
+
+# Trigger initial Cloudflare Git build for the connected existing Worker.
