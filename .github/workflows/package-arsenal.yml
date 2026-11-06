@@ -67,7 +67,7 @@ jobs:
               assert 'Заявка передана в Telegram!' in home
               assert 'window.ARSENAL_TURNSTILE_SITEKEY' in home
               import re, subprocess
-              inline=re.search(r'<script id="arsenal-leads-inline-app">([\\s\\S]*?)</script>',home)
+              inline=re.search(r'<script id="arsenal-leads-inline-app">([\s\S]*?)</script>',home)
               assert inline, 'Inline production form script not found'
               pathlib=Path('/tmp/arsenal-reg-ru-inline.js')
               pathlib.write_text(inline.group(1),encoding='utf-8')
