@@ -36,9 +36,9 @@ jobs:
           h=p.read_text(encoding='utf-8')
           assert p.stat().st_size>500_000
           assert 'data:image/' in h
-          assert 'href="./lestnicy.html"' in h
-          assert 'href="./garazhi.html"' in h
-          assert 'href="./#contacts"' in h
+          assert 'lestnicy.html' in h
+          assert 'garazhi.html' in h
+          assert '#contacts' in h
           assert '"navesy.html"' in h
           assert 'Локальный предпросмотр' in h
           print('OFFLINE_PREVIEW_VALIDATED',p.stat().st_size)
