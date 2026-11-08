@@ -42,7 +42,7 @@ jobs:
           import xml.etree.ElementTree as ET
           from pathlib import Path
           p = Path('arsenal-upload.zip')
-          assert p.stat().st_size > 3_000_000
+          assert p.stat().st_size > 750_000
           with ZipFile(p) as z:
               assert z.testzip() is None, 'Corrupted ZIP member'
               files=set(z.namelist())
@@ -92,11 +92,16 @@ jobs:
               assert 'grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important' in home
               assert home.count('style="grid-column:auto!important;min-width:0!important"') == 11
               assert 'name="arsenal-release" content="services-2up-captions-20261107-r2"' in home
-              assert 'Пермский край, д. Ежи' in home
-              assert 'Несущий металлокаркас на бетонном основании' in home
+              assert 'Пермский край, д. Ежи' in z.read('garazhi.html').decode('utf-8')
+              assert 'class="panel service-gallery"' in z.read('svarka.html').decode('utf-8')
               assert '#services .service-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important' in home
               assert '#services .service-grid>.service-card.wide{min-height:255px!important' in home
-              assert home.count('class="ars-gallery-geo"') == 33
+              assert home.count('class="ars-gallery-geo"') == 0
+              assert 'id="ars-showcase"' not in home and 'id="projects"' not in home
+              assert 'class="ars-seo-card"' not in home
+              assert home.count('<a class="service-card') == 11
+              assert 'id="services"' in home and 'id="approach"' in home
+              assert 'data-dock="approach" href="#approach"' in home
               assert 'grid-template-columns:repeat(2,minmax(0,1fr))' in home
               assert 'Места и годы указаны для примера' not in home
               assert 'Ссылка MAX открывает группу' not in home

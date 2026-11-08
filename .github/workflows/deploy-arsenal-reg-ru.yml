@@ -49,7 +49,9 @@ jobs:
               assert pages <= names, pages-names
               assert not any(p.startswith('/') or '..' in PurePosixPath(p).parts for p in names)
               home = z.read('index.html').decode('utf-8')
-              assert 'class="ars-seo-card"' in home and 'id="contact-form"' in home
+              assert 'id="services"' in home and 'id="contact-form"' in home
+              assert 'class="ars-seo-card"' not in home and 'id="ars-showcase"' not in home
+              assert home.count('<a class="service-card') == 11
               assert 'id="arsenal-leads-inline-app"' in home
               for p in pages - {'index.html'}:
                   page = z.read(p).decode('utf-8')
@@ -77,7 +79,8 @@ jobs:
                   with urllib.request.urlopen(req,timeout=18) as response:
                       text=response.read().decode('utf-8','replace')
                       assert response.status==200
-                      assert 'class="ars-seo-card"' in text and 'id="contact-form"' in text
+                      assert 'id="services"' in text and 'id="contact-form"' in text
+                      assert 'class="ars-seo-card"' not in text and 'id="ars-showcase"' not in text
                   print('ARSENAL_LIVE_SITE_OK'); break
               except Exception:
                   if n==2: raise
