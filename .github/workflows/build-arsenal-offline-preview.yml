@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - 'scripts/build-arsenal-offline-preview.py'
+      - 'scripts/arsenal-seo.py'
+      - 'scripts/package-arsenal.py'
       - '.github/workflows/build-arsenal-offline-preview.yml'
   workflow_dispatch:
 

@@ -56,7 +56,10 @@ jobs:
               for p in pages - {'index.html'}:
                   page = z.read(p).decode('utf-8')
                   assert 'class="panel service-gallery"' in page
-                  assert 'href="./#contacts">Связаться с нами</a>' in page
+                  assert 'href="./#contacts">Написать ↗</a>' in page
+                  assert 'href="tel:+79082400998">Позвонить ↗</a>' in page
+                  assert 'id="ars-glass-menu-toggle"' in page
+                  assert 'id="ars-back-to-top"' in page
               print('ARSENAL_RELEASE_VALIDATED',len(names))
           PY
       - name: Upload to REG.RU over verified SFTP

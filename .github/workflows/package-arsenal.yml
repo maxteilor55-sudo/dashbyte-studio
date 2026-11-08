@@ -132,9 +132,24 @@ jobs:
                   page=z.read(f).decode('utf-8')
                   assert '<h1>' in page and '<link rel="canonical"' in page
                   assert 'application/ld+json' in page
+                   assert 'arsenal-glass-nav.css?v=20261108a' in page
+                   assert 'arsenal-glass-nav.js?v=20261108a' in page
+                   assert 'id="ars-glass-menu-toggle"' in page
+                   assert 'class="ars-glass-brand"' in page
+                   assert 'id="ars-back-to-top"' in page
+                   assert 'class="ars-service-dock"' in page
+                   assert 'href="./#contacts">Написать ↗</a>' in page
+                   assert 'href="tel:+79082400998">Позвонить ↗</a>' in page
                   assert 'arsenal-compliance.js?v=20261107x' in page
                   assert 'https://navesy59.ru/'+f in smap
               assert 'пароль' not in policy.lower()
+              assert 'id="ars-glass-menu-toggle"' in policy
+              assert 'id="ars-back-to-top"' in policy
+              assert 'arsenal-glass-nav.css?v=20261108a' in policy
+              assert 'assets/arsenal-glass-nav.css' in files
+              assert 'assets/arsenal-glass-nav.js' in files
+              import subprocess
+              subprocess.run(['node','--check','assets/arsenal-glass-nav.js'],check=True)
               print('ARSENAL_RELEASE_VALIDATED', len(files), p.stat().st_size)
           PY
       - name: Commit downloadable ZIP

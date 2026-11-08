@@ -300,12 +300,54 @@ def patch_homepage(html: str) -> str:
     assert all('href="./' + p["file"] + '"' in html for p in PAGES)
     return html
 
+
+_ARS_NAV_ASSETS = (
+    '<link rel="stylesheet" href="./assets/arsenal-glass-nav.css?v=20261108a">\n'
+    '<script defer src="./assets/arsenal-glass-nav.js?v=20261108a"></script>\n'
+)
+_ARS_GLASS_HEADER = f"""<header class="ars-glass-header" aria-label="Шапка сайта Арсенал">
+<div class="ars-glass-inner">
+<a class="ars-glass-brand" href="./" aria-label="Арсенал — на главную">
+<span class="ars-glass-brand__mark"><img src="./assets/arsenal-favicon.svg" width="56" height="56" alt="" decoding="async"></span>
+<span class="ars-glass-brand__words"><span class="ars-glass-brand__title">АРСЕНАЛ</span>
+<span class="ars-glass-brand__meta">МЕТАЛЛОКОНСТРУКЦИИ · ПЕРМЬ</span>
+<span class="ars-glass-online"><span class="ars-glass-online__dot" aria-hidden="true"></span>На связи</span></span></a>
+<nav class="ars-glass-links" aria-label="Главное меню">
+<a href="./#services">Направления</a><a href="./#approach">Как работаем</a>
+<a href="./#contacts">Контакты</a><a href="./arsenal-privacy.html">Политика</a></nav>
+<a class="ars-glass-cta" href="./#contacts">Обсудить проект <span aria-hidden="true">↗</span></a>
+<button type="button" class="ars-glass-menu-button" id="ars-glass-menu-toggle"
+ aria-label="Открыть меню" aria-controls="ars-glass-mobile-menu" aria-expanded="false">
+<svg class="ars-icon-menu" viewBox="0 0 28 28" aria-hidden="true"><path d="M4 7h20M4 14h20M4 21h20"/></svg>
+<svg class="ars-icon-close" viewBox="0 0 28 28" aria-hidden="true"><path d="M6 6l16 16M22 6L6 22"/></svg></button>
+</div></header>
+<nav class="ars-glass-flyout" id="ars-glass-mobile-menu" aria-label="Мобильное меню" hidden>
+<a href="./#services">Услуги и конструкции</a><a href="./#approach">Как работаем</a>
+<a href="./#contacts">Написать нам</a><a href="./arsenal-privacy.html">Политика конфиденциальности</a>
+<a class="ars-glass-call" href="tel:{TEL}">Позвонить · {PHONE} ↗</a></nav>"""
+
+_ARS_SUBPAGE_ACTIONS = f"""<nav class="ars-service-dock" aria-label="Связаться с Арсеналом">
+<a href="./#contacts">Написать ↗</a><a href="tel:{TEL}">Позвонить ↗</a></nav>
+<a class="ars-back-to-top" id="ars-back-to-top" href="#top" aria-label="Наверх"
+ title="Наверх"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 14 7-7 7 7M12 7v13"/></svg></a>"""
+
+def decorate_privacy(html: str) -> str:
+    """Give the legal page the same header and back-to-top as SEO pages."""
+    if '<body>' not in html or '<header class="top">' not in html:
+        raise RuntimeError("Expected original legal page layout")
+    html, count = re.subn(r'<header class="top">[\s\S]*?</header>', '', html, count=1)
+    if count != 1:
+        raise RuntimeError("Could not replace legacy policy header")
+    html = html.replace('<body>', '<body class="ars-policy-page" id="top">\n' + _ARS_GLASS_HEADER, 1)
+    html = html.replace('</head>', _ARS_NAV_ASSETS + '</head>', 1)
+    html = html.replace('</body>', _ARS_SUBPAGE_ACTIONS + '</body>', 1)
+    assert 'ars-glass-menu-toggle' in html and 'ars-back-to-top' in html
+    return html
+
 _CSS = """
 :root{color-scheme:dark;--bg:#15110f;--surface:#302620;--bronze:#dbb38a;--ink:#f5ece3;--muted:#c8b6a5}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 82% 0%,#7d543726,transparent 40%),var(--bg);color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;line-height:1.75}
 a{color:inherit}a:focus-visible{outline:2px solid var(--bronze);outline-offset:4px} .wrap{width:min(1080px,calc(100% - 36px));margin:auto}
-header{position:sticky;top:12px;z-index:9;margin-top:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#322822eb;border:1px solid #eccba740;backdrop-filter:blur(20px);border-radius:21px;padding:13px 17px}
-.brand{font-size:18px;letter-spacing:.1em;font-weight:900;text-decoration:none}.brand span{color:var(--bronze)}header nav{display:flex;gap:12px}header nav a{font-size:13px;text-decoration:none;color:#e1cfbd}
 main{padding-bottom:60px}.hero{padding:68px 0 38px}.eyebrow{letter-spacing:.2em;font-size:11px;font-weight:800;color:var(--bronze)}
 h1{font-size:clamp(38px,7vw,76px);line-height:1.05;letter-spacing:-.065em;max-width:930px;margin:15px 0 24px}
 .lead{font-size:clamp(16px,2.1vw,20px);color:#d6c3b3;max-width:850px}
@@ -328,7 +370,7 @@ details{padding:15px 0;border-bottom:1px solid #ffffff20}summary{font-weight:800
 @media(max-width:760px){.service-photos{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}}
 @media(max-width:460px){.service-photo{border-radius:12px}.service-photo figcaption{padding:9px;font-size:11px}.service-photo figcaption strong{font-size:11px}.service-photo figcaption span{font-size:10px}.service-contact__actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.service-contact__actions .btn{font-size:12px;padding:12px 9px}}
 footer{border-top:1px solid #e4b88e31;padding:28px 0 50px;font-size:12px;color:#cdb9a7}footer a{color:#e6be94}footer .row{display:flex;gap:9px 25px;flex-wrap:wrap}
-@media(max-width:650px){header{padding:11px 13px}header nav{gap:8px}header nav a{font-size:11px}.hero{padding-top:48px}.grid{grid-template-columns:1fr}}
+@media(max-width:650px){.hero{padding-top:48px}.grid{grid-template-columns:1fr}}
 """
 
 def make_service_page(p: dict, catalog: list) -> str:
@@ -392,8 +434,8 @@ def make_service_page(p: dict, catalog: list) -> str:
 <script type="application/ld+json">{_json(data)}</script>
 <link rel="stylesheet" href="./assets/arsenal-compliance.css?v=20261106m">
 <script defer src="./assets/arsenal-compliance.js?v=20261107x"></script>
-<style>{_CSS}</style></head>
-<body><div class="wrap"><header><a class="brand" href="./">А<span>РСЕНАЛ</span></a><nav aria-label="Главная навигация"><a href="./#services">Услуги</a><a href="./#approach">Как работаем</a><a href="./arsenal-privacy.html">Политика</a></nav></header>
+<style>{_CSS}</style>{_ARS_NAV_ASSETS}</head>
+<body class="ars-service-page" id="top">{_ARS_GLASS_HEADER}<div class="wrap">
 <main><div class="hero"><div class="eyebrow">МЕТАЛЛОКОНСТРУКЦИИ / ПЕРМЬ И ПЕРМСКИЙ КРАЙ</div>
 <h1>{escape(p['heading'])}</h1><p class="lead">{escape(p['lead'])}</p>
 <div class="hero-actions"><a class="btn" href="tel:{TEL}">Обсудить проект ↗</a><a class="btn ghost" href="./#services">Смотреть услуги</a></div></div>
@@ -408,10 +450,10 @@ def make_service_page(p: dict, catalog: list) -> str:
 <section class="panel service-contact" aria-labelledby="service-contact-title">
 <h2 id="service-contact-title">Обсудим ваш проект?</h2>
 <p>Расскажите, какая конструкция нужна. Мы уточним параметры и условия работы в Перми и Пермском крае.</p>
-<div class="service-contact__actions"><a class="btn" href="tel:{TEL}">Позвонить</a><a class="btn ghost" href="./#contacts">Связаться с нами</a></div>
+<div class="service-contact__actions"><a class="btn" href="./#contacts">Написать ↗</a><a class="btn ghost" href="tel:{TEL}">Позвонить ↗</a></div>
 </section>
 </main><footer><div class="row"><span>© 2026 Арсенал · {escape(COMPANY)}</span><span>ИНН 5904362275</span><a href="./arsenal-privacy.html">Политика конфиденциальности</a><a href="./">На главную</a></div>
-<div>Юридический адрес: {escape(ADDRESS)}. Адрес не обозначает место приёма клиентов.</div></footer></div></body></html>
+<div>Юридический адрес: {escape(ADDRESS)}. Адрес не обозначает место приёма клиентов.</div></footer></div>{_ARS_SUBPAGE_ACTIONS}</body></html>
 """
 
 def service_files(html: str) -> dict:

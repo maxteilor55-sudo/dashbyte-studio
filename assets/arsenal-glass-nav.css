@@ -1,0 +1,118 @@
+/* DASHBYTE / ARSENAL — one shared premium navigation for SEO and legal pages. */
+/* Matches the visual language of the live Arsenal header without loading the
+   bulky home page stylesheet. Scoped to avoid disturbing article styles. */
+.ars-service-page,.ars-policy-page{padding-top:106px}
+.ars-service-page{padding-bottom:0}
+.ars-glass-header,.ars-glass-header *,.ars-glass-flyout,.ars-glass-flyout *,
+.ars-service-dock,.ars-service-dock *,.ars-back-to-top{box-sizing:border-box}
+.ars-glass-header{
+ position:fixed;z-index:600;left:clamp(10px,1.4vw,19px);right:clamp(10px,1.4vw,19px);
+ top:max(10px,env(safe-area-inset-top,0px));margin:0;
+ border:1px solid rgba(239,223,205,.34);border-radius:30px;
+ background:linear-gradient(125deg,rgba(230,220,208,.135),rgba(34,28,25,.57) 65%,rgba(190,155,118,.085));
+ box-shadow:0 16px 44px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.32),inset 0 -1px 0 rgba(255,255,255,.045);
+ -webkit-backdrop-filter:blur(27px) saturate(165%);backdrop-filter:blur(27px) saturate(165%);
+ isolation:isolate;transition:background .25s,border-color .25s,box-shadow .25s;
+}
+.ars-glass-header:before{content:"";position:absolute;inset:1px;border-radius:inherit;
+ background:linear-gradient(165deg,rgba(255,255,255,.10),transparent 31%,rgba(206,170,137,.045) 100%);
+ pointer-events:none;z-index:-1}
+.ars-glass-header.is-scrolled{background:linear-gradient(130deg,rgba(225,218,209,.15),rgba(30,25,23,.81));
+ border-color:rgba(232,216,198,.42);box-shadow:0 20px 52px rgba(0,0,0,.52),inset 0 1px 0 rgba(255,255,255,.32)}
+.ars-glass-inner{height:88px;padding:11px clamp(13px,2.3vw,22px);display:flex;align-items:center;gap:17px}
+.ars-glass-brand{display:inline-flex;align-items:center;gap:13px;min-width:0;flex-shrink:0;
+ text-decoration:none!important;color:#f6f1e9!important}
+.ars-glass-brand__mark{width:56px;height:56px;flex:0 0 56px;overflow:hidden;
+ border:1px solid rgba(232,197,162,.40);border-radius:19px;
+ background:linear-gradient(145deg,#514238a8,#1b1714b8);
+ box-shadow:inset 0 1px 0 #ffffff38,0 9px 22px #0005;display:grid;place-items:center}
+.ars-glass-brand__mark img{display:block;width:100%;height:100%;object-fit:cover}
+.ars-glass-brand__words{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0}
+.ars-glass-brand__title{font:850 20px/1.12 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+ letter-spacing:.035em;color:#f7f2eb}
+.ars-glass-brand__meta{font:500 11px/1.25 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+ letter-spacing:.105em;color:#c9bbb0;white-space:nowrap}
+.ars-glass-online{display:inline-flex;align-items:center;gap:8px;
+ color:#a9c9ab;font:700 12px/1.2 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+.ars-glass-online__dot{width:9px;height:9px;border-radius:50%;background:#64ce9d;
+ box-shadow:0 0 0 4px rgba(93,214,157,.16),0 0 13px rgba(100,224,157,.66)}
+.ars-glass-links{display:flex;align-items:center;justify-content:flex-end;gap:clamp(10px,1.6vw,23px);margin-left:auto}
+.ars-glass-links a{font:600 13px/1.25 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+ text-decoration:none;color:#e9ddd1;white-space:nowrap;transition:color .2s}
+.ars-glass-links a:hover,.ars-glass-links a:focus-visible{color:#e3bb8f}
+.ars-glass-cta{display:inline-flex;align-items:center;justify-content:center;gap:9px;
+ padding:12px 16px;background:rgba(215,176,137,.17);border:1px solid rgba(231,196,157,.46);
+ border-radius:14px;font:750 12px/1.3 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+ color:#f6dfc4!important;text-decoration:none;white-space:nowrap}
+.ars-glass-menu-button{width:52px;height:52px;flex:0 0 52px;margin-left:auto;padding:12px;
+ display:none;align-items:center;justify-content:center;background:rgba(229,226,220,.12);
+ border:1px solid rgba(238,238,232,.36);border-radius:18px;color:#f6f1e9;
+ box-shadow:inset 0 1px 0 #ffffff36,0 8px 18px #0004;cursor:pointer}
+.ars-glass-menu-button svg{width:29px;height:29px;stroke:currentColor;stroke-width:2.2;fill:none;stroke-linecap:round}
+.ars-glass-menu-button .ars-icon-close{display:none}
+.ars-glass-menu-button[aria-expanded="true"] .ars-icon-menu{display:none}
+.ars-glass-menu-button[aria-expanded="true"] .ars-icon-close{display:block}
+.ars-glass-flyout[hidden]{display:none!important}
+.ars-glass-flyout{position:fixed;z-index:599;top:calc(max(10px,env(safe-area-inset-top,0px)) + 92px);
+ left:clamp(10px,1.4vw,19px);right:clamp(10px,1.4vw,19px);padding:12px;
+ border-radius:23px;border:1px solid rgba(238,227,214,.35);
+ background:linear-gradient(145deg,rgba(53,44,37,.93),rgba(23,19,17,.96));
+ -webkit-backdrop-filter:blur(28px) saturate(145%);backdrop-filter:blur(28px) saturate(145%);
+ box-shadow:0 23px 56px #000a,inset 0 1px 0 #fff2}
+.ars-glass-flyout a{display:block;padding:14px 16px;text-decoration:none!important;
+ border-radius:13px;color:#f6ede4!important;border-bottom:1px solid #ffffff15;
+ font:700 14px/1.35 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+.ars-glass-flyout a:last-child{border-bottom:0}
+.ars-glass-flyout a:focus-visible,.ars-glass-flyout a:hover{background:#ffffff13}
+.ars-glass-flyout .ars-glass-call{margin-top:6px;background:#d4ad83!important;color:#241b17!important}
+.ars-back-to-top{position:fixed;z-index:520;bottom:24px;right:20px;width:52px;height:52px;
+ display:grid;place-items:center;border-radius:18px;border:1px solid rgba(247,228,206,.59);
+ background:linear-gradient(140deg,rgba(236,215,185,.35),rgba(42,33,27,.78));
+ -webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px);
+ color:#fff7ed!important;box-shadow:0 10px 26px #0008,inset 0 1px 0 #fff5;
+ text-decoration:none;opacity:0;transform:translateY(12px);pointer-events:none;
+ transition:opacity .24s,transform .24s}
+.ars-back-to-top.is-visible{opacity:1;transform:translateY(0);pointer-events:auto}
+.ars-back-to-top svg{width:24px;height:24px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.ars-service-dock{display:none}
+.ars-glass-header a:focus-visible,.ars-glass-menu-button:focus-visible,
+.ars-glass-flyout a:focus-visible,.ars-back-to-top:focus-visible,.ars-service-dock a:focus-visible{
+ outline:3px solid #dfbb92;outline-offset:3px}
+@media(max-width:950px){
+ .ars-glass-links,.ars-glass-cta{display:none}
+ .ars-glass-menu-button{display:inline-flex}
+}
+@media(max-width:650px){
+ html{scroll-padding-top:120px}
+ .ars-service-page,.ars-policy-page{padding-top:108px;padding-bottom:112px}
+ .ars-glass-header{border-radius:25px}
+ .ars-glass-inner{height:80px;padding:10px 12px;gap:9px}
+ .ars-glass-brand{gap:10px}
+ .ars-glass-brand__mark{width:48px;height:48px;flex-basis:48px;border-radius:16px}
+ .ars-glass-brand__title{font-size:16px}
+ .ars-glass-brand__meta{font-size:9px;letter-spacing:.062em}
+ .ars-glass-online{font-size:11px;gap:7px}
+ .ars-glass-menu-button{height:49px;width:49px;flex-basis:49px;border-radius:16px;padding:10px}
+ .ars-glass-flyout{top:calc(max(10px,env(safe-area-inset-top,0px)) + 84px)}
+ .ars-back-to-top{bottom:calc(100px + env(safe-area-inset-bottom,0px));right:16px;width:48px;height:48px;border-radius:16px}
+ .ars-service-dock{position:fixed;z-index:510;bottom:calc(10px + env(safe-area-inset-bottom,0px));
+  left:12px;right:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:7px;
+  border-radius:25px;border:1px solid rgba(244,226,207,.4);
+  background:linear-gradient(135deg,rgba(218,207,197,.17),rgba(31,25,22,.75));
+  -webkit-backdrop-filter:blur(28px) saturate(160%);backdrop-filter:blur(28px) saturate(160%);
+  box-shadow:0 13px 36px #0009,inset 0 1px 0 #fff3}
+ .ars-service-dock a{min-width:0;min-height:54px;display:flex;align-items:center;justify-content:center;
+  padding:10px 12px;text-decoration:none!important;font:800 13px/1.2 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  border-radius:19px;color:#f5e8dc;background:rgba(25,21,18,.45);border:1px solid #ffffff27}
+ .ars-service-dock a:first-child{background:#d4ac82;color:#241b17;border-color:#e1c09d}
+}
+@media(max-width:370px){
+ .ars-glass-brand__mark{width:43px;height:43px;flex-basis:43px}
+ .ars-glass-brand__meta{font-size:8px}
+ .ars-glass-brand__title{font-size:15px}
+ .ars-glass-menu-button{width:45px;height:45px;flex-basis:45px}
+}
+@media(prefers-reduced-motion:reduce){
+ .ars-glass-header,.ars-back-to-top{transition:none}
+ html{scroll-behavior:auto}
+}

@@ -347,7 +347,9 @@ html=re.sub(r'<img\b[^>]*>',optimize_photo_img,html,flags=re.I|re.S)
 # Build seven service galleries from the same cacheable images as the homepage.
 service_pages = seo.service_files(html)
 assert len(service_pages) == 7
-assert all('href="./#contacts">Связаться с нами</a>' in page for page in service_pages.values())
+assert all('href="./#contacts">Написать ↗</a>' in page for page in service_pages.values())
+assert all('href="tel:+79082400998">Позвонить ↗</a>' in page for page in service_pages.values())
+assert all('id="ars-glass-menu-toggle"' in page and 'id="ars-back-to-top"' in page for page in service_pages.values())
 assert all('class="panel service-gallery"' in page for page in service_pages.values())
 assert all('arsenal-photo-' in page or 'arsenal-fences-client.avif' in page for page in service_pages.values())
 
@@ -470,7 +472,7 @@ with ZipFile(archive, "w", compression=ZIP_DEFLATED, compresslevel=6) as z:
     add_public_file(z, "index.html", html)
     add_public_file(z, "favicon.ico", ico_bytes.getvalue())
     add_public_file(z, "apple-touch-icon.png", apple_bytes.getvalue())
-    z.write(root / 'arsenal-privacy.html', 'arsenal-privacy.html')
+    add_public_file(z, 'arsenal-privacy.html', seo.decorate_privacy((root / 'arsenal-privacy.html').read_text(encoding='utf-8')))
     add_public_file(z, 'robots.txt', seo.robots())
     add_public_file(z, 'sitemap.xml', seo.sitemap())
     add_public_file(z, '.htaccess', seo.htaccess())
