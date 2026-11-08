@@ -238,55 +238,66 @@ def patch_homepage(html: str) -> str:
       '<script type="application/ld+json">' + _json(seo) + '</script>\n'
     )
     html = html.replace("</head>", head + "</head>", 1)
+    # The approved 11 photographic cards in "КОНСТРУКЦИИ, КОТОРЫЕ РАБОТАЮТ"
+    # are the ONLY service entry point on the home page. No second SEO
+    # catalogue, no duplicate carousel. Several variants share a deeper page.
     catalog = _photo_catalog(html)
-    cards = "".join(
-      '<a class="ars-seo-card" href="./' + p["file"] + '" aria-label="' +
-      escape(p["name"] + '. ' + _media_caption(_media_for(p, catalog)[0]), quote=True) + '">' +
-      '<img src="' + escape(_media_for(p, catalog)[0]["src"], quote=True) +
-      '" alt="' + escape(_media_for(p, catalog)[0]["alt"], quote=True) +
-      '" loading="lazy" decoding="async">' +
-      '<span class="ars-seo-card__shade" aria-hidden="true"></span>' +
-      '<span class="ars-seo-card__body"><strong>' + escape(p["name"]) +
-      '</strong><small>' + escape(_media_caption(_media_for(p, catalog)[0])) +
-      '</small><span class="ars-seo-card__open">Смотреть направление <span aria-hidden="true">↗</span></span></span></a>'
-      for p in PAGES
-    )
-    section = (
-      '\n<section class="ars-seo-services" aria-labelledby="ars-seo-title">'
-      '<div class="wrap"><p class="ars-seo-eyebrow">АРСЕНАЛ · ПЕРМЬ И ПЕРМСКИЙ КРАЙ</p>'
-      '<h2 id="ars-seo-title">Подробнее о наших работах</h2>'
-      '<p>Выберите направление, чтобы посмотреть реальные фотографии конструкций '
-      'и узнать, что важно учесть перед заказом.</p>'
-      '<nav class="ars-seo-grid" aria-label="Подробные страницы услуг">' + cards + '</nav>'
-      '</div></section>\n'
-    )
-    css = """<style id="arsenal-seo-styles">
-    .ars-seo-services{padding:clamp(38px,5.8vw,78px) 0;background:linear-gradient(145deg,#1d1714,#29201c);border-top:1px solid #d2ae8055;border-bottom:1px solid #d2ae8038}
-    .ars-seo-services .ars-seo-eyebrow{color:#d2ae80;font-size:11px;font-weight:800;letter-spacing:.18em}
-    .ars-seo-services h2{font-size:clamp(29px,4.5vw,54px);line-height:1.1;letter-spacing:-.05em;margin:16px 0}
-    .ars-seo-services p:not(.ars-seo-eyebrow){max-width:790px;color:#cdb9a7;font-size:15px;line-height:1.7}
-    .ars-seo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(10px,1.8vw,18px);margin:27px 0}
-    .ars-seo-grid .ars-seo-card{min-width:0;position:relative;isolation:isolate;overflow:hidden;display:flex;align-items:flex-end;min-height:290px;aspect-ratio:1.14;border:1px solid #ddbd9a65;border-radius:22px;background:#342923;color:#f7f0e9;text-decoration:none;box-shadow:0 18px 36px #100c0a3f;transition:border-color .25s,transform .25s,box-shadow .25s}
-    .ars-seo-card>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .55s ease;z-index:-2}
-    .ars-seo-card__shade{position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,transparent 12%,#140f0ccb 72%,#100b0af5 100%)}
-    .ars-seo-grid .ars-seo-card:hover{transform:translateY(-4px);border-color:#eac69b;box-shadow:0 24px 45px #100c0a75}
-    .ars-seo-card:hover>img{transform:scale(1.045)}
-    .ars-seo-card__body{width:100%;display:flex;flex-direction:column;gap:7px;padding:clamp(15px,2vw,24px)}
-    .ars-seo-card__body strong{font-size:clamp(17px,2vw,25px);font-weight:850;line-height:1.18;letter-spacing:-.035em}
-    .ars-seo-card__body small{color:#e9d5bd;font-size:12px;line-height:1.4;font-weight:550;min-height:2.5em}
-    .ars-seo-card__open{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:6px;padding-top:11px;border-top:1px solid #eac69b55;text-transform:uppercase;letter-spacing:.06em;color:#e6bf95;font-size:10px;font-weight:800}
-    .ars-seo-card:focus-visible{outline:3px solid #e6bf95;outline-offset:3px}
-    @media(max-width:760px){.ars-seo-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-    @media(max-width:480px){.ars-seo-services{padding:37px 0 45px}.ars-seo-grid{gap:9px}.ars-seo-grid .ars-seo-card{min-height:205px;aspect-ratio:.77;border-radius:17px}.ars-seo-card__body{padding:12px}.ars-seo-card__body strong{font-size:15px}.ars-seo-card__body small{font-size:10px;min-height:3em}.ars-seo-card__open{font-size:9px;line-height:1.25;letter-spacing:.015em}}
-    @media(prefers-reduced-motion:reduce){.ars-seo-grid .ars-seo-card,.ars-seo-card>img{transition:none}}
-    </style>"""
-    html = html.replace("</head>", css + "</head>", 1)
-    hero = re.search(r'<section\b[^>]*\bclass="hero"[^>]*>[\s\S]*?</section>', html)
-    if not hero:
-        raise RuntimeError("Arsenal hero cover not found")
-    html = html.replace(hero.group(0), hero.group(0) + section, 1)
-    assert html.index('id="ars-seo-title"') < html.index('id="ars-showcase"')
-    assert all(('href="./' + p["file"] + '"') in html for p in PAGES)
+    destinations = [
+        "navesy.html", "garazhi.html", "navesy.html",
+        "vhodnye-gruppy.html", "svarka.html", "terrasy.html",
+        "ograzhdeniya.html", "ograzhdeniya.html",
+        "lestnicy.html", "lestnicy.html", "svarka.html",
+    ]
+    sample_photos = {
+        "garage": EXTRA_PHOTOS.get("garage", {
+            "src": "./assets/arsenal-garage-client.avif",
+            "alt": "Гараж с облицовкой под дерево и тёмными воротами"}),
+        "terrace": catalog[7],   # Navес near a house, related terrace roof example
+        "fence": EXTRA_PHOTOS["fence"],
+        "rail": catalog[23],     # Entrance stairs and steel handrails
+        "stairs": catalog[22],   # Actual metal staircase and landing
+        "fire": EXTRA_PHOTOS["fire"],
+        "welding": catalog[8],   # Welded steel frame
+    }
+    card_number = 0
+
+    def service_card(match):
+        nonlocal card_number
+        card_number += 1
+        if card_number > len(destinations):
+            raise RuntimeError("Unexpected number of Arsenal service cards")
+        card = match.group(0)
+        card, count = re.subn(r'href="(?:#projects|#contacts)"',
+                              'href="./' + destinations[card_number-1] + '"',
+                              card, count=1)
+        if count != 1:
+            raise RuntimeError(f"Missing original link on service card {card_number}")
+        card = re.sub(r'\sdata-filter-target="[^"]+"', '', card, count=1)
+        sample_match = re.search(r'\sdata-ars-sample="([^"]+)"', card)
+        if sample_match:
+            kind = sample_match.group(1)
+            photo = sample_photos[kind]
+            card = card.replace(sample_match.group(0), "", 1)
+            new_image = ('<img src="' + escape(photo["src"], quote=True) +
+                         '" alt="' + escape(photo["alt"], quote=True) +
+                         '" loading="lazy" decoding="async">')
+            image = re.search(r'<img\b[^>]*>', card, flags=re.S)
+            if image:
+                card = card[:image.start()] + new_image + card[image.end():]
+            else:
+                first_tag_end = card.index(">")
+                card = card[:first_tag_end+1] + new_image + card[first_tag_end+1:]
+            card = re.sub(r'<span class="ars-card-glyph"[^>]*>.*?</span>',
+                          '', card, count=1, flags=re.S)
+            card = card.replace('ars-text-card', 'ars-photo-card', 1)
+        return card
+
+    html = re.sub(r'<a class="service-card[^>]*>[\s\S]*?</a>',
+                  service_card, html)
+    if card_number != 11:
+        raise RuntimeError(f"Expected 11 original service cards; got {card_number}")
+    # The same existing high quality visual cards now lead to indexed URLs.
+    assert all('href="./' + p["file"] + '"' in html for p in PAGES)
     return html
 
 _CSS = """
