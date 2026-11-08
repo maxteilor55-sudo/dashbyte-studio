@@ -56,6 +56,9 @@ jobs:
               for p in pages - {'index.html'}:
                   page = z.read(p).decode('utf-8')
                   assert 'class="panel service-gallery"' in page
+                  assert 'id="arsenal-shared-ui-critical"' in page
+                  assert 'id="arsenal-shared-ui-script"' in page
+                  assert 'class="footer db-forge-footer ars-shared-footer"' in page
                   assert 'href="./#contacts">Написать ↗</a>' in page
                   assert 'href="tel:+79082400998">Позвонить ↗</a>' in page
                   assert 'id="ars-glass-menu-toggle"' in page

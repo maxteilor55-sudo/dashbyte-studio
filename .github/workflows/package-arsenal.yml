@@ -134,8 +134,12 @@ jobs:
                   page=z.read(f).decode('utf-8')
                   assert '<h1>' in page and '<link rel="canonical"' in page
                   assert 'application/ld+json' in page
-                  assert 'arsenal-glass-nav.css?v=20261108a' in page
-                  assert 'arsenal-glass-nav.js?v=20261108a' in page
+                  assert 'id="arsenal-shared-ui-critical"' in page
+                  assert 'class="footer db-forge-footer ars-shared-footer"' in page
+                  assert 'https://t.me/DashByteStudioBot' in page
+                  assert 'id="arsenal-shared-ui-script"' in page
+                  assert '.ars-back-to-top svg{' in page
+                  assert '.ars-glass-brand__mark{' in page
                   assert 'id="ars-glass-menu-toggle"' in page
                   assert 'class="ars-glass-brand"' in page
                   assert 'id="ars-back-to-top"' in page
@@ -147,11 +151,23 @@ jobs:
               assert 'пароль' not in policy.lower()
               assert 'id="ars-glass-menu-toggle"' in policy
               assert 'id="ars-back-to-top"' in policy
-              assert 'arsenal-glass-nav.css?v=20261108a' in policy
+              assert 'id="arsenal-shared-ui-critical"' in policy
+              assert 'id="arsenal-shared-ui-script"' in policy
+              assert 'class="footer db-forge-footer ars-shared-footer"' in policy
+              assert 'https://t.me/DashByteStudioBot' in policy
               assert 'assets/arsenal-glass-nav.css' in files
               assert 'assets/arsenal-glass-nav.js' in files
               import subprocess
               subprocess.run(['node','--check','assets/arsenal-glass-nav.js'],check=True)
+              # The release must contain independently parseable CSS rules.
+              import tinycss2
+              css=z.read('assets/arsenal-glass-nav.css').decode('utf-8')
+              rules=tinycss2.parse_stylesheet(css,skip_comments=True,skip_whitespace=True)
+              top_selectors=[tinycss2.serialize(rule.prelude).strip() for rule in rules
+                             if rule.type=='qualified-rule']
+              assert '.ars-glass-brand__mark' in top_selectors
+              assert '.ars-back-to-top svg' in top_selectors
+              assert css.count('{')==css.count('}')
               print('ARSENAL_RELEASE_VALIDATED', len(files), p.stat().st_size)
           PY
       - name: Commit downloadable ZIP

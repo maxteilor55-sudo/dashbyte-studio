@@ -331,7 +331,19 @@ _ARS_SUBPAGE_ACTIONS = f"""<nav class="ars-service-dock" aria-label="Связа�
 <a class="ars-back-to-top" id="ars-back-to-top" href="#top" aria-label="Наверх"
  title="Наверх"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 14 7-7 7 7M12 7v13"/></svg></a>"""
 
-def decorate_privacy(html: str) -> str:
+def shared_footer(home: str) -> str:
+    """Copy the approved home-page footer itself, not a hand-written imitation."""
+    hit = re.search(r'<footer class="footer db-forge-footer" id="dashbyte-signature">[\s\S]*?</footer>', home)
+    if not hit:
+        raise RuntimeError("Original Arsenal footer missing: refusing to build inconsistent pages")
+    footer = hit.group(0).replace(
+        'class="footer db-forge-footer"', 'class="footer db-forge-footer ars-shared-footer"', 1)
+    footer = footer.replace('<span id="year"></span>', '2026', 1)
+    assert 'footer-studio-emblem' in footer and 'ars-legal-links' in footer
+    assert 'https://t.me/DashByteStudioBot' in footer
+    return footer
+
+def decorate_privacy(html: str, home: str) -> str:
     """Give the legal page the same header and back-to-top as SEO pages."""
     if '<body>' not in html or '<header class="top">' not in html:
         raise RuntimeError("Expected original legal page layout")
@@ -340,7 +352,10 @@ def decorate_privacy(html: str) -> str:
         raise RuntimeError("Could not replace legacy policy header")
     html = html.replace('<body>', '<body class="ars-policy-page" id="top">\n' + _ARS_GLASS_HEADER, 1)
     html = html.replace('</head>', _ARS_NAV_ASSETS + '</head>', 1)
-    html = html.replace('</body>', _ARS_SUBPAGE_ACTIONS + '</body>', 1)
+    html, old_footer = re.subn(r'<footer class="foot">[\s\S]*?</footer>', '', html, count=1)
+    if old_footer != 1:
+        raise RuntimeError("Old policy footer missing")
+    html = html.replace('</body>', shared_footer(home) + _ARS_SUBPAGE_ACTIONS + '</body>', 1)
     assert 'ars-glass-menu-toggle' in html and 'ars-back-to-top' in html
     return html
 
@@ -373,7 +388,7 @@ footer{border-top:1px solid #e4b88e31;padding:28px 0 50px;font-size:12px;color:#
 @media(max-width:650px){.hero{padding-top:48px}.grid{grid-template-columns:1fr}}
 """
 
-def make_service_page(p: dict, catalog: list) -> str:
+def make_service_page(p: dict, catalog: list, footer: str) -> str:
     u = BASE + "/" + p["file"]
     pieces = "".join(
        '<div class="item"><h3>' + escape(a) + '</h3><p>' + escape(b) + '</p></div>'
@@ -452,13 +467,13 @@ def make_service_page(p: dict, catalog: list) -> str:
 <p>Расскажите, какая конструкция нужна. Мы уточним параметры и условия работы в Перми и Пермском крае.</p>
 <div class="service-contact__actions"><a class="btn" href="./#contacts">Написать ↗</a><a class="btn ghost" href="tel:{TEL}">Позвонить ↗</a></div>
 </section>
-</main><footer><div class="row"><span>© 2026 Арсенал · {escape(COMPANY)}</span><span>ИНН 5904362275</span><a href="./arsenal-privacy.html">Политика конфиденциальности</a><a href="./">На главную</a></div>
-<div>Юридический адрес: {escape(ADDRESS)}. Адрес не обозначает место приёма клиентов.</div></footer></div>{_ARS_SUBPAGE_ACTIONS}</body></html>
+</main></div>{footer}{_ARS_SUBPAGE_ACTIONS}</body></html>
 """
 
 def service_files(html: str) -> dict:
     catalog = _photo_catalog(html)
-    return {p["file"]: make_service_page(p, catalog) for p in PAGES}
+    footer = shared_footer(html)
+    return {p["file"]: make_service_page(p, catalog, footer) for p in PAGES}
 
 def sitemap() -> str:
     from xml.sax.saxutils import escape as xesc

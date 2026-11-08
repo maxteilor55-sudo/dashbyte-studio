@@ -353,6 +353,35 @@ assert all('id="ars-glass-menu-toggle"' in page and 'id="ars-back-to-top"' in pa
 assert all('class="panel service-gallery"' in page for page in service_pages.values())
 assert all('arsenal-photo-' in page or 'arsenal-fences-client.avif' in page for page in service_pages.values())
 
+# The SEO pages must work even if REG.RU has a stale / missing assets folder.
+# Inline the CSS before </head> and the JS after all HTML, so menus & SVGs
+# can never appear as naked links / huge black icons on an updated page.
+glass_css = (root / "assets/arsenal-glass-nav.css").read_text(encoding="utf-8")
+glass_js = (root / "assets/arsenal-glass-nav.js").read_text(encoding="utf-8")
+assert glass_css.count("{") == glass_css.count("}"), "Broken braces in shared nav stylesheet"
+assert ".ars-glass-brand__mark{" in glass_css
+assert ".ars-back-to-top svg{" in glass_css
+assert ".ars-shared-footer .footer-studio{" in glass_css
+
+def inline_shared_ui(page: str) -> str:
+    css_link = '<link rel="stylesheet" href="./assets/arsenal-glass-nav.css?v=20261108a">'
+    js_link = '<script defer src="./assets/arsenal-glass-nav.js?v=20261108a"></script>'
+    if page.count(css_link) != 1 or page.count(js_link) != 1:
+        raise RuntimeError("Missing or duplicated shared nav assets")
+    page = page.replace(css_link,
+                        '<style id="arsenal-shared-ui-critical">' + glass_css + '</style>', 1)
+    page = page.replace(js_link, '', 1)
+    page = page.replace('</body>',
+                        '<script id="arsenal-shared-ui-script">' + glass_js + '</script></body>',1)
+    assert page.count('id="arsenal-shared-ui-critical"') == 1
+    assert page.count('id="arsenal-shared-ui-script"') == 1
+    assert page.count('class="footer db-forge-footer ars-shared-footer"') == 1
+    assert page.count('class="ars-back-to-top"') == 1
+    return page
+
+service_pages = {path: inline_shared_ui(page) for path, page in service_pages.items()}
+
+
 # Release layout: cover -> approved 11 service cards -> trust -> approach ->
 # consultation form. Photo catalogues are retained only on dedicated SEO pages.
 # They must be assembled BEFORE removing the original gallery because the
@@ -472,7 +501,7 @@ with ZipFile(archive, "w", compression=ZIP_DEFLATED, compresslevel=6) as z:
     add_public_file(z, "index.html", html)
     add_public_file(z, "favicon.ico", ico_bytes.getvalue())
     add_public_file(z, "apple-touch-icon.png", apple_bytes.getvalue())
-    add_public_file(z, 'arsenal-privacy.html', seo.decorate_privacy((root / 'arsenal-privacy.html').read_text(encoding='utf-8')))
+    add_public_file(z, 'arsenal-privacy.html', inline_shared_ui(seo.decorate_privacy((root / 'arsenal-privacy.html').read_text(encoding='utf-8'), html)))
     add_public_file(z, 'robots.txt', seo.robots())
     add_public_file(z, 'sitemap.xml', seo.sitemap())
     add_public_file(z, '.htaccess', seo.htaccess())

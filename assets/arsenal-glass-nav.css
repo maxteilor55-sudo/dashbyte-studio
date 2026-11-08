@@ -21,7 +21,7 @@
  border-color:rgba(232,216,198,.42);box-shadow:0 20px 52px rgba(0,0,0,.52),inset 0 1px 0 rgba(255,255,255,.32)}
 .ars-glass-inner{height:88px;padding:11px clamp(13px,2.3vw,22px);display:flex;align-items:center;gap:17px}
 .ars-glass-brand{display:inline-flex;align-items:center;gap:13px;min-width:0;flex-shrink:0;
- text-decoration:none!important;color:#f6f1e9!important;flex:1 1 auto;
+ text-decoration:none!important;color:#f6f1e9!important;flex:1 1 auto;overflow:hidden}
 .ars-glass-brand__mark{width:56px;height:56px;flex:0 0 56px;overflow:hidden;
  border:1px solid rgba(232,197,162,.40);border-radius:19px;
  background:linear-gradient(145deg,#514238a8,#1b1714b8);
@@ -116,3 +116,79 @@
  .ars-glass-header,.ars-back-to-top{transition:none}
  html{scroll-behavior:auto}
 }
+
+
+/* One footer, one source of markup: copied from the main Arsenal page.
+   Match the approved Espresso Steel / CINEMA Atelier footer hierarchy. */
+.ars-shared-footer{
+ position:relative!important;isolation:isolate;overflow:hidden;
+ margin:0!important;background:#201c19!important;background-image:none!important;
+ color:#f1ebe4!important;min-height:0!important;padding:58px 0 75px!important;
+ border:0!important;box-shadow:none!important;
+ font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+}
+.ars-shared-footer:before,.ars-shared-footer:after{display:none!important;content:none!important}
+.ars-shared-footer .wrap{width:min(1080px,calc(100% - 36px));max-width:100%;margin:0 auto}
+.ars-shared-footer .db-forge-content{display:flex;align-items:center;justify-content:space-between;gap:30px;min-height:0}
+.ars-shared-footer .db-forge-business{display:flex;flex-direction:column;align-items:flex-start;gap:23px;min-width:0;max-width:54%}
+.ars-shared-footer .db-forge-rule{display:flex;align-items:center;gap:13px;font-weight:700;letter-spacing:.17em;font-size:10px;color:#bda38d;white-space:nowrap}
+.ars-shared-footer .db-forge-rule-pulse{display:block;width:41px;height:1px;background:#b89a79;opacity:.7}
+.ars-shared-footer .db-forge-client{margin:0!important;border:0!important;text-decoration:none!important;display:flex!important;align-items:center!important;gap:13px;min-width:0}
+.ars-shared-footer .db-forge-client .brand-mark{
+ display:grid;place-items:center;width:49px;height:49px;flex:0 0 49px;
+ border:1px solid rgba(233,210,186,.33);border-radius:15px;
+ background:rgba(235,219,205,.055);color:#d7ad84;box-shadow:inset 0 1px 0 #fff2}
+.ars-shared-footer .db-forge-client .brand-mark svg{width:31px;height:31px;stroke:currentColor;fill:none}
+.ars-shared-footer .db-forge-client .brand-name{
+ font-size:17px!important;line-height:1.15;font-weight:800;letter-spacing:.08em;
+ color:#eee9e4!important;white-space:normal}
+.ars-shared-footer .db-forge-client .brand-name>span{
+ display:inline-block;margin-top:7px;letter-spacing:.10em;font-size:10px!important;
+ font-weight:600;color:#b8a99c!important}
+.ars-shared-footer .db-forge-legal{font-size:12px;color:#a89a8c}
+.ars-shared-footer .footer-studio{
+ position:relative;isolation:isolate;overflow:hidden;
+ display:flex;align-items:center;gap:14px;flex:none;min-width:230px;
+ padding:12px 16px 12px 12px;border:1px solid rgba(244,225,202,.52);
+ border-radius:24px;text-decoration:none!important;color:#f7eee5!important;
+ background:linear-gradient(132deg,rgba(245,223,197,.18),rgba(230,198,169,.09) 58%,rgba(244,221,191,.14));
+ box-shadow:0 13px 42px rgba(12,7,5,.14),inset 0 1px 0 rgba(255,244,228,.43),inset 0 -1px 0 rgba(183,135,93,.1);
+ backdrop-filter:blur(18px) saturate(115%);-webkit-backdrop-filter:blur(18px) saturate(115%);
+}
+.ars-shared-footer .footer-studio:after{
+ content:"";position:absolute;left:16px;right:16px;bottom:1px;height:1px;opacity:.45;
+ background:linear-gradient(90deg,transparent,rgba(215,170,128,.6),rgba(255,233,208,.74),transparent)}
+.ars-shared-footer .footer-studio-emblem{
+ display:grid;place-items:center;flex:0 0 62px;width:62px;height:62px;min-width:62px;overflow:hidden;
+ background:rgba(255,229,197,.12);border:1px solid rgba(255,230,199,.33);border-radius:18px;
+ box-shadow:inset 0 1px 1px rgba(255,240,220,.23)}
+.ars-shared-footer .footer-studio-emblem img{display:block;width:54px;height:54px;max-width:100%;max-height:100%;object-fit:contain;margin:0}
+.ars-shared-footer .footer-studio-copy{display:flex;flex-direction:column;align-items:flex-start;gap:2px;white-space:nowrap;line-height:1.15}
+.ars-shared-footer .footer-studio-kicker{font-size:9px;font-weight:800;letter-spacing:.15em;color:#d0b095}
+.ars-shared-footer .footer-studio-copy strong{font-family:Manrope,system-ui,sans-serif;font-size:24px;letter-spacing:-.065em;color:#f7eee5;font-weight:850}
+.ars-shared-footer .footer-studio-sub{font-size:8px;color:#b79e86;letter-spacing:.21em;font-weight:800}
+.ars-shared-footer .db-card-ripple,.ars-shared-footer .db-card-spark{display:none}
+.ars-shared-footer .ars-legal-links{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;
+ gap:10px 22px;margin:22px auto 0;padding:18px 16px 4px;border-top:1px solid rgba(255,239,223,.15);
+ width:min(680px,100%)}
+.ars-shared-footer .ars-legal-links a{font-size:12px;line-height:1.5;color:#e1d0bb;text-decoration:none;
+ border-bottom:1px solid rgba(203,165,124,.38);padding:4px}
+.ars-shared-footer .ars-legal-links a:hover{color:#fff;border-color:#cba57c}
+.ars-service-page .wrap>main,.ars-policy-page .shell>main{min-height:0}
+@media(max-width:950px){.ars-shared-footer .db-forge-content{gap:20px}.ars-shared-footer .db-forge-business{max-width:52%}}
+@media(max-width:680px){
+ .ars-shared-footer{padding:48px 0 calc(148px + env(safe-area-inset-bottom,0px))!important}
+ .ars-shared-footer .db-forge-content{flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:28px}
+ .ars-shared-footer .db-forge-business{max-width:100%;gap:17px}
+ .ars-shared-footer .db-forge-rule{font-size:9px;letter-spacing:.11em;gap:9px}
+ .ars-shared-footer .db-forge-rule-pulse{width:28px}
+ .ars-shared-footer .db-forge-client .brand-name{font-size:14px!important}
+ .ars-shared-footer .db-forge-client .brand-name>span{font-size:8.5px!important}
+ .ars-shared-footer .db-forge-client .brand-mark{width:42px;height:42px;flex-basis:42px;border-radius:13px}
+ .ars-shared-footer .db-forge-legal{font-size:11px}
+ .ars-shared-footer .footer-studio{align-self:flex-start;min-width:0;max-width:100%;gap:11px;padding:10px 16px 10px 10px;border-radius:20px}
+ .ars-shared-footer .footer-studio-emblem{flex-basis:54px;width:54px;height:54px;min-width:54px;border-radius:15px}
+ .ars-shared-footer .footer-studio-emblem img{width:48px;height:48px}
+ .ars-shared-footer .footer-studio-copy strong{font-size:23px}
+}
+@media(max-width:370px){.ars-shared-footer .footer-studio-kicker{font-size:8px}}
