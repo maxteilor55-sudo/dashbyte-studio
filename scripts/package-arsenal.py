@@ -147,7 +147,9 @@ assert sorted(list(gallery_locations) + list(gallery_details)) == list(range(1, 
 assert html.count('class="ars-gallery-geo"') == gallery_count
 # SEO cards use verified photo captions from the existing gallery.
 html = seo.patch_homepage(html)
-assert html.index('id="ars-seo-title"') < html.index('id="ars-showcase"')
+assert html.count('class="service-card') == 11
+assert 'class="ars-seo-card"' not in html
+assert all('href="./' + p['file'] + '"' in html for p in seo.PAGES)
 
 # Two photographic cards per row, including on mobile. Existing lightbox,
 # filters, assets and all contact-form event handlers remain untouched.
@@ -348,6 +350,75 @@ assert len(service_pages) == 7
 assert all('href="./#contacts">Связаться с нами</a>' in page for page in service_pages.values())
 assert all('class="panel service-gallery"' in page for page in service_pages.values())
 assert all('arsenal-photo-' in page or 'arsenal-fences-client.avif' in page for page in service_pages.values())
+
+# Release layout: cover -> approved 11 service cards -> trust -> approach ->
+# consultation form. Photo catalogues are retained only on dedicated SEO pages.
+# They must be assembled BEFORE removing the original gallery because the
+# verified photograph provenance lives there in the source.
+html, n_carousel = re.subn(
+    r'\s*<!-- DEMO SHOWCASE:[\s\S]*?-->\s*<section class="ars-showcase"[\s\S]*?</section>',
+    '\n', html, count=1)
+assert n_carousel == 1, "Cannot safely locate duplicate showcase block"
+html, n_gallery = re.subn(
+    r'\s*<section class="gallery section" id="projects">[\s\S]*?</section>(?=\s*<div aria-hidden="true" class="lens-seam lens-seam-v10")',
+    '\n', html, count=1)
+assert n_gallery == 1, "Cannot safely locate duplicated home gallery"
+# Remove decorative separator that referred to the deleted gallery.
+html = html.replace(
+    '<div aria-hidden="true" class="lens-seam lens-seam-v10"><span class="seam-line"></span><span class="seam-word">НАШИ РАБОТЫ</span><span class="seam-line"></span></div>',
+    '', 1)
+# Old standalone photo viewer has no purpose without the gallery.
+html, n_lightbox = re.subn(
+    r'<div aria-label="Просмотр фотографии" aria-modal="true" class="lightbox"[\s\S]*?</button></div>(?=\s*<script>)',
+    '', html, count=1)
+assert n_lightbox == 1, "Cannot safely remove obsolete gallery lightbox"
+# Remove the old gallery filtering/zoom event handlers so the app initializer
+# still runs (previously it would throw on absent #show-more / #gallery-grid).
+html, n_gallery_handlers = re.subn(
+    r"      const tabs=\[\.\.\.document\.querySelectorAll\('\.tab'\)\][\s\S]*?(?=// Arsenal contact form handled by embedded production Telegram integration\.)",
+    '', html, count=1)
+assert n_gallery_handlers == 1, "Cannot safely detach legacy gallery handlers"
+html, n_gallery_animation = re.subn(
+    r"\s*/\* Gallery filter: short, tactile bloom, including after 'show more'\. \*/[\s\S]*?(?=\s*document\.getElementById\('year'\)\.textContent)",
+    '\n', html, count=1)
+assert n_gallery_animation == 1, "Cannot safely detach gallery reveal handlers"
+# Bottom dock remains a true three-way navigation without a dead "Works" link.
+html = html.replace(
+    "const activeSections=['services','projects','contacts'].map(id=>document.getElementById(id));",
+    "const activeSections=['services','approach','contacts'].map(id=>document.getElementById(id));", 1)
+html = html.replace('data-dock="projects" href="#projects"',
+                    'data-dock="approach" href="#approach"', 1)
+html = html.replace('<span>Работы</span></a>', '<span>О нас</span></a>', 1)
+# Delete the now-duplicate 'Наши работы' item from both desktop and
+# mobile menu. Keep the approved cover layout and all contact CTAs.
+assert html.count('<a href="#projects">Наши работы</a>') == 2
+html = html.replace('<a href="#projects">Наши работы</a>', '', 2)
+html = html.replace('href="#projects">Смотреть работы',
+                    'href="#services">Посмотреть услуги', 1)
+# The other former gallery anchors refer to the service overview instead.
+html = html.replace('href="#projects"', 'href="#services"')
+# Remove unused showcase stylesheet/script tags but do NOT touch service
+# photography: the approved cards now include those images statically.
+html = re.sub(r'<link\b[^>]*arsenal-showcase-v1\.css[^>]*>', '', html, count=1)
+html = re.sub(r'<script\b[^>]*arsenal-showcase-v1\.js[^>]*></script>', '', html, count=1)
+# "О нас" is the compact dock label; its target is the real approach section.
+assert 'data-dock="approach" href="#approach"' in html
+assert html.index('class="hero"') < html.index('id="services"') < html.index('class="ars-trust"')
+assert 'id="ars-showcase"' not in html and 'id="projects"' not in html
+assert 'class="ars-seo-card"' not in html and 'id="ars-seo-title"' not in html
+assert 'id="contact-form"' in html and 'id="arsenal-leads-inline-app"' in html
+assert html.count('class="service-card') == 11
+assert html.count('href="./navesy.html"') >= 2
+for page_name in seo.PAGES:
+    assert 'href="./' + page_name['file'] + '"' in html
+assert "getElementById('show-more')" not in html
+assert "getElementById('gallery-grid')" not in html
+# Reclaim images used only by the now-deleted homepage gallery; keep all
+# images referenced by the homepage's cards or the seven SEO galleries.
+referenced = html + ''.join(service_pages.values())
+inline_assets = {name: data for name, data in inline_assets.items()
+                 if ('./' + name) in referenced or ('"' + name) in referenced}
+
 
 if inline_pattern.search(source.read_text(encoding="utf-8")) and not inline_assets:
     raise RuntimeError("Failed to externalize inline photos")
