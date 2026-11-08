@@ -21,17 +21,17 @@
  border-color:rgba(232,216,198,.42);box-shadow:0 20px 52px rgba(0,0,0,.52),inset 0 1px 0 rgba(255,255,255,.32)}
 .ars-glass-inner{height:88px;padding:11px clamp(13px,2.3vw,22px);display:flex;align-items:center;gap:17px}
 .ars-glass-brand{display:inline-flex;align-items:center;gap:13px;min-width:0;flex-shrink:0;
- text-decoration:none!important;color:#f6f1e9!important}
+ text-decoration:none!important;color:#f6f1e9!important;flex:1 1 auto;
 .ars-glass-brand__mark{width:56px;height:56px;flex:0 0 56px;overflow:hidden;
  border:1px solid rgba(232,197,162,.40);border-radius:19px;
  background:linear-gradient(145deg,#514238a8,#1b1714b8);
  box-shadow:inset 0 1px 0 #ffffff38,0 9px 22px #0005;display:grid;place-items:center}
 .ars-glass-brand__mark img{display:block;width:100%;height:100%;object-fit:cover}
-.ars-glass-brand__words{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0}
+.ars-glass-brand__words{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0;flex:1 1 auto;overflow:hidden}
 .ars-glass-brand__title{font:850 20px/1.12 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
  letter-spacing:.035em;color:#f7f2eb}
 .ars-glass-brand__meta{font:500 11px/1.25 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
- letter-spacing:.105em;color:#c9bbb0;white-space:nowrap}
+ letter-spacing:.105em;color:#c9bbb0;white-space:nowrap;display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis}
 .ars-glass-online{display:inline-flex;align-items:center;gap:8px;
  color:#a9c9ab;font:700 12px/1.2 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
 .ars-glass-online__dot{width:9px;height:9px;border-radius:50%;background:#64ce9d;

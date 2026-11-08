@@ -7,6 +7,8 @@ on:
       - 'scripts/build-arsenal-offline-preview.py'
       - 'scripts/arsenal-seo.py'
       - 'scripts/package-arsenal.py'
+      - 'assets/arsenal-glass-nav.css'
+      - 'assets/arsenal-glass-nav.js'
       - '.github/workflows/build-arsenal-offline-preview.yml'
   workflow_dispatch:
 
