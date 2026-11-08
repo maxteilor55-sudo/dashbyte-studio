@@ -393,10 +393,10 @@ def make_service_page(p: dict, catalog: list) -> str:
 <link rel="stylesheet" href="./assets/arsenal-compliance.css?v=20261106m">
 <script defer src="./assets/arsenal-compliance.js?v=20261107x"></script>
 <style>{_CSS}</style></head>
-<body><div class="wrap"><header><a class="brand" href="./">А<span>РСЕНАЛ</span></a><nav aria-label="Главная навигация"><a href="./#services">Услуги</a><a href="./#projects">Наши работы</a><a href="./arsenal-privacy.html">Политика</a></nav></header>
+<body><div class="wrap"><header><a class="brand" href="./">А<span>РСЕНАЛ</span></a><nav aria-label="Главная навигация"><a href="./#services">Услуги</a><a href="./#approach">Как работаем</a><a href="./arsenal-privacy.html">Политика</a></nav></header>
 <main><div class="hero"><div class="eyebrow">МЕТАЛЛОКОНСТРУКЦИИ / ПЕРМЬ И ПЕРМСКИЙ КРАЙ</div>
 <h1>{escape(p['heading'])}</h1><p class="lead">{escape(p['lead'])}</p>
-<div class="hero-actions"><a class="btn" href="tel:{TEL}">Обсудить проект ↗</a><a class="btn ghost" href="./#projects">Смотреть работы</a></div></div>
+<div class="hero-actions"><a class="btn" href="tel:{TEL}">Обсудить проект ↗</a><a class="btn ghost" href="./#services">Смотреть услуги</a></div></div>
 <section class="panel" aria-labelledby="solutions"><h2 id="solutions">Какие решения обсуждаем</h2><div class="grid">{pieces}</div></section>
 {gallery_markup}
 <section class="panel" aria-labelledby="details"><h2 id="details">Что потребуется для расчёта</h2><p>{escape(p['details'])}</p>
