@@ -425,7 +425,7 @@ def inline_shared_ui(page: str) -> str:
     # Force fresh icon retrieval on the home, every SEO page, and policy.
     for fn in ("favicon.ico","assets/arsenal-favicon.svg","apple-touch-icon.png"):
         page=re.sub(r'(href="./'+re.escape(fn)+r')(?:\?v=[^"]*)?"',
-                    lambda m:m.group(1)+'?v=20261109garage"',page)
+                    lambda m:m.group(1)+'?v=20261109nobg"',page)
     assert page.count('id="menu-toggle"')==1 and page.count('id="mobile-menu"')==1
     if is_inner:
         assert page.count('class="ars-legal-footer"')==1

@@ -206,6 +206,20 @@ jobs:
               assert '#db-glass-up.is-visible{' in z.read('assets/db-glass-up.css').decode('utf-8')
               subprocess.run(['node','--check','assets/db-glass-up.js'],check=True)
               assert css.count('{')==css.count('}')
+              # Standalone icon without decorative square on all pages.
+              assert 'ARSENAL V13.4 — frameless customer emblem' in css
+              bare=css.split('/* ARSENAL V13.4 — frameless customer emblem.')[1]
+              assert 'html body header.site-header .brand-mark.db-demo-mark,' in bare
+              assert 'html body .db-forge-footer .db-forge-client .brand-mark{' in bare
+              for property in ('background:none!important','border:0!important',
+                               'border-radius:0!important','box-shadow:none!important',
+                               'overflow:visible!important'):
+                  assert property in bare,property
+              assert '<rect ' not in z.read('assets/arsenal-favicon.svg').decode('utf-8')
+              assert 'favicon.ico?v=20261109nobg' in home
+              assert 'assets/arsenal-favicon.svg?v=20261109nobg' in home
+              for filename in services|{'arsenal-privacy.html'}:
+                  assert 'assets/arsenal-favicon.svg?v=20261109nobg' in z.read(filename).decode('utf-8')
               print('ARSENAL_RELEASE_VALIDATED', len(files), p.stat().st_size)
           PY
       - name: Commit downloadable ZIP

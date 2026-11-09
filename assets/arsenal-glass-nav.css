@@ -214,3 +214,39 @@ html body header.site-header .brand-mark.db-demo-mark::after{content:none!import
 @media(max-width:375px){
  html body header.site-header .brand-mark.db-demo-mark img.arsenal-mark-a{width:42px!important;height:42px!important}
 }
+
+/* ARSENAL V13.4 — frameless customer emblem. No chocolate square, outline,
+   inner glow or blur behind the transparent vector in header or footer. */
+html body header.site-header .brand-mark.db-demo-mark,
+html body .db-forge-footer .db-forge-client .brand-mark{
+ background:none!important;
+ background-color:transparent!important;
+ background-image:none!important;
+ border:0!important;
+ border-radius:0!important;
+ outline:0!important;
+ box-shadow:none!important;
+ backdrop-filter:none!important;
+ -webkit-backdrop-filter:none!important;
+ padding:0!important;
+ overflow:visible!important;
+ isolation:auto!important;
+}
+html body header.site-header .brand-mark.db-demo-mark::before,
+html body header.site-header .brand-mark.db-demo-mark::after,
+html body .db-forge-footer .db-forge-client .brand-mark::before,
+html body .db-forge-footer .db-forge-client .brand-mark::after{
+ content:none!important;
+ display:none!important;
+ background:none!important;
+ border:0!important;
+ box-shadow:none!important;
+}
+html body header.site-header .brand-mark.db-demo-mark img.arsenal-mark-a,
+html body .db-forge-footer .db-forge-client img.arsenal-mark-a{
+ background:transparent!important;
+ border:0!important;
+ border-radius:0!important;
+ box-shadow:none!important;
+ padding:0!important;
+}
