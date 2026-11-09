@@ -27,6 +27,9 @@
    const ob=new MutationObserver(function(){removeOldButtons()});
    ob.observe(footer,{childList:true,subtree:true});
   });
+  // Arsenal uses always-accessible return-to-top; other studio pages keep
+  // their original upward-swipe reveal behaviour.
+  const arsenal=!!document.querySelector('.arsenal-mark-a');
   const button=document.createElement('button');
   button.id='db-glass-up';button.type='button';
   button.setAttribute('aria-label','Наверх — к началу страницы');
@@ -40,6 +43,11 @@
    pending=false;
    const y=getY(),dy=y-previous;
    previous=y;
+   if(arsenal){
+    upDistance=0;downDistance=0;
+    button.classList.toggle('is-visible',y>230);
+    return;
+   }
    if(y<150){upDistance=0;downDistance=0;conceal();return}
    if(dy< -1){
     upDistance+=-dy;downDistance=0;
@@ -59,7 +67,11 @@
    window.scrollTo({top:0,behavior:reduce?'auto':'smooth'});
   });
   window.addEventListener('scroll',onScroll,{passive:true});
-  window.addEventListener('pageshow',function(){previous=getY();upDistance=0;downDistance=0;conceal()});
+  window.addEventListener('pageshow',function(){
+   previous=getY();upDistance=0;downDistance=0;
+   if(arsenal)requestAnimationFrame(check);else conceal();
+  });
+  if(arsenal)requestAnimationFrame(check);
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
  else init();

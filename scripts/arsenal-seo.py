@@ -325,9 +325,7 @@ def shared_header(home: str, inner_page: bool = True) -> str:
 
 
 _ARS_SUBPAGE_ACTIONS = f"""<nav class="ars-service-dock" aria-label="Связаться с Арсеналом">
-<a href="./#contacts">Написать ↗</a><a href="tel:{TEL}">Позвонить ↗</a></nav>
-<a class="ars-back-to-top" id="ars-back-to-top" href="#top" aria-label="Наверх"
- title="Наверх"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 14 7-7 7 7M12 7v13"/></svg></a>"""
+<a href="./#contacts">Написать ↗</a><a href="tel:{TEL}">Позвонить ↗</a></nav>"""
 
 def shared_footer(home: str) -> str:
     """Compact, line-free legal footer for SEO and policy pages."""
@@ -357,7 +355,7 @@ def decorate_privacy(html: str, home: str) -> str:
     if old_footer != 1:
         raise RuntimeError("Old policy footer missing")
     html = html.replace('</body>', shared_footer(home) + _ARS_SUBPAGE_ACTIONS + '</body>', 1)
-    assert 'id="menu-toggle"' in html and 'ars-back-to-top' in html
+    assert 'id="menu-toggle"' in html and 'class="ars-service-dock"' in html
     return html
 
 _CSS = """

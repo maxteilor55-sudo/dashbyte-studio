@@ -178,3 +178,11 @@ html body .ars-legal-footer__links{display:flex;flex-wrap:wrap;align-items:cente
 html body .ars-legal-footer__links a{color:#dec0a0!important;font-size:12px!important;text-decoration:none!important;border:0!important;padding:3px 0!important}
 html body .ars-legal-footer__links a:hover{text-decoration:underline!important;text-underline-offset:4px!important}
 @media(max-width:680px){html body .ars-legal-footer{padding:28px 20px calc(145px + env(safe-area-inset-bottom,0px))!important}html body .ars-legal-footer__inner{gap:11px}html body .ars-legal-footer__links{gap:5px 17px}}
+
+
+/* 2026-11-09: the old homepage stylesheet drew another A via ::after.
+   Disable that glyph; the shared SVG now provides the only letter. */
+html body header.site-header .brand-mark.db-demo-mark::after{
+ content:none!important;display:none!important;visibility:hidden!important;
+ width:0!important;height:0!important;opacity:0!important
+}

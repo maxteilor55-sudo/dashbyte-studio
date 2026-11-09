@@ -4,7 +4,6 @@
  var header=document.querySelector('header.site-header');
  var button=document.getElementById('menu-toggle');
  var flyout=document.getElementById('mobile-menu');
- var up=document.getElementById('ars-back-to-top');
  if(!header||!button||!flyout)return;
  function position(){
   var box=header.getBoundingClientRect();
@@ -28,7 +27,6 @@
  window.addEventListener('scroll',function(){
   if(flyout.classList.contains('open'))position();
   header.classList.toggle('is-scrolled',window.scrollY>30);
-  if(up){var visible=window.scrollY>260;up.classList.toggle('is-visible',visible);up.tabIndex=visible?0:-1;}
  },{passive:true});
- setOpen(false);if(up)up.tabIndex=-1;
+ setOpen(false);
 })();
