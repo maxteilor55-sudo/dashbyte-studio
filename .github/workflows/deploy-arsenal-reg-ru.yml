@@ -53,6 +53,8 @@ jobs:
               assert 'class="ars-seo-card"' not in home and 'id="ars-showcase"' not in home
               assert home.count('<a class="service-card') == 11
               assert 'id="arsenal-leads-inline-app"' in home
+              assert 'id="arsenal-shared-ui-critical"' in home
+              assert 'id="arsenal-shared-ui-script"' in home
               for p in pages - {'index.html'}:
                   page = z.read(p).decode('utf-8')
                   assert 'class="panel service-gallery"' in page
@@ -61,7 +63,7 @@ jobs:
                   assert 'class="footer db-forge-footer ars-shared-footer"' in page
                   assert 'href="./#contacts">Написать ↗</a>' in page
                   assert 'href="tel:+79082400998">Позвонить ↗</a>' in page
-                  assert 'id="ars-glass-menu-toggle"' in page
+                  assert 'id="menu-toggle"' in page and 'id="mobile-menu"' in page
                   assert 'id="ars-back-to-top"' in page
               print('ARSENAL_RELEASE_VALIDATED',len(names))
           PY
