@@ -186,3 +186,31 @@ html body header.site-header .brand-mark.db-demo-mark::after{
  content:none!important;display:none!important;visibility:hidden!important;
  width:0!important;height:0!important;opacity:0!important
 }
+
+/* V13.3 — official Arsenal garage-and-shield logo, consistent on all devices.
+   Artwork is transparent black; color filter is only for its dark glass display. */
+html body header.site-header .brand-mark.db-demo-mark img.arsenal-mark-a{
+ display:block!important;width:52px!important;height:52px!important;
+ max-width:100%!important;max-height:100%!important;object-fit:contain!important;
+ background:transparent!important;border:0!important;transform:none!important;
+ filter:invert(79%) sepia(14%) saturate(702%) hue-rotate(343deg) brightness(96%) contrast(89%)!important;
+}
+html body .db-forge-client .brand-mark img.arsenal-mark-a{
+ display:block!important;width:43px!important;height:43px!important;
+ max-width:100%!important;max-height:100%!important;object-fit:contain!important;
+ border:0!important;background:transparent!important;transform:none!important;
+ filter:invert(79%) sepia(14%) saturate(702%) hue-rotate(343deg) brightness(96%) contrast(89%)!important;
+}
+html body .forge-mark img.arsenal-loader-symbol{
+ display:inline-block!important;width:30px!important;height:30px!important;flex:0 0 30px!important;
+ object-fit:contain!important;vertical-align:middle!important;
+ filter:invert(79%) sepia(14%) saturate(702%) hue-rotate(343deg) brightness(96%) contrast(89%)!important;
+}
+html body header.site-header .brand-mark.db-demo-mark::before,
+html body header.site-header .brand-mark.db-demo-mark::after{content:none!important;display:none!important}
+@media(max-width:680px){
+ html body header.site-header .brand-mark.db-demo-mark img.arsenal-mark-a{width:50px!important;height:50px!important}
+}
+@media(max-width:375px){
+ html body header.site-header .brand-mark.db-demo-mark img.arsenal-mark-a{width:42px!important;height:42px!important}
+}
