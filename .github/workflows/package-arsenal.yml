@@ -206,6 +206,23 @@ jobs:
               assert '#db-glass-up.is-visible{' in z.read('assets/db-glass-up.css').decode('utf-8')
               subprocess.run(['node','--check','assets/db-glass-up.js'],check=True)
               assert css.count('{')==css.count('}')
+              # Every page uses the same inlined frosted flyout CSS.
+              assert 'ARSENAL V13.5: matched liquid glass flyout' in css
+              glass=css.split('/* ARSENAL V13.5: matched liquid glass flyout')[1]
+              assert 'html body #mobile-menu.site-mobile-flyout,' in glass
+              assert 'html body .ars-glass-flyout{' in glass
+              assert 'blur(30px) saturate(155%)!important' in glass
+              assert 'rgba(41,32,29,.67)' in glass
+              for name in ['index.html','arsenal-privacy.html']+sorted(services):
+                  page=z.read(name).decode('utf-8')
+                  assert page.count('ARSENAL V13.5: matched liquid glass flyout') == 1, name
+                  assert page.count('id="mobile-menu"') == 1, name
+              navjs=z.read('assets/arsenal-glass-nav.js').decode('utf-8')
+              assert "window.addEventListener('scroll'" in navjs
+              assert "if(flyout.classList.contains('open'))position()" in navjs
+              assert 'document.body.style.overflow' not in navjs
+              assert 'document.documentElement.style.overflow' not in navjs
+
               # Standalone icon without decorative square on all pages.
               assert 'ARSENAL V13.4 — frameless customer emblem' in css
               bare=css.split('/* ARSENAL V13.4 — frameless customer emblem.')[1]
