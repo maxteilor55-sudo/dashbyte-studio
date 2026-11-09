@@ -9,6 +9,7 @@ on:
       - 'scripts/package-arsenal.py'
       - 'assets/arsenal-glass-nav.css'
       - 'assets/arsenal-glass-nav.js'
+      - 'assets/db-glass-up.js'
       - '.github/workflows/build-arsenal-offline-preview.yml'
   workflow_dispatch:
 

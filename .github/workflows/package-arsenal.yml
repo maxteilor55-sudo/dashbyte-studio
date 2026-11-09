@@ -116,6 +116,9 @@ jobs:
               assert 'arsenal-leads-inline-app' in home
               assert 'id="arsenal-shared-ui-critical"' in home
               assert 'id="arsenal-shared-ui-script"' in home
+              assert 'db-glass-up.js?v=2' in home
+              assert 'brand-mark.db-demo-mark::after' in home
+              assert 'content:none!important' in home
               assert 'class="arsenal-mark-a"' in home
               assert 'id="menu-toggle"' in home and 'id="mobile-menu"' in home
               assert 'Оставьте заявку — мы свяжемся с вами.' in home
@@ -143,11 +146,15 @@ jobs:
                   assert 'class="arsenal-mark-a"' in page
                   assert 'https://t.me/DashByteStudioBot' in page
                   assert 'id="arsenal-shared-ui-script"' in page
-                  assert '.ars-back-to-top svg{' in page
+                  assert 'id="arsenal-universal-up-style"' in page
+                  assert 'id="arsenal-universal-up-script"' in page
+                  assert '#db-glass-up.is-visible{' in page
+                  assert "button.classList.toggle('is-visible',y>230)" in page
+                  assert 'window.scrollTo({top:0' in page
                   assert 'html body header.site-header .brand-mark.db-demo-mark{' in page
                   assert 'id="menu-toggle"' in page and 'id="mobile-menu"' in page
                   assert 'brand-mark db-demo-mark' in page
-                  assert 'id="ars-back-to-top"' in page
+                  assert 'id="ars-back-to-top"' not in page
                   assert 'class="ars-service-dock"' in page
                   assert 'href="./#contacts">Написать ↗</a>' in page
                   assert 'href="tel:+79082400998">Позвонить ↗</a>' in page
@@ -170,7 +177,9 @@ jobs:
                   assert normalized_header(z.read(filename).decode('utf-8'))==expected_nav,filename
               assert 'пароль' not in policy.lower()
               assert 'id="menu-toggle"' in policy and 'id="mobile-menu"' in policy
-              assert 'id="ars-back-to-top"' in policy
+              assert 'id="arsenal-universal-up-style"' in policy
+              assert 'id="arsenal-universal-up-script"' in policy
+              assert 'id="ars-back-to-top"' not in policy
               assert 'id="arsenal-shared-ui-critical"' in policy
               assert 'id="arsenal-shared-ui-script"' in policy
               assert 'class="ars-legal-footer"' in policy and 'ООО «ТД АРСЕНАЛ»' in policy
@@ -186,7 +195,9 @@ jobs:
               top_selectors=[tinycss2.serialize(rule.prelude).strip() for rule in rules
                              if rule.type=='qualified-rule']
               assert '.ars-glass-brand__mark' in top_selectors
-              assert '.ars-back-to-top svg' in top_selectors
+              assert 'html body header.site-header .brand-mark.db-demo-mark::after' in top_selectors
+              assert '#db-glass-up.is-visible{' in z.read('assets/db-glass-up.css').decode('utf-8')
+              subprocess.run(['node','--check','assets/db-glass-up.js'],check=True)
               assert css.count('{')==css.count('}')
               print('ARSENAL_RELEASE_VALIDATED', len(files), p.stat().st_size)
           PY

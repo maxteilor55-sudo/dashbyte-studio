@@ -55,6 +55,7 @@ jobs:
               assert 'id="arsenal-leads-inline-app"' in home
               assert 'id="arsenal-shared-ui-critical"' in home
               assert 'id="arsenal-shared-ui-script"' in home
+              assert 'db-glass-up.js?v=2' in home
               assert 'class="arsenal-mark-a"' in home
               for p in pages - {'index.html'}:
                   page = z.read(p).decode('utf-8')
@@ -66,7 +67,9 @@ jobs:
                   assert 'href="./#contacts">Написать ↗</a>' in page
                   assert 'href="tel:+79082400998">Позвонить ↗</a>' in page
                   assert 'id="menu-toggle"' in page and 'id="mobile-menu"' in page
-                  assert 'id="ars-back-to-top"' in page
+                  assert 'id="arsenal-universal-up-style"' in page
+                  assert 'id="arsenal-universal-up-script"' in page
+                  assert 'id="ars-back-to-top"' not in page
               print('ARSENAL_RELEASE_VALIDATED',len(names))
           PY
       - name: Upload to REG.RU over verified SFTP
