@@ -177,6 +177,13 @@ jobs:
                   assert normalized_header(z.read(filename).decode('utf-8'))==expected_nav,filename
               assert 'пароль' not in policy.lower()
               assert 'id="menu-toggle"' in policy and 'id="mobile-menu"' in policy
+              # No policy-local nav or brand styles may resize the shared header.
+              assert '<nav class="ars-policy-toc"' in policy
+              assert '.ars-policy-toc span{' in policy
+              assert '.ars-policy-toc a{' in policy
+              assert '.nav span{' not in policy and '.nav a{' not in policy
+              assert '.brand small{' not in policy
+              assert 'class="ars-policy-source-brand"' not in policy
               assert 'id="arsenal-universal-up-style"' in policy
               assert 'id="arsenal-universal-up-script"' in policy
               assert 'id="ars-back-to-top"' not in policy

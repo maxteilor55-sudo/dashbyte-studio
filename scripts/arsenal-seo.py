@@ -355,6 +355,12 @@ def decorate_privacy(html: str, home: str) -> str:
     if old_footer != 1:
         raise RuntimeError("Old policy footer missing")
     html = html.replace('</body>', shared_footer(home) + _ARS_SUBPAGE_ACTIONS + '</body>', 1)
+    # Privacy page styles must never target the common .wrap.nav / .brand
+    # header. The policy TOC and its old source header use private classes.
+    assert 'class="ars-policy-toc"' in html
+    assert '.ars-policy-toc span{' in html and '.ars-policy-toc a{' in html
+    assert '.nav span{' not in html and '.nav a{' not in html
+    assert '.ars-policy-source-brand{' in html and '.brand small{' not in html
     assert 'id="menu-toggle"' in html and 'class="ars-service-dock"' in html
     return html
 

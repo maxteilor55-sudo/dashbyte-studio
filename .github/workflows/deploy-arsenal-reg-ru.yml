@@ -56,6 +56,10 @@ jobs:
               assert 'id="arsenal-shared-ui-critical"' in home
               assert 'id="arsenal-shared-ui-script"' in home
               assert 'db-glass-up.js?v=2' in home
+              policy=z.read('arsenal-privacy.html').decode('utf-8')
+              assert 'class="ars-policy-toc"' in policy
+              assert '.nav span{' not in policy and '.nav a{' not in policy
+              assert '.ars-policy-toc a{' in policy
               assert 'class="arsenal-mark-a"' in home
               for p in pages - {'index.html'}:
                   page = z.read(p).decode('utf-8')
