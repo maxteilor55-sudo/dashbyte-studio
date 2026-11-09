@@ -164,6 +164,8 @@ html body header.site-header .brand-name .db-online{display:inline-flex!importan
 html body header.site-header .db-online-dot{display:block!important;position:relative!important;flex:0 0 8px!important;width:8px!important;height:8px!important;margin:0 2px 0 0!important;inset:auto!important;overflow:visible!important}
 @media(max-width:680px){html body header.site-header{border-radius:21px!important}html body header.site-header .menu-toggle{border-radius:14px!important}html body header.site-header .brand-mark.db-demo-mark .arsenal-mark-a{width:47px!important;height:47px!important}}
 @media(max-width:375px){html body header.site-header{border-radius:18px!important}html body header.site-header .brand-mark.db-demo-mark{border-radius:12px!important}html body header.site-header .brand-mark.db-demo-mark .arsenal-mark-a{width:41px!important;height:41px!important}}
+/* No extra empty area below the legal footer: its own safe-area padding is enough. */
+html body.ars-service-page,html body.ars-policy-page{padding-bottom:0!important}
 /* Small, unadorned legal footer on services and policy; no horizontal lines. */
 html body .ars-legal-footer{display:block!important;box-sizing:border-box!important;margin:0!important;width:100%!important;padding:30px 18px 45px!important;background:#201c19!important;background-image:none!important;border:0!important;border-top:0!important;border-bottom:0!important;box-shadow:none!important;color:#bcae9f!important;font:400 12px/1.65 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif!important}
 html body .ars-legal-footer:before,html body .ars-legal-footer:after{content:none!important;display:none!important}
