@@ -16,13 +16,29 @@ source = root / "arsenal.html"
 assert source.is_file(), "arsenal.html not found"
 from upgrade_arsenal import patch
 html = patch(source.read_text(encoding="utf-8"))
+logo_svg=(root/"assets/arsenal-logo-black.svg").read_bytes()
+assert b'fill="#000000"' in logo_svg
+logo_png=cairosvg.svg2png(bytestring=logo_svg,output_width=1024,output_height=1024)
+logo_rgba=Image.open(io.BytesIO(logo_png)).convert("RGBA")
+assert logo_rgba.getpixel((0,0))[3]==0 and logo_rgba.getpixel((500,500))[3]>0
+logo_url="./assets/arsenal-logo-black.svg?v=20261109garage"
+logo_img='<img class="arsenal-mark-a" src="'+logo_url+'" width="56" height="56" alt="" decoding="async">'
 # Replace the outdated embedded DB logo in the Arsenal header before SEO pages copy it.
 header_match=re.search(r'<header class="site-header" id="top">[\s\S]*?</header>',html)
 assert header_match, "Arsenal header not found"
 old_logo=re.search(r'<span class="brand-mark db-demo-mark"[^>]*>\s*<img\b[^>]*>\s*</span>',header_match.group(0),flags=re.S)
 assert old_logo, "Header logo changed unexpectedly"
-html=html.replace(old_logo.group(0),"<span class=\"brand-mark db-demo-mark\" aria-hidden=\"true\"><svg class=\"arsenal-mark-a\" viewBox=\"100 65 312 370\" aria-hidden=\"true\" focusable=\"false\"><defs><linearGradient id=\"arsenal-mark-bronze\" x1=\"0\" y1=\"0\" x2=\".9\" y2=\"1\"><stop offset=\"0\" stop-color=\"#e4c39d\"/><stop offset=\".58\" stop-color=\"#c89d72\"/><stop offset=\"1\" stop-color=\"#b48b65\"/></linearGradient></defs><path d=\"M145 394 L234 111 Q242 91 259 91 Q276 91 284 111 L369 394 L312 394 L289 307 L223 307 L199 394 Z M238 260 L276 260 L257 179 Z\" fill=\"url(#arsenal-mark-bronze)\" fill-rule=\"evenodd\"/></svg></span>",1)
+html=html.replace(old_logo.group(0),'<span class="brand-mark db-demo-mark" aria-hidden="true">'+logo_img+'</span>',1)
 assert html.count('class="arsenal-mark-a"')==1
+# Replace footer letter A with same shield/car logo.
+html,footer_count=re.subn(
+    r'(<a class="brand db-forge-client" href="#top">)<span class="brand-mark"><svg[\s\S]*?</svg></span>',
+    lambda m:m.group(1)+'<span class="brand-mark">'+logo_img+'</span>',
+    html,count=1)
+assert footer_count==1
+loader_old='<span class="forge-mark"><b>А</b><span> / АРСЕНАЛ</span></span>'
+assert html.count(loader_old)==1
+html=html.replace(loader_old,'<span class="forge-mark"><img class="arsenal-loader-symbol" src="'+logo_url+'" width="34" height="34" alt=""><span> / АРСЕНАЛ</span></span>',1)
 # SEO is assembled only in the deployable REG.RU site, not the client demo.
 seo_spec = importlib.util.spec_from_file_location("arsenal_seo", root / "scripts/arsenal-seo.py")
 seo = importlib.util.module_from_spec(seo_spec)
@@ -406,10 +422,15 @@ def inline_shared_ui(page: str) -> str:
                       '<script id="arsenal-shared-ui-script">' + glass_js + '</script></body>',1)
     assert page.count('id="arsenal-shared-ui-critical"')==1
     assert page.count('id="arsenal-shared-ui-script"')==1
+    # Force fresh icon retrieval on the home, every SEO page, and policy.
+    for fn in ("favicon.ico","assets/arsenal-favicon.svg","apple-touch-icon.png"):
+        page=re.sub(r'(href="./'+re.escape(fn)+r')(?:\?v=[^"]*)?"',
+                    lambda m:m.group(1)+'?v=20261109garage"',page)
     assert page.count('id="menu-toggle"')==1 and page.count('id="mobile-menu"')==1
     if is_inner:
         assert page.count('class="ars-legal-footer"')==1
         assert page.count('class="arsenal-mark-a"')==1
+        assert 'arsenal-logo-black.svg?v=20261109garage' in page
         assert 'ООО «ТД АРСЕНАЛ»' in page
         assert page.count('id="arsenal-universal-up-style"')==1
         assert page.count('id="arsenal-universal-up-script"')==1
@@ -505,7 +526,8 @@ html=html.replace('<a aria-label="Арсенал — на главную" class=
 html=inline_shared_ui(html)
 assert 'id="arsenal-shared-ui-critical"' in html
 assert 'id="arsenal-shared-ui-script"' in html
-assert html.count('class="arsenal-mark-a"')==1
+assert html.count('class="arsenal-mark-a"')==2
+assert 'arsenal-logo-black.svg?v=20261109garage' in html
 assert 'brand-mark.db-demo-mark::after' in html
 assert 'content:none!important' in html
 assert 'db-glass-up.js?v=2' in html
@@ -564,6 +586,7 @@ def add_public_file(z, name, data):
 
 with ZipFile(archive, "w", compression=ZIP_DEFLATED, compresslevel=6) as z:
     add_public_file(z, "index.html", html)
+    add_public_file(z, "assets/arsenal-logo-black.png", logo_png)
     add_public_file(z, "favicon.ico", ico_bytes.getvalue())
     add_public_file(z, "apple-touch-icon.png", apple_bytes.getvalue())
     add_public_file(z, 'arsenal-privacy.html', inline_shared_ui(seo.decorate_privacy((root / 'arsenal-privacy.html').read_text(encoding='utf-8'), html)))
