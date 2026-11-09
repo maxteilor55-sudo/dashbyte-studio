@@ -349,7 +349,7 @@ service_pages = seo.service_files(html)
 assert len(service_pages) == 7
 assert all('href="./#contacts">Написать ↗</a>' in page for page in service_pages.values())
 assert all('href="tel:+79082400998">Позвонить ↗</a>' in page for page in service_pages.values())
-assert all('id="ars-glass-menu-toggle"' in page and 'id="ars-back-to-top"' in page for page in service_pages.values())
+assert all('id="menu-toggle"' in page and 'id="mobile-menu"' in page and 'id="ars-back-to-top"' in page for page in service_pages.values())
 assert all('class="panel service-gallery"' in page for page in service_pages.values())
 assert all('arsenal-photo-' in page or 'arsenal-fences-client.avif' in page for page in service_pages.values())
 
@@ -359,24 +359,31 @@ assert all('arsenal-photo-' in page or 'arsenal-fences-client.avif' in page for 
 glass_css = (root / "assets/arsenal-glass-nav.css").read_text(encoding="utf-8")
 glass_js = (root / "assets/arsenal-glass-nav.js").read_text(encoding="utf-8")
 assert glass_css.count("{") == glass_css.count("}"), "Broken braces in shared nav stylesheet"
-assert ".ars-glass-brand__mark{" in glass_css
+assert "html body header.site-header .brand-mark.db-demo-mark{" in glass_css
 assert ".ars-back-to-top svg{" in glass_css
 assert ".ars-shared-footer .footer-studio{" in glass_css
+assert "html body #mobile-menu.site-mobile-flyout" in glass_css
 
 def inline_shared_ui(page: str) -> str:
     css_link = '<link rel="stylesheet" href="./assets/arsenal-glass-nav.css?v=20261108a">'
     js_link = '<script defer src="./assets/arsenal-glass-nav.js?v=20261108a"></script>'
-    if page.count(css_link) != 1 or page.count(js_link) != 1:
-        raise RuntimeError("Missing or duplicated shared nav assets")
-    page = page.replace(css_link,
-                        '<style id="arsenal-shared-ui-critical">' + glass_css + '</style>', 1)
-    page = page.replace(js_link, '', 1)
-    page = page.replace('</body>',
-                        '<script id="arsenal-shared-ui-script">' + glass_js + '</script></body>',1)
-    assert page.count('id="arsenal-shared-ui-critical"') == 1
-    assert page.count('id="arsenal-shared-ui-script"') == 1
-    assert page.count('class="footer db-forge-footer ars-shared-footer"') == 1
-    assert page.count('class="ars-back-to-top"') == 1
+    is_inner=page.count(css_link)==1 and page.count(js_link)==1
+    is_home=page.count('<header class="site-header" id="top">')==1 and not is_inner
+    if not is_inner and not is_home:
+        raise RuntimeError("Unknown page layout: missing canonical Arsenal header")
+    style='<style id="arsenal-shared-ui-critical">' + glass_css + '</style>'
+    if is_inner:
+        page=page.replace(css_link,style,1).replace(js_link,'',1)
+    else:
+        page=page.replace('</head>',style+'</head>',1)
+    page=page.replace('</body>',
+                      '<script id="arsenal-shared-ui-script">' + glass_js + '</script></body>',1)
+    assert page.count('id="arsenal-shared-ui-critical"')==1
+    assert page.count('id="arsenal-shared-ui-script"')==1
+    assert page.count('id="menu-toggle"')==1 and page.count('id="mobile-menu"')==1
+    if is_inner:
+        assert page.count('class="footer db-forge-footer ars-shared-footer"')==1
+        assert page.count('class="ars-back-to-top"')==1
     return page
 
 service_pages = {path: inline_shared_ui(page) for path, page in service_pages.items()}
@@ -403,6 +410,20 @@ html, n_lightbox = re.subn(
     r'<div aria-label="Просмотр фотографии" aria-modal="true" class="lightbox"[\s\S]*?</button></div>(?=\s*<script>)',
     '', html, count=1)
 assert n_lightbox == 1, "Cannot safely remove obsolete gallery lightbox"
+# Remove legacy homepage menu listeners, so exactly ONE shared controller
+# handles button toggles, menu links and Escape on ALL pages.
+legacy_menu = """      const menuBtn=document.getElementById('menu-toggle'),menu=document.getElementById('mobile-menu');
+      menuBtn.addEventListener('click',()=>{const o=menu.classList.toggle('open');menuBtn.setAttribute('aria-expanded',String(o));menuBtn.textContent=o?'×':'☰';});
+      menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{menu.classList.remove('open');menuBtn.textContent='☰';menuBtn.setAttribute('aria-expanded','false')}));
+"""
+assert html.count(legacy_menu)==1, "Legacy menu implementation changed"
+html=html.replace(legacy_menu,'      // Unified Arsenal menu controller.\n',1)
+html, old_flyout=re.subn(
+    r"  const header=document\.querySelector\('\.site-header'\);[\s\S]*?"
+    r"  updateMenuPosition\(\);\n",
+    "  // Legacy flyout controller removed; one shared implementation.\n",
+    html,count=1)
+assert old_flyout==1, "Could not remove legacy mobile flyout controller"
 # Remove the old gallery filtering/zoom event handlers so the app initializer
 # still runs (previously it would throw on absent #show-more / #gallery-grid).
 html, n_gallery_handlers = re.subn(
@@ -444,6 +465,12 @@ for page_name in seo.PAGES:
     assert 'href="./' + page_name['file'] + '"' in html
 assert "getElementById('show-more')" not in html
 assert "getElementById('gallery-grid')" not in html
+# The canonical CSS and JS are shared by the homepage, seven SEO pages and policy.
+html=html.replace('<a aria-label="Арсенал — на главную" class="brand" href="#top">',
+                  '<a aria-label="Арсенал — на главную" class="brand" href="./">',1)
+html=inline_shared_ui(html)
+assert 'id="arsenal-shared-ui-critical"' in html
+assert 'id="arsenal-shared-ui-script"' in html
 # Reclaim images used only by the now-deleted homepage gallery; keep all
 # images referenced by the homepage's cards or the seven SEO galleries.
 referenced = html + ''.join(service_pages.values())
