@@ -114,6 +114,9 @@ jobs:
               assert 'href="tel:+79082400998"' in home
               assert 'id="contact-form"' in home
               assert 'arsenal-leads-inline-app' in home
+              assert 'id="arsenal-shared-ui-critical"' in home
+              assert 'id="arsenal-shared-ui-script"' in home
+              assert 'id="menu-toggle"' in home and 'id="mobile-menu"' in home
               assert 'Оставьте заявку — мы свяжемся с вами.' in home
               showcase=z.read('assets/arsenal-showcase-v1.js').decode('utf-8')
               assert "place:'',year:''," in showcase and "place:'Пермь" not in showcase
@@ -139,17 +142,32 @@ jobs:
                   assert 'https://t.me/DashByteStudioBot' in page
                   assert 'id="arsenal-shared-ui-script"' in page
                   assert '.ars-back-to-top svg{' in page
-                  assert '.ars-glass-brand__mark{' in page
-                  assert 'id="ars-glass-menu-toggle"' in page
-                  assert 'class="ars-glass-brand"' in page
+                  assert 'html body header.site-header .brand-mark.db-demo-mark{' in page
+                  assert 'id="menu-toggle"' in page and 'id="mobile-menu"' in page
+                  assert 'brand-mark db-demo-mark' in page
                   assert 'id="ars-back-to-top"' in page
                   assert 'class="ars-service-dock"' in page
                   assert 'href="./#contacts">Написать ↗</a>' in page
                   assert 'href="tel:+79082400998">Позвонить ↗</a>' in page
                   assert 'arsenal-compliance.js?v=20261107x' in page
                   assert 'https://navesy59.ru/'+f in smap
+              # Header and mobile menu markup are reused from the homepage.
+              # On internal pages only the anchor hrefs differ (./#...).
+              def normalized_header(doc):
+                  match=re.search(
+                      r'(<header class="site-header" id="top">[\s\S]*?</header>[\s\S]*?'
+                      r'<div class="mobile-menu site-mobile-flyout" id="mobile-menu">'
+                      r'[\s\S]*?)(?=<div aria-hidden="true" class="read-progress">|<div class="wrap">|<div class="shell">)',
+                      doc)
+                  assert match, 'Missing canonical glass header'
+                  nav=match.group(1).strip()
+                  nav=nav.replace('href="./#','href="#').replace('href="./"','href="#top"')
+                  return nav
+              expected_nav=normalized_header(home)
+              for filename in services+['arsenal-privacy.html']:
+                  assert normalized_header(z.read(filename).decode('utf-8'))==expected_nav,filename
               assert 'пароль' not in policy.lower()
-              assert 'id="ars-glass-menu-toggle"' in policy
+              assert 'id="menu-toggle"' in policy and 'id="mobile-menu"' in policy
               assert 'id="ars-back-to-top"' in policy
               assert 'id="arsenal-shared-ui-critical"' in policy
               assert 'id="arsenal-shared-ui-script"' in policy
