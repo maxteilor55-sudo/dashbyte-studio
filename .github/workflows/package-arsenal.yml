@@ -53,6 +53,20 @@ jobs:
               required={'index.html','arsenal-privacy.html','robots.txt','sitemap.xml',
                         '.htaccess','favicon.ico','apple-touch-icon.png'} | services
               assert required <= files, sorted(required-files)
+              from PIL import Image
+              import io
+              pic='assets/arsenal-social-share.jpg'
+              assert pic in files
+              with Image.open(io.BytesIO(z.read(pic))) as banner:
+                  assert banner.format=='JPEG' and banner.size==(1200,630)
+              for name in ['index.html','arsenal-privacy.html']+sorted(services):
+                  doc=z.read(name).decode('utf-8')
+                  assert doc.count('property="og:image"')==1,name
+                  assert doc.count('property="og:title"')==1,name
+                  assert doc.count('name="twitter:card"')==1,name
+                  assert 'summary_large_image' in doc
+                  assert 'https://navesy59.ru/assets/arsenal-social-share.jpg?v=20261109social1' in doc,name
+
               home=z.read('index.html').decode('utf-8')
               policy=z.read('arsenal-privacy.html').decode('utf-8')
               robots=z.read('robots.txt').decode('utf-8')
