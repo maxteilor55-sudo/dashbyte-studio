@@ -429,6 +429,7 @@ html, n_gallery_animation = re.subn(
     '\n', html, count=1)
 assert n_gallery_animation == 1, "Cannot safely detach gallery reveal handlers"
 html, old_flyout=re.subn(
+    r"  // CSS transitions handle card motion[^\n]*\n"
     r"  const header=document\.querySelector\('\.site-header'\);[\s\S]*?"
     r"  updateMenuPosition\(\);\n",
     "  // Legacy flyout controller removed; one shared implementation.\n",
@@ -446,7 +447,7 @@ html = html.replace('<span>Работы</span></a>', '<span>О нас</span></a>
 # mobile menu. Keep the approved cover layout and all contact CTAs.
 # This link was redundant; the shared header generator also strips it.
 # The source may already be cleaned by earlier normalization stages.
-assert html.count('<a href="#projects">Наши работы</a>') <= 2
+assert html.count('<a href="#projects">Наши работы</a>') == 2
 html = html.replace('<a href="#projects">Наши работы</a>', '', 2)
 html = html.replace('href="#projects">Смотреть работы',
                     'href="#services">Посмотреть услуги', 1)
