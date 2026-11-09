@@ -164,7 +164,7 @@ jobs:
                   nav=nav.replace('href="./#','href="#').replace('href="./"','href="#top"')
                   return nav
               expected_nav=normalized_header(home)
-              for filename in services+['arsenal-privacy.html']:
+              for filename in sorted(services)+['arsenal-privacy.html']:
                   assert normalized_header(z.read(filename).decode('utf-8'))==expected_nav,filename
               assert 'пароль' not in policy.lower()
               assert 'id="menu-toggle"' in policy and 'id="mobile-menu"' in policy
