@@ -356,7 +356,7 @@ service_pages = seo.service_files(html)
 assert len(service_pages) == 7
 assert all('href="./#contacts">Написать ↗</a>' in page for page in service_pages.values())
 assert all('href="tel:+79082400998">Позвонить ↗</a>' in page for page in service_pages.values())
-assert all('id="menu-toggle"' in page and 'id="mobile-menu"' in page and 'id="ars-back-to-top"' in page for page in service_pages.values())
+assert all('id="menu-toggle"' in page and 'id="mobile-menu"' in page and 'class="ars-service-dock"' in page for page in service_pages.values())
 assert all('class="panel service-gallery"' in page for page in service_pages.values())
 assert all('arsenal-photo-' in page or 'arsenal-fences-client.avif' in page for page in service_pages.values())
 
@@ -365,6 +365,11 @@ assert all('arsenal-photo-' in page or 'arsenal-fences-client.avif' in page for 
 # can never appear as naked links / huge black icons on an updated page.
 glass_css = (root / "assets/arsenal-glass-nav.css").read_text(encoding="utf-8")
 glass_js = (root / "assets/arsenal-glass-nav.js").read_text(encoding="utf-8")
+up_css = (root / "assets/db-glass-up.css").read_text(encoding="utf-8")
+up_js = (root / "assets/db-glass-up.js").read_text(encoding="utf-8")
+assert "#db-glass-up.is-visible{" in up_css
+assert "button.classList.toggle('is-visible',y>230)" in up_js
+assert 'window.scrollTo({top:0' in up_js
 assert glass_css.count("{") == glass_css.count("}"), "Broken braces in shared nav stylesheet"
 assert "html body header.site-header .brand-mark.db-demo-mark{" in glass_css
 assert ".ars-back-to-top svg{" in glass_css
@@ -383,6 +388,20 @@ def inline_shared_ui(page: str) -> str:
         page=page.replace(css_link,style,1).replace(js_link,'',1)
     else:
         page=page.replace('</head>',style+'</head>',1)
+    if is_inner:
+        # Use exact same Liquid Glass button stylesheet/JS as homepage.
+        # Inlining avoids stale files on REG.RU when services are replaced.
+        page=page.replace('</head>',
+                          '<style id="arsenal-universal-up-style">' + up_css + '</style></head>',1)
+        page=page.replace('</body>',
+                          '<script id="arsenal-universal-up-script">' + up_js + '</script></body>',1)
+    else:
+        # Home already references these shared assets. Bust the old JS cache.
+        old_css='<link rel="stylesheet" href="./assets/db-glass-up.css?v=1">'
+        old_js='<script defer src="./assets/db-glass-up.js?v=1"></script>'
+        assert page.count(old_css)==1 and page.count(old_js)==1
+        page=page.replace(old_css,old_css.replace('?v=1','?v=2'),1)
+        page=page.replace(old_js,old_js.replace('?v=1','?v=2'),1)
     page=page.replace('</body>',
                       '<script id="arsenal-shared-ui-script">' + glass_js + '</script></body>',1)
     assert page.count('id="arsenal-shared-ui-critical"')==1
@@ -392,7 +411,9 @@ def inline_shared_ui(page: str) -> str:
         assert page.count('class="ars-legal-footer"')==1
         assert page.count('class="arsenal-mark-a"')==1
         assert 'ООО «ТД АРСЕНАЛ»' in page
-        assert page.count('class="ars-back-to-top"')==1
+        assert page.count('id="arsenal-universal-up-style"')==1
+        assert page.count('id="arsenal-universal-up-script"')==1
+        assert 'id="ars-back-to-top"' not in page
     return page
 
 service_pages = {path: inline_shared_ui(page) for path, page in service_pages.items()}
@@ -485,6 +506,9 @@ html=inline_shared_ui(html)
 assert 'id="arsenal-shared-ui-critical"' in html
 assert 'id="arsenal-shared-ui-script"' in html
 assert html.count('class="arsenal-mark-a"')==1
+assert 'brand-mark.db-demo-mark::after' in html
+assert 'content:none!important' in html
+assert 'db-glass-up.js?v=2' in html
 # Reclaim images used only by the now-deleted homepage gallery; keep all
 # images referenced by the homepage's cards or the seven SEO galleries.
 referenced = html + ''.join(service_pages.values())
