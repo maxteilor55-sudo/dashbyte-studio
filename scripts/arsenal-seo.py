@@ -305,26 +305,24 @@ _ARS_NAV_ASSETS = (
     '<link rel="stylesheet" href="./assets/arsenal-glass-nav.css?v=20261108a">\n'
     '<script defer src="./assets/arsenal-glass-nav.js?v=20261108a"></script>\n'
 )
-_ARS_GLASS_HEADER = f"""<header class="ars-glass-header" aria-label="Шапка сайта Арсенал">
-<div class="ars-glass-inner">
-<a class="ars-glass-brand" href="./" aria-label="Арсенал — на главную">
-<span class="ars-glass-brand__mark"><img src="./assets/arsenal-favicon.svg" width="56" height="56" alt="" decoding="async"></span>
-<span class="ars-glass-brand__words"><span class="ars-glass-brand__title">АРСЕНАЛ</span>
-<span class="ars-glass-brand__meta">МЕТАЛЛОКОНСТРУКЦИИ · ПЕРМЬ</span>
-<span class="ars-glass-online"><span class="ars-glass-online__dot" aria-hidden="true"></span>На связи</span></span></a>
-<nav class="ars-glass-links" aria-label="Главное меню">
-<a href="./#services">Направления</a><a href="./#approach">Как работаем</a>
-<a href="./#contacts">Контакты</a><a href="./arsenal-privacy.html">Политика</a></nav>
-<a class="ars-glass-cta" href="./#contacts">Обсудить проект <span aria-hidden="true">↗</span></a>
-<button type="button" class="ars-glass-menu-button" id="ars-glass-menu-toggle"
- aria-label="Открыть меню" aria-controls="ars-glass-mobile-menu" aria-expanded="false">
-<svg class="ars-icon-menu" viewBox="0 0 28 28" aria-hidden="true"><path d="M4 7h20M4 14h20M4 21h20"/></svg>
-<svg class="ars-icon-close" viewBox="0 0 28 28" aria-hidden="true"><path d="M6 6l16 16M22 6L6 22"/></svg></button>
-</div></header>
-<nav class="ars-glass-flyout" id="ars-glass-mobile-menu" aria-label="Мобильное меню" hidden>
-<a href="./#services">Услуги и конструкции</a><a href="./#approach">Как работаем</a>
-<a href="./#contacts">Написать нам</a><a href="./arsenal-privacy.html">Политика конфиденциальности</a>
-<a class="ars-glass-call" href="tel:{TEL}">Позвонить · {PHONE} ↗</a></nav>"""
+def shared_header(home: str, inner_page: bool = True) -> str:
+    """Exact same premium header and mobile flyout as production homepage."""
+    hit = re.search(
+        r'(<header class="site-header" id="top">[\s\S]*?</header>[\s\S]*?'
+        r'<div class="mobile-menu site-mobile-flyout" id="mobile-menu">'
+        r'[\s\S]*?)(?=<div aria-hidden="true" class="read-progress">)',
+        home
+    )
+    if not hit:
+        raise RuntimeError("Cannot locate canonical Arsenal homepage header")
+    nav=hit.group(1).strip().replace('<a href="#projects">Наши работы</a>','')
+    if inner_page:
+        nav=nav.replace('href="#top"','href="./"')
+        for anchor in ('services','approach','contacts'):
+            nav=nav.replace('href="#'+anchor+'"','href="./#'+anchor+'"')
+    assert nav.count('id="menu-toggle"')==1 and nav.count('id="mobile-menu"')==1
+    return nav
+
 
 _ARS_SUBPAGE_ACTIONS = f"""<nav class="ars-service-dock" aria-label="Связаться с Арсеналом">
 <a href="./#contacts">Написать ↗</a><a href="tel:{TEL}">Позвонить ↗</a></nav>
@@ -350,13 +348,13 @@ def decorate_privacy(html: str, home: str) -> str:
     html, count = re.subn(r'<header class="top">[\s\S]*?</header>', '', html, count=1)
     if count != 1:
         raise RuntimeError("Could not replace legacy policy header")
-    html = html.replace('<body>', '<body class="ars-policy-page" id="top">\n' + _ARS_GLASS_HEADER, 1)
+    html = html.replace('<body>', '<body class="ars-policy-page">\n' + shared_header(home), 1)
     html = html.replace('</head>', _ARS_NAV_ASSETS + '</head>', 1)
     html, old_footer = re.subn(r'<footer class="foot">[\s\S]*?</footer>', '', html, count=1)
     if old_footer != 1:
         raise RuntimeError("Old policy footer missing")
     html = html.replace('</body>', shared_footer(home) + _ARS_SUBPAGE_ACTIONS + '</body>', 1)
-    assert 'ars-glass-menu-toggle' in html and 'ars-back-to-top' in html
+    assert 'id="menu-toggle"' in html and 'ars-back-to-top' in html
     return html
 
 _CSS = """
@@ -388,7 +386,7 @@ footer{border-top:1px solid #e4b88e31;padding:28px 0 50px;font-size:12px;color:#
 @media(max-width:650px){.hero{padding-top:48px}.grid{grid-template-columns:1fr}}
 """
 
-def make_service_page(p: dict, catalog: list, footer: str) -> str:
+def make_service_page(p: dict, catalog: list, footer: str, header: str) -> str:
     u = BASE + "/" + p["file"]
     pieces = "".join(
        '<div class="item"><h3>' + escape(a) + '</h3><p>' + escape(b) + '</p></div>'
@@ -450,7 +448,7 @@ def make_service_page(p: dict, catalog: list, footer: str) -> str:
 <link rel="stylesheet" href="./assets/arsenal-compliance.css?v=20261106m">
 <script defer src="./assets/arsenal-compliance.js?v=20261107x"></script>
 <style>{_CSS}</style>{_ARS_NAV_ASSETS}</head>
-<body class="ars-service-page" id="top">{_ARS_GLASS_HEADER}<div class="wrap">
+<body class="ars-service-page">{header}<div class="wrap">
 <main><div class="hero"><div class="eyebrow">МЕТАЛЛОКОНСТРУКЦИИ / ПЕРМЬ И ПЕРМСКИЙ КРАЙ</div>
 <h1>{escape(p['heading'])}</h1><p class="lead">{escape(p['lead'])}</p>
 <div class="hero-actions"><a class="btn" href="tel:{TEL}">Обсудить проект ↗</a><a class="btn ghost" href="./#services">Смотреть услуги</a></div></div>
@@ -473,7 +471,8 @@ def make_service_page(p: dict, catalog: list, footer: str) -> str:
 def service_files(html: str) -> dict:
     catalog = _photo_catalog(html)
     footer = shared_footer(html)
-    return {p["file"]: make_service_page(p, catalog, footer) for p in PAGES}
+    header=shared_header(html)
+    return {p["file"]: make_service_page(p, catalog, footer, header) for p in PAGES}
 
 def sitemap() -> str:
     from xml.sax.saxutils import escape as xesc
