@@ -20,7 +20,7 @@ logo_svg=(root/"assets/arsenal-logo-black.svg").read_bytes()
 assert b'fill="#000000"' in logo_svg
 logo_png=cairosvg.svg2png(bytestring=logo_svg,output_width=1024,output_height=1024)
 logo_rgba=Image.open(io.BytesIO(logo_png)).convert("RGBA")
-assert logo_rgba.getpixel((0,0))[3]==0 and logo_rgba.getpixel((500,500))[3]>0
+assert logo_rgba.getpixel((0,0))[3]==0 and logo_rgba.getpixel((512,512))[3]>0
 logo_url="./assets/arsenal-logo-black.svg?v=20261109garage"
 logo_img='<img class="arsenal-mark-a" src="'+logo_url+'" width="56" height="56" alt="" decoding="async">'
 # Replace the outdated embedded DB logo in the Arsenal header before SEO pages copy it.
