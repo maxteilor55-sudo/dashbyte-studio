@@ -12,6 +12,18 @@ import cairosvg
 from PIL import Image
 
 root = Path(__file__).resolve().parent.parent
+# Generate a real, photograph-backed JPEG card with this release, so social
+# crawlers receive a fast and predictable 1200x630 image without client JS.
+preview_spec=importlib.util.spec_from_file_location(
+    "arsenal_social_preview",root/"scripts/build_arsenal_social.py")
+preview_mod=importlib.util.module_from_spec(preview_spec)
+preview_spec.loader.exec_module(preview_mod)
+social_banner=preview_mod.generate(root)
+assert social_banner.is_file() and social_banner.stat().st_size>50_000
+meta_spec=importlib.util.spec_from_file_location(
+    "arsenal_social_meta",root/"scripts/arsenal_social_meta.py")
+social_meta=importlib.util.module_from_spec(meta_spec)
+meta_spec.loader.exec_module(social_meta)
 source = root / "arsenal.html"
 assert source.is_file(), "arsenal.html not found"
 from upgrade_arsenal import patch
@@ -437,7 +449,20 @@ def inline_shared_ui(page: str) -> str:
         assert 'id="ars-back-to-top"' not in page
     return page
 
-service_pages = {path: inline_shared_ui(page) for path, page in service_pages.items()}
+# Keep each SEO page's own searchable title/description while sharing a branded
+# 1200x630 image. Apply before inlining the common navigation.
+meta_by_path={page["file"]:page for page in seo.PAGES}
+assert set(service_pages)==set(meta_by_path), "SEO social metadata page mismatch"
+service_pages={
+    path: inline_shared_ui(social_meta.apply(
+        page,
+        title=meta_by_path[path]["title"],
+        description=meta_by_path[path]["description"],
+        url="https://navesy59.ru/"+path))
+    for path,page in service_pages.items()
+}
+assert all(page.count('property="og:image"')==1 for page in service_pages.values())
+
 
 
 # Release layout: cover -> approved 11 service cards -> trust -> approach ->
@@ -524,7 +549,15 @@ assert "getElementById('gallery-grid')" not in html
 html=html.replace('<a aria-label="Арсенал — на главную" class="brand" href="#top">',
                   '<a aria-label="Арсенал — на главную" class="brand" href="./">',1)
 html=inline_shared_ui(html)
+html=social_meta.apply(
+    html,
+    title="АРСЕНАЛ — металлоконструкции в Перми",
+    description=("Навесы, гаражи, лестницы, террасы и ограждения на заказ. "
+                 "Изготовление и монтаж в Перми и Пермском крае."),
+    url="https://navesy59.ru/")
 assert 'id="arsenal-shared-ui-critical"' in html
+assert html.count('property="og:image"')==1
+assert 'summary_large_image' in html
 assert 'id="arsenal-shared-ui-script"' in html
 assert html.count('class="arsenal-mark-a"')==2
 assert 'arsenal-logo-black.svg?v=20261109garage' in html
@@ -587,9 +620,18 @@ def add_public_file(z, name, data):
 with ZipFile(archive, "w", compression=ZIP_DEFLATED, compresslevel=6) as z:
     add_public_file(z, "index.html", html)
     add_public_file(z, "assets/arsenal-logo-black.png", logo_png)
+    # The file is also in chosen assets (matching arsenal-*); avoid ZIP duplicates.
+    assert social_banner in chosen and social_banner.stat().st_size>50_000
     add_public_file(z, "favicon.ico", ico_bytes.getvalue())
     add_public_file(z, "apple-touch-icon.png", apple_bytes.getvalue())
-    add_public_file(z, 'arsenal-privacy.html', inline_shared_ui(seo.decorate_privacy((root / 'arsenal-privacy.html').read_text(encoding='utf-8'), html)))
+    privacy_page=inline_shared_ui(seo.decorate_privacy(
+        (root/'arsenal-privacy.html').read_text(encoding='utf-8'),html))
+    privacy_page=social_meta.apply(
+        privacy_page,
+        title="АРСЕНАЛ — политика конфиденциальности",
+        description="Информация об обработке персональных данных на сайте Арсенала.",
+        url="https://navesy59.ru/arsenal-privacy.html")
+    add_public_file(z,'arsenal-privacy.html',privacy_page)
     add_public_file(z, 'robots.txt', seo.robots())
     add_public_file(z, 'sitemap.xml', seo.sitemap())
     add_public_file(z, '.htaccess', seo.htaccess())
