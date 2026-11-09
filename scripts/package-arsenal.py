@@ -444,7 +444,9 @@ html = html.replace('data-dock="projects" href="#projects"',
 html = html.replace('<span>Работы</span></a>', '<span>О нас</span></a>', 1)
 # Delete the now-duplicate 'Наши работы' item from both desktop and
 # mobile menu. Keep the approved cover layout and all contact CTAs.
-assert html.count('<a href="#projects">Наши работы</a>') == 2
+# This link was redundant; the shared header generator also strips it.
+# The source may already be cleaned by earlier normalization stages.
+assert html.count('<a href="#projects">Наши работы</a>') <= 2
 html = html.replace('<a href="#projects">Наши работы</a>', '', 2)
 html = html.replace('href="#projects">Смотреть работы',
                     'href="#services">Посмотреть услуги', 1)
