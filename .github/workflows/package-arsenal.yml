@@ -116,6 +116,7 @@ jobs:
               assert 'arsenal-leads-inline-app' in home
               assert 'id="arsenal-shared-ui-critical"' in home
               assert 'id="arsenal-shared-ui-script"' in home
+              assert 'class="arsenal-mark-a"' in home
               assert 'id="menu-toggle"' in home and 'id="mobile-menu"' in home
               assert 'Оставьте заявку — мы свяжемся с вами.' in home
               showcase=z.read('assets/arsenal-showcase-v1.js').decode('utf-8')
@@ -138,7 +139,8 @@ jobs:
                   assert '<h1>' in page and '<link rel="canonical"' in page
                   assert 'application/ld+json' in page
                   assert 'id="arsenal-shared-ui-critical"' in page
-                  assert 'class="footer db-forge-footer ars-shared-footer"' in page
+                  assert 'class="ars-legal-footer"' in page and 'ООО «ТД АРСЕНАЛ»' in page
+                  assert 'class="arsenal-mark-a"' in page
                   assert 'https://t.me/DashByteStudioBot' in page
                   assert 'id="arsenal-shared-ui-script"' in page
                   assert '.ars-back-to-top svg{' in page
@@ -171,7 +173,7 @@ jobs:
               assert 'id="ars-back-to-top"' in policy
               assert 'id="arsenal-shared-ui-critical"' in policy
               assert 'id="arsenal-shared-ui-script"' in policy
-              assert 'class="footer db-forge-footer ars-shared-footer"' in policy
+              assert 'class="ars-legal-footer"' in policy and 'ООО «ТД АРСЕНАЛ»' in policy
               assert 'https://t.me/DashByteStudioBot' in policy
               assert 'assets/arsenal-glass-nav.css' in files
               assert 'assets/arsenal-glass-nav.js' in files

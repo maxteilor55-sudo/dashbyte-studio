@@ -16,6 +16,13 @@ source = root / "arsenal.html"
 assert source.is_file(), "arsenal.html not found"
 from upgrade_arsenal import patch
 html = patch(source.read_text(encoding="utf-8"))
+# Replace the outdated embedded DB logo in the Arsenal header before SEO pages copy it.
+header_match=re.search(r'<header class="site-header" id="top">[\s\S]*?</header>',html)
+assert header_match, "Arsenal header not found"
+old_logo=re.search(r'<span class="brand-mark db-demo-mark"[^>]*>\s*<img\b[^>]*>\s*</span>',header_match.group(0),flags=re.S)
+assert old_logo, "Header logo changed unexpectedly"
+html=html.replace(old_logo.group(0),"<span class=\"brand-mark db-demo-mark\" aria-hidden=\"true\"><svg class=\"arsenal-mark-a\" viewBox=\"100 65 312 370\" aria-hidden=\"true\" focusable=\"false\"><defs><linearGradient id=\"arsenal-mark-bronze\" x1=\"0\" y1=\"0\" x2=\".9\" y2=\"1\"><stop offset=\"0\" stop-color=\"#e4c39d\"/><stop offset=\".58\" stop-color=\"#c89d72\"/><stop offset=\"1\" stop-color=\"#b48b65\"/></linearGradient></defs><path d=\"M145 394 L234 111 Q242 91 259 91 Q276 91 284 111 L369 394 L312 394 L289 307 L223 307 L199 394 Z M238 260 L276 260 L257 179 Z\" fill=\"url(#arsenal-mark-bronze)\" fill-rule=\"evenodd\"/></svg></span>",1)
+assert html.count('class="arsenal-mark-a"')==1
 # SEO is assembled only in the deployable REG.RU site, not the client demo.
 seo_spec = importlib.util.spec_from_file_location("arsenal_seo", root / "scripts/arsenal-seo.py")
 seo = importlib.util.module_from_spec(seo_spec)
@@ -361,7 +368,7 @@ glass_js = (root / "assets/arsenal-glass-nav.js").read_text(encoding="utf-8")
 assert glass_css.count("{") == glass_css.count("}"), "Broken braces in shared nav stylesheet"
 assert "html body header.site-header .brand-mark.db-demo-mark{" in glass_css
 assert ".ars-back-to-top svg{" in glass_css
-assert ".ars-shared-footer .footer-studio{" in glass_css
+assert "html body .ars-legal-footer{" in glass_css
 assert "html body #mobile-menu.site-mobile-flyout" in glass_css
 
 def inline_shared_ui(page: str) -> str:
@@ -382,7 +389,9 @@ def inline_shared_ui(page: str) -> str:
     assert page.count('id="arsenal-shared-ui-script"')==1
     assert page.count('id="menu-toggle"')==1 and page.count('id="mobile-menu"')==1
     if is_inner:
-        assert page.count('class="footer db-forge-footer ars-shared-footer"')==1
+        assert page.count('class="ars-legal-footer"')==1
+        assert page.count('class="arsenal-mark-a"')==1
+        assert 'ООО «ТД АРСЕНАЛ»' in page
         assert page.count('class="ars-back-to-top"')==1
     return page
 
@@ -475,6 +484,7 @@ html=html.replace('<a aria-label="Арсенал — на главную" class=
 html=inline_shared_ui(html)
 assert 'id="arsenal-shared-ui-critical"' in html
 assert 'id="arsenal-shared-ui-script"' in html
+assert html.count('class="arsenal-mark-a"')==1
 # Reclaim images used only by the now-deleted homepage gallery; keep all
 # images referenced by the homepage's cards or the seven SEO galleries.
 referenced = html + ''.join(service_pages.values())
