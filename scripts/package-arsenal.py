@@ -418,12 +418,6 @@ legacy_menu = """      const menuBtn=document.getElementById('menu-toggle'),menu
 """
 assert html.count(legacy_menu)==1, "Legacy menu implementation changed"
 html=html.replace(legacy_menu,'      // Unified Arsenal menu controller.\n',1)
-html, old_flyout=re.subn(
-    r"  const header=document\.querySelector\('\.site-header'\);[\s\S]*?"
-    r"  updateMenuPosition\(\);\n",
-    "  // Legacy flyout controller removed; one shared implementation.\n",
-    html,count=1)
-assert old_flyout==1, "Could not remove legacy mobile flyout controller"
 # Remove the old gallery filtering/zoom event handlers so the app initializer
 # still runs (previously it would throw on absent #show-more / #gallery-grid).
 html, n_gallery_handlers = re.subn(
@@ -434,6 +428,13 @@ html, n_gallery_animation = re.subn(
     r"\s*/\* Gallery filter: short, tactile bloom, including after 'show more'\. \*/[\s\S]*?(?=\s*document\.getElementById\('year'\)\.textContent)",
     '\n', html, count=1)
 assert n_gallery_animation == 1, "Cannot safely detach gallery reveal handlers"
+html, old_flyout=re.subn(
+    r"  const header=document\.querySelector\('\.site-header'\);[\s\S]*?"
+    r"  updateMenuPosition\(\);\n",
+    "  // Legacy flyout controller removed; one shared implementation.\n",
+    html,count=1)
+assert old_flyout==1, "Could not remove legacy mobile flyout controller"
+
 # Bottom dock remains a true three-way navigation without a dead "Works" link.
 html = html.replace(
     "const activeSections=['services','projects','contacts'].map(id=>document.getElementById(id));",
