@@ -7,6 +7,7 @@
 (()=>{'use strict';
 const storageKey='arsenal-cookie-choice-v3',expiry=180*864e5;
 const counterId=109304299,goalId='arsenal_lead_delivered';
+const phoneGoalId='arsenal_phone_click';
 function readChoice(){
   try{
     const value=JSON.parse(localStorage.getItem(storageKey)||'null');
@@ -38,6 +39,15 @@ window.arsenalReportLeadSuccess=function(){
   try{window.ym(counterId,'reachGoal',goalId);return true;}
   catch(_){return false;}
 };
+// Only register contact intent after the visitor permitted optional analytics.
+ // A telephone-link click is not a confirmed answered call; do not use it as
+ // the same conversion goal as a delivered Telegram form submission.
+ document.addEventListener('click',event=>{
+   const link=event.target?.closest?.('a[href^="tel:"]');
+   if(!link||readChoice()!=='accepted'||!window.__arsenalMetrikaStarted
+      ||typeof window.ym!=='function')return;
+   try{window.ym(counterId,'reachGoal',phoneGoalId);}catch(_){}
+ },{passive:true});
 const ready=()=>{
   // Before loading Webvisor, mask all form inputs including contact details.
   document.querySelectorAll('#contact-form input,#contact-form textarea,#contact-form select').forEach(field=>{
