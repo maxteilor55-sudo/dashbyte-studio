@@ -254,8 +254,8 @@ def patch_homepage(html: str) -> str:
             "alt": "Гараж с облицовкой под дерево и тёмными воротами"}),
         "terrace": catalog[7],   # Navес near a house, related terrace roof example
         "fence": EXTRA_PHOTOS["fence"],
-        "rail": catalog[23],     # Entrance stairs and steel handrails
-        "stairs": catalog[22],   # Actual metal staircase and landing
+        "rail": {"src": "./assets/arsenal-metal-railings-20261116.avif", "alt": "Металлические перила у лестницы с деревянными ступенями"},
+        "stairs": {"src": "./assets/arsenal-stairs-house-20261116.avif", "alt": "Лестница для дома с белыми металлическими перилами"},
         "fire": EXTRA_PHOTOS["fire"],
         "welding": catalog[8],   # Welded steel frame
     }
