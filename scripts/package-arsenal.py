@@ -299,6 +299,30 @@ assert len(html) > 1_000_000, "Refusing to package truncated client site"
 
 # Keep only assets actually referenced by Arsenal (including its linked CSS/JS),
 # plus small Arsenal-specific graphics and shared DashByte navigation assets.
+
+# Keep the actual, independently verified live REG.RU service card photos.
+# On the first build, import the exact currently deployed bytes, verifying
+# SHA256. Subsequent builds use the committed assets without any web dependency.
+PRODUCTION_CARD_IMAGES = {
+    "assets/arsenal-service-08-perila-20261116.jpg":
+        "dfc381f8ff1e22dfb49624fc996514b602d8c2dfaa0b08f5da8ad33210d996de",
+    "assets/arsenal-service-09-lestnicy-20261116.jpg":
+        "a0c3504b2a98e95d14a2be754a5847a44b1442a5a7518ed37cbd6ff5cd7d3131",
+}
+for rel, expected_sha in PRODUCTION_CARD_IMAGES.items():
+    local = root / rel
+    if not local.is_file():
+        from urllib.request import Request, urlopen
+        url = "https://navesy59.ru/" + rel
+        with urlopen(Request(url, headers={"User-Agent": "DashByte-Archive-Sync/1.0"}), timeout=30) as response:
+            photo_bytes = response.read()
+        if hashlib.sha256(photo_bytes).hexdigest() != expected_sha:
+            raise RuntimeError("Live photo differs from verified snapshot: " + rel)
+        local.parent.mkdir(parents=True, exist_ok=True)
+        local.write_bytes(photo_bytes)
+    if hashlib.sha256(local.read_bytes()).hexdigest() != expected_sha:
+        raise RuntimeError("Production card photo checksum mismatch: " + rel)
+
 asset_dir = root / "assets"
 files = [p for p in asset_dir.rglob("*") if p.is_file()]
 chosen = set()
@@ -618,7 +642,12 @@ def add_public_file(z, name, data):
     z.writestr(info, data)
 
 with ZipFile(archive, "w", compression=ZIP_DEFLATED, compresslevel=6) as z:
-    add_public_file(z, "index.html", html)
+    canonical_home = (root / "production/arsenal/index.html").read_text(encoding="utf-8")
+    if (canonical_home.count('class="service-card ars-photo-card"') < 5
+            or canonical_home.count('arsenal-service-08-perila-20261116.jpg') != 1
+            or canonical_home.count('arsenal-service-09-lestnicy-20261116.jpg') != 1):
+        raise RuntimeError("Production HTML snapshot is incomplete or outdated")
+    add_public_file(z, "index.html", canonical_home)
     add_public_file(z, "assets/arsenal-logo-black.png", logo_png)
     # The file is also in chosen assets (matching arsenal-*); avoid ZIP duplicates.
     assert social_banner in chosen and social_banner.stat().st_size>50_000

@@ -12,6 +12,9 @@ on:
       - 'assets/arsenal-glass-nav.js'
       - 'scripts/arsenal-seo.py'
       - 'scripts/package-arsenal.py'
+      - 'production/arsenal/index.html'
+      - 'assets/arsenal-service-08-perila-20261116.jpg'
+      - 'assets/arsenal-service-09-lestnicy-20261116.jpg'
       - 'scripts/upgrade_arsenal.py'
       - 'assets/arsenal-compliance.js'
       - 'assets/arsenal-compliance.css'
@@ -68,6 +71,17 @@ jobs:
                   assert 'https://navesy59.ru/assets/arsenal-social-share.jpg?v=20261109social1' in doc,name
 
               home=z.read('index.html').decode('utf-8')
+              # GitHub archive home must be a byte-for-byte copy of the
+              # currently approved working REG.RU homepage.
+              assert z.read('index.html') == Path('production/arsenal/index.html').read_bytes()
+              from hashlib import sha256
+              for photo, expected in {
+                  'assets/arsenal-service-08-perila-20261116.jpg':
+                      'dfc381f8ff1e22dfb49624fc996514b602d8c2dfaa0b08f5da8ad33210d996de',
+                  'assets/arsenal-service-09-lestnicy-20261116.jpg':
+                      'a0c3504b2a98e95d14a2be754a5847a44b1442a5a7518ed37cbd6ff5cd7d3131',
+              }.items():
+                  assert photo in files and sha256(z.read(photo)).hexdigest() == expected, photo
               policy=z.read('arsenal-privacy.html').decode('utf-8')
               robots=z.read('robots.txt').decode('utf-8')
               smap=z.read('sitemap.xml').decode('utf-8')
@@ -264,7 +278,7 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             python3 scripts/package-arsenal.py
-            git add arsenal-upload.zip assets/arsenal-social-share.jpg
+            git add arsenal-upload.zip assets/arsenal-social-share.jpg assets/arsenal-service-08-perila-20261116.jpg assets/arsenal-service-09-lestnicy-20261116.jpg
             if git diff --cached --quiet; then
               echo "Archive already matches main."
               exit 0
