@@ -41,3 +41,10 @@ The black sports car derived from the owner-supplied business card is a decorati
 
 ## v15 — CONTINUUM GLASS (17.11.2026)
 Верхние стеклянные капсулы логотипа и бургера объединены в один непрерывный Liquid Glass shape на ПК и мобильных устройствах. Преломление и световая кромка перенесены на общую панель; отдельные капсулы стали прозрачным контентом. Анимация бургера в крестик, фон спорткара и фотография Land Cruiser сохранены.
+
+## UI polish v16 (17.11.2026)
+- Unified header: no internal separator, more compact corner radii.
+- Glass buttons across the site, one global floating back-to-top button.
+- Consistent deal-step geometry and a single glass accordion surface per FAQ row.
+- Removed photo-source and agency-facing disclaimer labels from the public home page; photo gallery remains unchanged.
+- No new images added; awaiting next photo batch.
