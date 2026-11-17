@@ -9,8 +9,86 @@ const setMenu=open=>{if(!menu||!nav)return;const was=nav.classList.contains('ope
 if(menu&&nav){menu.addEventListener('click',()=>setMenu(!nav.classList.contains('open')));nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>setMenu(false)));scrim?.addEventListener('click',()=>setMenu(false));addEventListener('keydown',e=>{if(e.key==='Escape'&&nav.classList.contains('open'))setMenu(false)});}
 if($('year'))$('year').textContent=String(new Date().getFullYear());
 const up=$('totop');if(up){const fn=()=>up.classList.toggle('show',scrollY>650);addEventListener('scroll',fn,{passive:true});fn()}
-const motionAllowed=!matchMedia('(prefers-reduced-motion: reduce)').matches;
-if(motionAllowed&&'IntersectionObserver'in window){document.documentElement.classList.add('motion-ready');const obs=new IntersectionObserver(es=>{for(const e of es){if(e.isIntersecting){e.target.classList.add('is-visible');obs.unobserve(e.target)}}},{rootMargin:'0px 0px -24px 0px',threshold:.03});document.querySelectorAll('.reveal').forEach((e,i)=>{const siblings=[...e.parentElement.children].filter(c=>c.classList.contains('reveal'));e.style.setProperty('--reveal-delay',Math.min(Math.max(siblings.indexOf(e),0)*70,260)+'ms');obs.observe(e)});requestAnimationFrame(()=>{document.querySelectorAll('.hero .reveal').forEach(e=>{e.classList.add('is-visible');obs.unobserve(e)})});setTimeout(()=>document.querySelectorAll('.reveal:not(.is-visible)').forEach(e=>e.classList.add('is-visible')),2200)}
+// ART-AVTO KINETIC MOTION v10 — triggers when elements actually enter the viewport.
+// The previous 2.2-second global reveal timeout prevented offscreen animations from being seen.
+const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const motionElements=[];
+const motionGroups=[
+ ['.hero-meta > span, .hero-overline, .hero-title, .hero-copy-bottom > p, .hero-copy-bottom .cta-circle, .hero-frame, .hero-bottom > *, .backstudio','rise'],
+ ['.section-intro .section-counter, .section-intro h2, .section-intro > p, .contact-head > *, .faq-layout > div:first-child > *','rise'],
+ ['.case-cell, .step-item, .gallery-card, .service-row, .faq-list details, .footer-grid > div','alternate'],
+ ['.how-foot, .gallery-legal, .section-closer, .form-panel, .footer-brand, .footer-bottom, .ticker','lift'],
+ ['.form-panel .form-label, .form-panel h3, .form-panel .field, .form-panel .agree, .form-panel .form-submit, .form-panel .form-explain, .mobile-cta > a','soft']
+];
+function registerMotion(){
+ const set=new Set();
+ motionGroups.forEach(([selectors,type])=>{
+   document.querySelectorAll(selectors).forEach(el=>{
+     if(set.has(el)||el.closest('.menu-panel,.lightbox,.cookie'))return;
+     set.add(el);el.classList.add('motion-item');
+     if(type==='alternate'){
+       const peers=[...el.parentElement.children].filter(x=>x.matches('.case-cell,.step-item,.gallery-card,.service-row,.faq-list details,.footer-grid > div'));
+       const n=peers.indexOf(el);el.dataset.enter=n%2===0?'left':'right';
+       el.style.setProperty('--motion-order',String(Math.max(0,n)));
+     } else el.dataset.enter=type;
+     motionElements.push(el);
+   });
+ });
+ // Animate individual words, without changing the visual markup, line breaks, or accessible text.
+ document.querySelectorAll('.hero-title,.section-intro h2,.contact-head h2,.faq-layout h2,.case-cell h3,.step-item h3,.service-row h3,.form-panel h3').forEach(title=>{
+   const textNodes=[];
+   const walker=document.createTreeWalker(title,NodeFilter.SHOW_TEXT);
+   while(walker.nextNode())if(/\S/.test(walker.currentNode.textContent))textNodes.push(walker.currentNode);
+   let n=0;
+   textNodes.forEach(node=>{
+     const frag=document.createDocumentFragment();
+     (node.textContent.match(/\s+|\S+/g)||[]).forEach(chunk=>{
+       if(/^\s+$/.test(chunk)){frag.appendChild(document.createTextNode(chunk));return;}
+       const word=document.createElement('span');word.className='kinetic-word';word.textContent=chunk;
+       word.style.setProperty('--word-order',String(n++));frag.appendChild(word);
+     });
+     node.replaceWith(frag);
+   });
+   title.classList.add('kinetic-title');
+ });
+}
+if(!reducedMotion&&'IntersectionObserver' in window){
+ registerMotion();
+ // A two-frame arm guarantees the browser paints the starting state before revealing.
+ requestAnimationFrame(()=>requestAnimationFrame(()=>{
+   document.documentElement.classList.add('motion-enhanced');
+   const observer=new IntersectionObserver(entries=>{
+     for(const entry of entries){
+       if(!entry.isIntersecting)continue;
+       const el=entry.target;
+       el.style.setProperty('--motion-delay', Math.min(Number(el.style.getPropertyValue('--motion-order')||0)*65,280)+'ms');
+       el.classList.add('motion-in');
+       observer.unobserve(el);
+     }
+   },{root:null,rootMargin:'0px 0px -6% 0px',threshold:0.06});
+   motionElements.forEach(el=>observer.observe(el));
+   // Expose hero immediately once painted; below-fold items are NEVER pre-revealed.
+   // Safety fallback only applies to the first viewport if an observer is temporarily stalled.
+   setTimeout(()=>motionElements.filter(el=>!el.classList.contains('motion-in')&&el.getBoundingClientRect().top<innerHeight*.8&&el.getBoundingClientRect().bottom>0).forEach(el=>el.classList.add('motion-in')),1250);
+ }));
+}
+// Scroll-reading indicator, updates in one requestAnimationFrame per browser frame.
+const progress=document.createElement('div');progress.id='read-progress';progress.setAttribute('aria-hidden','true');
+document.body.appendChild(progress);
+let progressScheduled=false;
+function renderProgress(){const distance=Math.max(document.documentElement.scrollHeight-innerHeight,1);progress.style.transform=`scaleX(${Math.min(1,Math.max(0,scrollY/distance))})`;progressScheduled=false;}
+function scheduleProgress(){if(!progressScheduled){progressScheduled=true;requestAnimationFrame(renderProgress)}}
+addEventListener('scroll',scheduleProgress,{passive:true});addEventListener('resize',scheduleProgress,{passive:true});scheduleProgress();
+// Soft focus trail on glass surfaces; only when a precise pointer is present.
+if(!reducedMotion&&matchMedia('(hover:hover) and (pointer:fine)').matches){
+ document.querySelectorAll('.case-cell,.step-item,.service-row,.gallery-card,.form-panel,.menu-toggle').forEach(el=>{
+   let queued=false,px=50,py=50;
+   el.addEventListener('pointermove',ev=>{
+     const r=el.getBoundingClientRect();px=((ev.clientX-r.left)/Math.max(r.width,1)*100).toFixed(1);py=((ev.clientY-r.top)/Math.max(r.height,1)*100).toFixed(1);
+     if(queued)return;queued=true;requestAnimationFrame(()=>{el.style.setProperty('--glint-x',px+'%');el.style.setProperty('--glint-y',py+'%');queued=false});
+   },{passive:true});
+ });
+}
 // Gallery: one photo per car, keyboard and accessible close.
 const cards=[...document.querySelectorAll('.gallery-card')],light=$('lightbox');
 if(cards.length&&light){let index=0,origin=null;const img=$('lightbox-img'),caption=$('lightbox-caption');function open(i){index=(i+cards.length)%cards.length;origin=origin||document.activeElement;const thumb=cards[index].querySelector('img');img.src=thumb.currentSrc||thumb.src;img.alt=thumb.alt;caption.textContent=cards[index].querySelector('span')?.innerText?.replace(/\n/g,' · ')||thumb.alt;light.classList.add('open');light.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';$('lightbox-close')?.focus()}function close(){light.classList.remove('open');light.setAttribute('aria-hidden','true');document.body.style.overflow='';img.removeAttribute('src');(origin||cards[index])?.focus();origin=null}cards.forEach((c,i)=>c.addEventListener('click',()=>open(i)));$('lightbox-close')?.addEventListener('click',close);$('lightbox-prev')?.addEventListener('click',()=>open(index-1));$('lightbox-next')?.addEventListener('click',()=>open(index+1));light.addEventListener('click',e=>{if(e.target===light)close()});addEventListener('keydown',e=>{if(!light.classList.contains('open'))return;if(e.key==='Escape')close();if(e.key==='ArrowLeft')open(index-1);if(e.key==='ArrowRight')open(index+1)})}

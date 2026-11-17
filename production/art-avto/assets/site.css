@@ -694,3 +694,113 @@ body::before{background:
  .menu-panel{background:#15141d!important}
  .case-cell,.step-item,.form-panel,.service-row,.legal-body{background:#20212b!important}
 }
+
+
+/* ART-AVTO KINETIC MOTION 10 — additive motion, ORIGINAL RED v9 geometry/palette preserved */
+/* Never hide content until JS has installed the viewport observer. */
+html.motion-enhanced .motion-item:not(.motion-in){
+ opacity:0!important;
+ filter:blur(11px) saturate(.78)!important;
+ transform:translate3d(var(--entry-x,0px),var(--entry-y,32px),0) scale(.967)!important;
+}
+html.motion-enhanced .motion-item[data-enter=left]{--entry-x:-48px;--entry-y:7px}
+html.motion-enhanced .motion-item[data-enter=right]{--entry-x:48px;--entry-y:7px}
+html.motion-enhanced .motion-item[data-enter=rise]{--entry-x:0px;--entry-y:40px}
+html.motion-enhanced .motion-item[data-enter=lift]{--entry-x:0px;--entry-y:22px}
+html.motion-enhanced .motion-item[data-enter=soft]{--entry-x:0px;--entry-y:17px}
+html.motion-enhanced .motion-item{
+ transition-property:opacity,filter,transform!important;
+ transition-duration:.95s,.88s,1.08s!important;
+ transition-timing-function:cubic-bezier(.2,.7,.12,1)!important;
+ transition-delay:var(--motion-delay,0ms)!important;
+}
+html.motion-enhanced .motion-item.motion-in{
+ opacity:1!important;filter:blur(0) saturate(1)!important;
+ transform:translate3d(0,0,0) scale(1)!important;
+}
+/* Titles type out by word, maintaining the original line breaks. */
+html.motion-enhanced .kinetic-title .kinetic-word{
+ display:inline-block;
+ opacity:0;
+ filter:blur(4px);
+ transform:translate3d(0,70%,0) rotate(3deg);
+ transition:opacity .72s,filter .8s,transform .92s cubic-bezier(.16,1,.3,1);
+ transition-delay:calc(var(--word-order,0)*48ms + 110ms);
+}
+html.motion-enhanced .kinetic-title.motion-in .kinetic-word,
+html.motion-enhanced .motion-in .kinetic-title .kinetic-word{
+ opacity:1;filter:none;transform:translate3d(0,0,0) rotate(0);
+}
+/* Card contents stage in as a mini sequence instead of popping in all at once. */
+html.motion-enhanced .case-cell.motion-in > :where(.case-serial,h3,p,.case-arrow),
+html.motion-enhanced .step-item.motion-in > :where(.step-n,div),
+html.motion-enhanced .service-row.motion-in > :where(.service-index,h3,p,b){animation:kineticInner .72s backwards cubic-bezier(.16,1,.3,1)}
+html.motion-enhanced .case-cell.motion-in > :nth-child(2),html.motion-enhanced .step-item.motion-in > :nth-child(2),html.motion-enhanced .service-row.motion-in > :nth-child(2){animation-delay:.13s}
+html.motion-enhanced .case-cell.motion-in > :nth-child(3),html.motion-enhanced .service-row.motion-in > :nth-child(3){animation-delay:.22s}
+html.motion-enhanced .case-cell.motion-in > :nth-child(4),html.motion-enhanced .service-row.motion-in > :nth-child(4){animation-delay:.30s}
+@keyframes kineticInner{from{opacity:0;filter:blur(4px);translate:0 14px}to{opacity:1;filter:none;translate:0 0}}
+/* Vehicle imagery: cinematic but restrained reveal and hover. */
+.gallery-card{isolation:isolate}
+.gallery-card img{transition:transform 1.2s cubic-bezier(.16,1,.3,1),filter .75s!important}
+.gallery-card:hover img{transform:scale(1.065)!important;filter:saturate(1.10) contrast(1.05)!important}
+.hero-photo img{animation:kineticPhotoDrift 16s ease-in-out infinite alternate;transform-origin:60% 43%;}
+@keyframes kineticPhotoDrift{from{transform:scale(1.005) translateX(0)}to{transform:scale(1.052) translateX(-1.15%)}}
+.hero-frame.motion-in .hero-seal{animation:kineticStamp 1.3s .44s both cubic-bezier(.16,1,.3,1)}
+@keyframes kineticStamp{from{opacity:0;transform:translate(15px,-15px) rotate(11deg) scale(.82)}to{opacity:1;transform:none}}
+.hero-frame.motion-in .hero-overlay-text{animation:kineticInner 1s .65s backwards cubic-bezier(.16,1,.3,1)}
+/* Buttons and links use light sweeps rather than thick drop shadows. */
+.head-action,.form-submit,.cta-circle,.menu-toggle,.mobile-cta a,.menu-panel-bottom a{position:relative;isolation:isolate;overflow:hidden}
+.head-action::after,.form-submit::after,.cta-circle::after,.menu-toggle::after,.mobile-cta a::after,.menu-panel-bottom a::after{
+ content:"";position:absolute;inset:-60% auto -60% -45%;width:36%;transform:skewX(-25deg) translateX(-180%);pointer-events:none;
+ background:linear-gradient(90deg,transparent,rgba(255,255,255,.27),transparent);transition:transform .75s cubic-bezier(.16,1,.3,1);z-index:1;
+}
+.head-action:hover::after,.form-submit:hover::after,.cta-circle:hover::after,.menu-toggle:hover::after,.mobile-cta a:hover::after,.menu-panel-bottom a:hover::after{transform:skewX(-25deg) translateX(650%)}
+.case-cell,.step-item,.service-row,.gallery-card,.form-panel{--glint-x:50%;--glint-y:50%}
+.case-cell::before,.step-item::before,.service-row::before,.form-panel::before{
+ content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .35s ease;
+ background:radial-gradient(circle 200px at var(--glint-x) var(--glint-y),rgba(255,103,117,.13),transparent 77%);z-index:1;
+}
+.case-cell:hover::before,.step-item:hover::before,.service-row:hover::before,.form-panel:focus-within::before{opacity:1}
+/* The glass menu is a choreographed sequence: curtain -> contents -> labels -> markers. */
+.menu-panel{
+ transition:opacity .55s ease,visibility .55s,clip-path .86s cubic-bezier(.16,1,.3,1),-webkit-clip-path .86s cubic-bezier(.16,1,.3,1)!important;
+ clip-path:inset(0 0 100% 0 round 0 0 32px 32px)!important;
+}
+.menu-panel.open{clip-path:inset(0 0 0 0 round 0)!important}
+.menu-panel .menu-refraction{transition:opacity .8s ease,transform 1s cubic-bezier(.16,1,.3,1);transform:translateY(-60px) scale(1.15);opacity:0}
+.menu-panel.open .menu-refraction{transform:none;opacity:1}
+.menu-panel .menu-aside{opacity:0;filter:blur(12px);transform:translate3d(-26px,16px,0);transition:opacity .7s .2s,filter .9s .2s,transform .85s .2s cubic-bezier(.16,1,.3,1)!important}
+.menu-panel.open .menu-aside{opacity:1;filter:none;transform:none}
+.menu-panel .menu-panel-top,.menu-panel .menu-panel-bottom{opacity:0;transform:translateY(20px);transition:opacity .65s .24s,transform .75s .24s cubic-bezier(.16,1,.3,1)!important}
+.menu-panel.open .menu-panel-top,.menu-panel.open .menu-panel-bottom{opacity:1;transform:none}
+.menu-panel.open .menu-directory>a{animation:kineticMenuRow .78s both cubic-bezier(.16,1,.3,1)!important}
+.menu-panel.open .menu-directory>a:nth-of-type(1){animation-delay:.16s!important}
+.menu-panel.open .menu-directory>a:nth-of-type(2){animation-delay:.23s!important}
+.menu-panel.open .menu-directory>a:nth-of-type(3){animation-delay:.30s!important}
+.menu-panel.open .menu-directory>a:nth-of-type(4){animation-delay:.37s!important}
+.menu-panel.open .menu-directory>a:nth-of-type(5){animation-delay:.44s!important}
+@keyframes kineticMenuRow{from{opacity:0;filter:blur(9px);transform:translate3d(55px,16px,0)}to{opacity:1;filter:none;transform:none}}
+.menu-directory>a i{transition:transform .4s cubic-bezier(.16,1,.3,1),color .4s!important}
+.menu-directory>a:hover i{transform:translate(6px,-6px) rotate(13deg)}
+.menu-toggle .menu-bars i{transition:transform .63s cubic-bezier(.16,1,.3,1),top .5s cubic-bezier(.16,1,.3,1),background .35s!important}
+/* Micro-animations across site, while preserving form field accessibility. */
+.field input,.field select,.field textarea{transition:border-color .3s,background-color .3s,box-shadow .35s,transform .35s!important}
+.field:focus-within input,.field:focus-within select,.field:focus-within textarea{transform:translateY(-2px);box-shadow:0 0 0 3px rgba(240,68,79,.1)!important}
+.faq-list details{transition:background .45s,border-color .45s!important}
+.faq-list details[open] summary{animation:kineticInner .52s ease both}
+.faq-list details[open] p{animation:kineticInner .7s ease both}
+/* Keep the on-screen animation rhythm visible while scrolling. */
+#read-progress{position:fixed;top:0;left:0;width:100%;height:3px;z-index:400;pointer-events:none;background:linear-gradient(90deg,#f0444f,#ff9da7);transform:scaleX(0);transform-origin:left center;will-change:transform}
+@media(hover:none){.head-action:active,.form-submit:active,.menu-toggle:active,.mobile-cta a:active{filter:brightness(1.12)}}
+@media(max-width:740px){
+ html.motion-enhanced .motion-item[data-enter=left]{--entry-x:-26px}
+ html.motion-enhanced .motion-item[data-enter=right]{--entry-x:26px}
+ .menu-panel .menu-aside{transform:translateY(22px)}
+ .hero-photo img{animation-duration:20s}
+}
+@media(prefers-reduced-motion:reduce){
+ html.motion-enhanced .motion-item,html.motion-enhanced .motion-item:not(.motion-in){opacity:1!important;filter:none!important;transform:none!important;transition:none!important}
+ .kinetic-word{opacity:1!important;filter:none!important;transform:none!important;transition:none!important}
+ .hero-photo img,.menu-panel.open .menu-directory>a,.menu-panel .menu-aside,.faq-list details[open] p,.hero-frame.motion-in .hero-seal{animation:none!important}
+ .menu-panel{clip-path:none!important;transition:opacity .01ms!important}
+}
