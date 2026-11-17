@@ -1374,3 +1374,100 @@ body .form-submit{min-height:58px!important}
 body .totop{border-radius:16px!important}
 body .how-foot{padding-right:clamp(18px,6vw,70px)!important}
 @media(max-width:740px){body .how-foot{padding-right:62px!important}}
+
+
+/* ART-AVTO / V17 — Telegram showroom clearance + optical interactions.
+   Keep all approved V16 brand colors, unified Liquid Glass and photo hero. */
+@media (max-width:740px){
+  /* Preview runs on GitHub Pages inside the DashByte Telegram mini app.
+     The production REG.RU host has no .on-showroom and keeps the header near the top. */
+  body.on-showroom .header-shell{
+    top:calc(max(env(safe-area-inset-top,0px), var(--tg-content-safe-area-inset-top,0px)) + 122px)!important;
+  }
+  body.on-showroom .backstudio{
+    top:calc(max(env(safe-area-inset-top,0px), var(--tg-content-safe-area-inset-top,0px)) + 122px + clamp(79px,21vw,92px) + 10px)!important;
+  }
+  body.on-showroom .menu-stage{
+    padding-top:calc(max(env(safe-area-inset-top,0px), var(--tg-content-safe-area-inset-top,0px)) + 122px + clamp(79px,21vw,92px) + 25px)!important;
+  }
+  body.on-showroom .hero{padding-top:calc(185px + 112px)!important}
+}
+
+/* Correctly align the phone glyphs vertically and separate the arrow. */
+body .contact-phone{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  gap:clamp(10px,3.5vw,22px)!important;
+  padding:14px 20px!important;min-height:70px!important;
+  text-align:center!important;line-height:1.06!important;
+  font-variant-numeric:tabular-nums;white-space:nowrap;
+}
+body .contact-phone .phone-digits{
+  display:block;min-width:0;line-height:1.08!important;
+  font-size:clamp(19px,4.5vw,28px)!important;letter-spacing:-.035em;
+}
+body .contact-phone .phone-arrow{
+  display:grid!important;place-items:center!important;flex:0 0 auto;
+  font-size:clamp(24px,5.5vw,32px)!important;line-height:1!important;
+  transform:none!important;position:static!important;
+}
+@media(max-width:365px){body .contact-phone{gap:9px!important;padding:12px!important}}
+
+/* Conversion button: breathing crimson radiance INSIDE transparent optical glass. */
+body .form-submit{
+  position:relative!important;isolation:isolate!important;overflow:hidden!important;
+  display:flex!important;align-items:center!important;justify-content:space-between!important;
+  gap:14px!important;padding-inline:clamp(17px,5vw,30px)!important;
+  background:rgba(244,244,255,.11)!important;
+  border:1px solid rgba(255,255,255,.53)!important;
+  -webkit-backdrop-filter:blur(21px) saturate(1.6)!important;
+  backdrop-filter:blur(21px) saturate(1.6)!important;
+}
+body .form-submit .submit-title,body .form-submit .submit-arrow{position:relative;z-index:2;line-height:1.3}
+body .form-submit::before{
+  content:"";position:absolute;inset:-18% -18%;pointer-events:none;z-index:1;
+  border-radius:inherit;
+  background:radial-gradient(ellipse 48% 64% at 50% 50%,rgba(190,0,21,.8) 0%,rgba(201,8,27,.44) 45%,transparent 100%);
+  transform:scaleX(.12) scaleY(.54);opacity:.1;
+  animation:glassBloodPulse 1s ease-in-out infinite alternate;
+  filter:blur(7px);
+}
+@keyframes glassBloodPulse{
+  0%{transform:scaleX(.12) scaleY(.54);opacity:.10}
+  100%{transform:scaleX(1.45) scaleY(1.2);opacity:.75}
+}
+
+/* FAQ: one polished blade of light, running through each shape in sequence.
+   JS attaches .blade-sequence only on entering the section. */
+.faq-list details{position:relative!important;isolation:isolate!important;overflow:hidden!important}
+.faq-list details::before{
+  content:"";position:absolute;inset:-25% auto -25% -42%;width:27%;pointer-events:none;
+  z-index:3;opacity:0;
+  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.06) 24%,rgba(255,255,255,.62) 47%,rgba(255,255,255,.9) 51%,rgba(255,255,255,.09) 70%,transparent 100%);
+  transform:translateX(-170%) skewX(-21deg);
+}
+.faq-list.blade-sequence details::before{
+  animation:bladeLightSweep 850ms cubic-bezier(.16,.6,.28,1) both;
+  animation-delay:calc(var(--blade-order,0) * 620ms);
+}
+@keyframes bladeLightSweep{
+  0%{opacity:0;transform:translateX(-170%) skewX(-21deg)}
+  12%{opacity:1}
+  86%{opacity:.8}
+  100%{opacity:0;transform:translateX(680%) skewX(-21deg)}
+}
+
+/* The dock itself must be invisible: ONLY two independent Liquid Glass buttons. */
+body .mobile-cta{
+  background:transparent!important;background-image:none!important;
+  border:0!important;border-top:0!important;border-radius:0!important;
+  box-shadow:none!important;
+  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+  pointer-events:none!important;
+}
+body .mobile-cta a{pointer-events:auto!important}
+
+/* Honor accessibility settings and reduce unnecessary GPU animation. */
+@media(prefers-reduced-motion:reduce){
+  body .form-submit::before{animation:none!important;opacity:.16;transform:scaleX(1)}
+  .faq-list.blade-sequence details::before{animation:none!important;opacity:0!important}
+}

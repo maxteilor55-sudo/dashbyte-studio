@@ -1,3 +1,5 @@
+ART-AVTO V17 · TELEGRAM SHOWROOM + NEW VEHICLES
+
 # ART-AVTO — OPAL PRISM v9 · ORIGINAL RED COLORWAY (17 ноября 2026)
 
 **Исходный дизайн v8 без изменений зафиксирован в GitHub:** ветка `art-avto-opal-prism-v8-frozen`, коммит `cb99a6713dbd959a72210811b57cf37d5afc8b16`.
@@ -48,3 +50,11 @@ The black sports car derived from the owner-supplied business card is a decorati
 - Consistent deal-step geometry and a single glass accordion surface per FAQ row.
 - Removed photo-source and agency-facing disclaimer labels from the public home page; photo gallery remains unchanged.
 - No new images added; awaiting next photo batch.
+
+
+### Изменения v17
+- Галерея: 13 уникальных машин (7 новых снимков), без повторения автомобилей из прошлой партии.
+- Шапка в демо GitHub Pages сдвинута ниже интерфейса Telegram на мобильных; на REG.RU сохраняется стандартное положение у верхнего края.
+- Телефонная кнопка выровнена, кнопка формы пульсирует красным свечением под стеклом.
+- FAQ: последовательный блик один раз при каждом новом входе секции в область просмотра.
+- Мобильная нижняя панель прозрачна: видны только две отдельные стеклянные кнопки.

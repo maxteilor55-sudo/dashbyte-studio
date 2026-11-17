@@ -154,8 +154,33 @@ if(!reducedMotion&&matchMedia('(hover:hover) and (pointer:fine)').matches){
 // Gallery: one photo per car, keyboard and accessible close.
 const cards=[...document.querySelectorAll('.gallery-card')],light=$('lightbox');
 if(cards.length&&light){let index=0,origin=null;const img=$('lightbox-img'),caption=$('lightbox-caption');function open(i){index=(i+cards.length)%cards.length;origin=origin||document.activeElement;const thumb=cards[index].querySelector('img');img.src=thumb.currentSrc||thumb.src;img.alt=thumb.alt;caption.textContent=cards[index].querySelector('span')?.innerText?.replace(/\n/g,' · ')||thumb.alt;light.classList.add('open');light.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';$('lightbox-close')?.focus()}function close(){light.classList.remove('open');light.setAttribute('aria-hidden','true');document.body.style.overflow='';img.removeAttribute('src');(origin||cards[index])?.focus();origin=null}cards.forEach((c,i)=>c.addEventListener('click',()=>open(i)));$('lightbox-close')?.addEventListener('click',close);$('lightbox-prev')?.addEventListener('click',()=>open(index-1));$('lightbox-next')?.addEventListener('click',()=>open(index+1));light.addEventListener('click',e=>{if(e.target===light)close()});addEventListener('keydown',e=>{if(!light.classList.contains('open'))return;if(e.key==='Escape')close();if(e.key==='ArrowLeft')open(index-1);if(e.key==='ArrowRight')open(index+1)})}
+
+// FAQ: one non-overlapping blade-light pass, in reading order, per viewport entry.
+// Re-arm after fully leaving view; the existing mirror-scroll reveals remain independent.
+const faqRows=[...document.querySelectorAll('.faq-list details')];
+faqRows.forEach((row,i)=>row.style.setProperty('--blade-order',String(i)));
+if(faqRows.length&&!reducedMotion&&'IntersectionObserver' in window){
+ const faqGroup=document.querySelector('.faq-list');
+ let faqIn=false;
+ const faqObserver=new IntersectionObserver(entries=>{
+   for(const e of entries){
+     if(e.isIntersecting&&!faqIn){
+       faqIn=true;
+       faqGroup.classList.remove('blade-sequence');
+       // Force a clean reflow, so the animation restarts when returning to the section.
+       void faqGroup.offsetWidth;
+       faqGroup.classList.add('blade-sequence');
+     }else if(!e.isIntersecting&&faqIn){
+       faqIn=false;
+       faqGroup.classList.remove('blade-sequence');
+     }
+   }
+ },{threshold:0,rootMargin:'-8% 0px -10% 0px'});
+ faqObserver.observe(faqGroup);
+}
+
 // Safe lead handling: no unconfigured fictitious auto-send.
-const form=$('estimate-form');if(form){const submit=$('submit-btn'),explain=$('form-explain'),status=$('form-status');if(cfg.requestEndpoint){submit.innerHTML='ОТПРАВИТЬ ЗАЯВКУ <span>↗</span>';if(explain)explain.textContent='Обращение будет отправлено по защищённому соединению.'}form.addEventListener('submit',async e=>{e.preventDefault();status.textContent='';const tel=$('phone').value.trim();if(!form.checkValidity()||tel.replace(/\D/g,'').length<7){status.textContent='Проверьте обязательные поля и согласие на обработку данных.';form.reportValidity();return}const data=Object.fromEntries(new FormData(form));delete data.agree;data.source='ART-AVTO / website';if(cfg.requestEndpoint){submit.disabled=true;status.textContent='Отправляем заявку…';try{const endpoint=new URL(cfg.requestEndpoint);if(endpoint.protocol!=='https:')throw Error('HTTPS required');const resp=await fetch(endpoint.toString(),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});if(!resp.ok)throw Error('Failed');status.textContent='Заявка отправлена. Мы свяжемся с вами.';form.reset()}catch{status.textContent='Не удалось отправить автоматически. Позвоните или напишите по почте.'}finally{submit.disabled=false}return}const lines=['Заявка на выкуп автомобиля — ART-AVTO','',`Имя: ${data.name||'—'}`,`Телефон: ${tel}`,`Марка и модель: ${data.car||'—'}`,`Год: ${data.year||'—'}`,`Состояние: ${data.condition||'—'}`,`Описание: ${data.description||'—'}`];const url='mailto:aa89519532200@gmail.com?subject='+encodeURIComponent('Заявка на выкуп автомобиля — ART-AVTO')+'&body='+encodeURIComponent(lines.join('\n'));status.textContent='Открываем почтовую программу. Не забудьте нажать «Отправить» в письме.';location.href=url})}
+const form=$('estimate-form');if(form){const submit=$('submit-btn'),explain=$('form-explain'),status=$('form-status');if(cfg.requestEndpoint){submit.innerHTML='<span class="submit-title">ОТПРАВИТЬ ЗАЯВКУ</span><span class="submit-arrow" aria-hidden="true">↗</span>';if(explain)explain.textContent='Обращение будет отправлено по защищённому соединению.'}form.addEventListener('submit',async e=>{e.preventDefault();status.textContent='';const tel=$('phone').value.trim();if(!form.checkValidity()||tel.replace(/\D/g,'').length<7){status.textContent='Проверьте обязательные поля и согласие на обработку данных.';form.reportValidity();return}const data=Object.fromEntries(new FormData(form));delete data.agree;data.source='ART-AVTO / website';if(cfg.requestEndpoint){submit.disabled=true;status.textContent='Отправляем заявку…';try{const endpoint=new URL(cfg.requestEndpoint);if(endpoint.protocol!=='https:')throw Error('HTTPS required');const resp=await fetch(endpoint.toString(),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});if(!resp.ok)throw Error('Failed');status.textContent='Заявка отправлена. Мы свяжемся с вами.';form.reset()}catch{status.textContent='Не удалось отправить автоматически. Позвоните или напишите по почте.'}finally{submit.disabled=false}return}const lines=['Заявка на выкуп автомобиля — ART-AVTO','',`Имя: ${data.name||'—'}`,`Телефон: ${tel}`,`Марка и модель: ${data.car||'—'}`,`Год: ${data.year||'—'}`,`Состояние: ${data.condition||'—'}`,`Описание: ${data.description||'—'}`];const url='mailto:aa89519532200@gmail.com?subject='+encodeURIComponent('Заявка на выкуп автомобиля — ART-AVTO')+'&body='+encodeURIComponent(lines.join('\n'));status.textContent='Открываем почтовую программу. Не забудьте нажать «Отправить» в письме.';location.href=url})}
 function initMetrika(id){if(!/^\d+$/.test(String(id)))return;window.ym=window.ym||function(){(window.ym.a=window.ym.a||[]).push(arguments)};window.ym.l=Date.now();const script=document.createElement('script');script.async=true;script.src='https://mc.yandex.ru/metrika/tag.js';document.head.appendChild(script);window.ym(Number(id),'init',{clickmap:true,trackLinks:true,accurateTrackBounce:true,webvisor:false})}
 const metrika=cfg.yandexMetrikaId,cookie=$('cookie');if(cookie&&metrika){try{if(localStorage.getItem('artavto_analytics_consent')==='yes')initMetrika(metrika);else cookie.classList.add('show')}catch{cookie.classList.add('show')}const yes=$('cookie-yes');yes?.addEventListener('click',()=>{try{localStorage.setItem('artavto_analytics_consent','yes')}catch{}cookie.classList.remove('show');initMetrika(metrika)})}
 })();
