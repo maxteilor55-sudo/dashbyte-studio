@@ -1008,3 +1008,129 @@ html.motion-enhanced .kinetic-title .kinetic-word{transition-delay:calc(var(--wo
  .hero-frame{height:clamp(300px,89vw,400px)!important;max-height:400px!important;aspect-ratio:auto!important}
 }
 @media(prefers-reduced-motion:reduce){.hero-frame .hero-photo img{transition:none!important}}
+
+
+/* ART-AVTO / CONTINUUM GLASS 15
+   A single contiguous refractive shape replaces separate logo and burger islands.
+   No changes to menu choreography, section layout, brand colors or hero imagery. */
+.header-shell{
+  box-sizing:border-box!important;
+  isolation:isolate!important;
+  position:fixed!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:clamp(5px,1.15vw,14px)!important;
+  padding:6px 9px!important;
+  min-width:0!important;
+  min-height:96px!important;
+  border:1px solid rgba(255,255,255,.55)!important;
+  border-radius:999px!important;
+  background:rgba(244,244,255,.085)!important;
+  background-image:linear-gradient(122deg,rgba(255,255,255,.18) 0%,rgba(255,255,255,.028) 28%,rgba(255,255,255,.025) 67%,rgba(255,255,255,.13) 100%)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(2.0) brightness(1.17)!important;
+  backdrop-filter:blur(18px) saturate(2.0) brightness(1.17)!important;
+  box-shadow:inset 0 2px 1px rgba(255,255,255,.62),
+    inset 0 -1.8px rgba(231,237,255,.30),
+    inset 2px 0 rgba(255,255,255,.24),
+    inset -2px 0 rgba(255,255,255,.29),
+    0 5px 20px rgba(0,0,0,.18)!important;
+  pointer-events:auto!important;
+  transition:background-color .35s ease,border-color .35s ease,box-shadow .35s ease!important;
+}
+/* A single uninterrupted spectral line along the outer perimeter. */
+.header-shell::before{
+  content:""!important;position:absolute;inset:1.1px;z-index:0;
+  border-radius:inherit;padding:1.7px;pointer-events:none;
+  background:conic-gradient(from 190deg,
+    rgba(255,255,255,.11),rgba(255,255,255,.92) 48deg,
+    rgba(255,255,255,.04) 99deg,rgba(255,255,255,.22) 180deg,
+    rgba(255,255,255,.82) 242deg,rgba(255,220,225,.24) 295deg,
+    rgba(255,255,255,.11));
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;
+  mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  mask-composite:exclude;
+  opacity:.86;
+}
+.header-shell::after{
+  content:""!important;position:absolute;inset:3px 9px auto;z-index:0;
+  height:30%;border-radius:999px 999px 0 0;pointer-events:none;
+  border-top:1px solid rgba(255,255,255,.48);
+  background:linear-gradient(180deg,rgba(255,255,255,.055),transparent);
+}
+.header-shell > *{position:relative;z-index:1;min-width:0}
+/* The logo and controls are now content inside ONE glass material. */
+.header-shell > .brand.glass-logo,
+.header-shell .header-cluster .menu-toggle,
+.header-shell .header-cluster .head-phone,
+.header-shell .header-cluster .head-action{
+  background:transparent!important;
+  background-image:none!important;
+  border:none!important;
+  box-shadow:none!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+}
+.header-shell > .brand.glass-logo{
+  flex:0 1 auto!important;
+  max-width:min(56vw,100%)!important;
+  padding-inline:7px 12px!important;
+}
+.header-shell .header-cluster{
+  min-width:0!important;
+  max-width:100%;
+  gap:clamp(5px,1vw,13px)!important;
+}
+/* Keep the same red burger -> X transform; remove its own capsule rim. */
+.header-shell .header-cluster .menu-toggle{
+  flex:none!important;
+  border-radius:999px!important;
+  position:relative;
+}
+.header-shell .header-cluster .menu-toggle::before,
+.header-shell > .brand.glass-logo::before,
+.header-shell > .brand.glass-logo::after{content:none!important;display:none!important}
+.header-shell .header-cluster .head-phone,
+.header-shell .header-cluster .head-action{border-radius:999px!important}
+.header-shell .header-cluster .head-action:hover,
+.header-shell .header-cluster .head-phone:hover,
+.header-shell .header-cluster .menu-toggle:hover{background:rgba(255,255,255,.075)!important}
+/* The menu-open state subtly tints the entire common glass outline. */
+.header-shell:has(.menu-toggle[aria-expanded="true"]){
+  border-color:rgba(255,217,224,.69)!important;
+  background-color:rgba(166,30,45,.15)!important;
+}
+@media(max-width:1050px){
+  .header-shell > .brand.glass-logo{max-width:calc(100% - 90px)!important}
+}
+@media(max-width:740px){
+  .header-shell{
+    left:12px!important;right:12px!important;
+    top:calc(env(safe-area-inset-top,0px) + 10px)!important;
+    padding:4px 5px!important;
+    min-height:clamp(79px,21vw,92px)!important;
+    gap:4px!important;
+  }
+  .header-shell > .brand.glass-logo{
+    flex:1 1 auto!important;
+    max-width:calc(100% - clamp(74px,19vw,90px))!important;
+    min-width:0!important;
+    padding-left:5px!important;
+    padding-right:2px!important;
+  }
+  .header-shell .header-cluster{margin-left:auto!important;flex:0 0 auto!important;gap:0!important}
+  .header-shell .header-cluster .menu-toggle{border-left:1px solid rgba(255,255,255,.16)!important;border-radius:0 999px 999px 0!important}
+  .header-shell .brand-text{min-width:0;white-space:nowrap}
+  .header-shell .brand-text small{white-space:nowrap}
+}
+@media(max-width:360px){
+  .header-shell{padding-inline:4px!important}
+  .header-shell > .brand.glass-logo{gap:5px!important;padding-right:0!important}
+  .header-shell .brand-text{font-size:clamp(16px,5.1vw,19px)!important}
+  .header-shell .brand-text small{font-size:7px!important;letter-spacing:0!important}
+}
+@supports not ((-webkit-backdrop-filter:blur(8px)) or (backdrop-filter:blur(8px))){
+  .header-shell{background:rgba(30,30,36,.78)!important}
+}
+@media(prefers-reduced-motion:reduce){.header-shell{transition:none!important}}

@@ -37,3 +37,7 @@
 
 ## v14 / Hero background corrected
 The black sports car derived from the owner-supplied business card is a decorative, responsive background of the first screen (separate desktop and mobile WebP). The main photo card has been restored to the original Toyota Land Cruiser photo `assets/auto-11.webp`. No other content, layout or form flow changed.
+
+
+## v15 — CONTINUUM GLASS (17.11.2026)
+Верхние стеклянные капсулы логотипа и бургера объединены в один непрерывный Liquid Glass shape на ПК и мобильных устройствах. Преломление и световая кромка перенесены на общую панель; отдельные капсулы стали прозрачным контентом. Анимация бургера в крестик, фон спорткара и фотография Land Cruiser сохранены.
