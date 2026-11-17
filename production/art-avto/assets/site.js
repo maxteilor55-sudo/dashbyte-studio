@@ -52,24 +52,86 @@ function registerMotion(){
    title.classList.add('kinetic-title');
  });
 }
+// Bidirectional MIRROR REVEAL v11. An element is reset only AFTER fully exiting
+// the viewport, then plays again on re-entry (both scroll directions).
 if(!reducedMotion&&'IntersectionObserver' in window){
  registerMotion();
- // A two-frame arm guarantees the browser paints the starting state before revealing.
+ const activeMotion=new Set();
+ let lastMotionY=window.scrollY;
+ let scrollDirection='down';
+ let motionScrollScheduled=false;
+ const viewBuffer=36;
+ function applyScrollDirection(){
+   const current=window.scrollY;
+   if(Math.abs(current-lastMotionY)>1.5){
+     scrollDirection=current<lastMotionY?'up':'down';
+     lastMotionY=current;
+   }
+ }
+ function resetOffscreenElements(){
+   motionScrollScheduled=false;
+   applyScrollDirection();
+   // Never hide text that is partially visible: no visible flashing on reverse scroll.
+   for(const el of activeMotion){
+     const r=el.getBoundingClientRect();
+     if(r.bottom < -viewBuffer || r.top > window.innerHeight+viewBuffer){
+       el.classList.remove('motion-in');
+       activeMotion.delete(el);
+     }
+   }
+ }
+ function onMotionScroll(){
+   if(motionScrollScheduled)return;
+   motionScrollScheduled=true;
+   requestAnimationFrame(resetOffscreenElements);
+ }
+ function revealAgain(el){
+   if(el.classList.contains('motion-in'))return;
+   const up=scrollDirection==='up';
+   el.dataset.motionDir=scrollDirection;
+   const order=Number(el.dataset.motionOrder||0);
+   const total=Math.max(1,Number(el.dataset.motionTotal||1));
+   el.style.setProperty('--motion-delay',Math.min(Math.max(0,up?(total-1-order):order)*58,300)+'ms');
+   el.querySelectorAll('.kinetic-word').forEach(word=>{
+     word.style.setProperty('--word-current-order',up?word.dataset.reverseOrder:word.dataset.forwardOrder);
+   });
+   if(el.classList.contains('kinetic-title'))el.querySelectorAll('.kinetic-word').forEach(word=>{
+     word.style.setProperty('--word-current-order',up?word.dataset.reverseOrder:word.dataset.forwardOrder);
+   });
+   el.classList.add('motion-in');
+   activeMotion.add(el);
+ }
+ // Mirror the word stagger as well as the card direction.
+ document.querySelectorAll('.kinetic-title').forEach(title=>{
+   const words=[...title.querySelectorAll('.kinetic-word')];
+   words.forEach((word,i)=>{
+     word.dataset.forwardOrder=String(i);
+     word.dataset.reverseOrder=String(words.length-1-i);
+   });
+ });
+ motionElements.forEach(el=>{
+   const siblings=[...el.parentElement.children].filter(n=>n.classList.contains('motion-item'));
+   const index=siblings.indexOf(el);
+   el.dataset.motionOrder=String(Math.max(0,index));
+   el.dataset.motionTotal=String(Math.max(1,siblings.length));
+ });
+ addEventListener('scroll',onMotionScroll,{passive:true});
+ addEventListener('resize',onMotionScroll,{passive:true});
  requestAnimationFrame(()=>requestAnimationFrame(()=>{
    document.documentElement.classList.add('motion-enhanced');
    const observer=new IntersectionObserver(entries=>{
+     applyScrollDirection();
      for(const entry of entries){
-       if(!entry.isIntersecting)continue;
-       const el=entry.target;
-       el.style.setProperty('--motion-delay', Math.min(Number(el.style.getPropertyValue('--motion-order')||0)*65,280)+'ms');
-       el.classList.add('motion-in');
-       observer.unobserve(el);
+       if(entry.isIntersecting)revealAgain(entry.target);
      }
-   },{root:null,rootMargin:'0px 0px -6% 0px',threshold:0.06});
+   },{root:null,rootMargin:'0px 0px -4% 0px',threshold:.06});
    motionElements.forEach(el=>observer.observe(el));
-   // Expose hero immediately once painted; below-fold items are NEVER pre-revealed.
-   // Safety fallback only applies to the first viewport if an observer is temporarily stalled.
-   setTimeout(()=>motionElements.filter(el=>!el.classList.contains('motion-in')&&el.getBoundingClientRect().top<innerHeight*.8&&el.getBoundingClientRect().bottom>0).forEach(el=>el.classList.add('motion-in')),1250);
+   // If the browser delays IntersectionObserver during initial paint,
+   // release ONLY first-viewport elements, never the whole page.
+   setTimeout(()=>motionElements.filter(el=>{
+     const r=el.getBoundingClientRect();
+     return r.top<innerHeight*.78 && r.bottom>0 && !el.classList.contains('motion-in');
+   }).forEach(revealAgain),1400);
  }));
 }
 // Scroll-reading indicator, updates in one requestAnimationFrame per browser frame.
