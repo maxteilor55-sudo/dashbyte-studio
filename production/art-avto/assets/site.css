@@ -897,3 +897,67 @@ html.motion-enhanced .kinetic-title .kinetic-word{transition-delay:calc(var(--wo
 @media(prefers-reduced-motion:reduce){
  html.motion-enhanced .motion-item[data-motion-dir=up]{opacity:1!important;filter:none!important;transform:none!important}
 }
+
+
+/* ART-AVTO / PRISM EDGE 12 | Only navigation glass and hero backdrop changed.
+   Preserve Obsidian v11 geometry, palette, text, motion & car photo card. */
+.hero{position:relative;isolation:isolate;background:#050506!important}
+.hero::before{
+ content:""!important;display:block!important;position:absolute!important;pointer-events:none!important;
+ z-index:0!important;inset:0!important;
+ opacity:.84!important;
+ background-image:url('art-black-red-car.webp')!important;
+ background-position:center 36%!important;background-size:100% auto!important;background-repeat:no-repeat!important;
+ filter:none!important;transform:none!important;
+}
+.hero>.hero-meta,.hero>.hero-copy,.hero>.hero-frame,.hero>.hero-bottom{
+ position:relative;z-index:1;
+}
+/* Translucent optical surfaces with bevelled/refractive edges, not opaque matte plastic. */
+.brand.glass-logo,.header-cluster .menu-toggle{
+ position:relative;isolation:isolate;
+ background:rgba(255,255,255,.085)!important;
+ background-image:linear-gradient(122deg,rgba(255,255,255,.18),rgba(255,255,255,.018) 30%,rgba(255,255,255,.04) 68%,rgba(245,245,255,.11))!important;
+ border:1px solid rgba(255,255,255,.45)!important;
+ -webkit-backdrop-filter:blur(15px) saturate(2.1) brightness(1.2)!important;
+ backdrop-filter:blur(15px) saturate(2.1) brightness(1.2)!important;
+ box-shadow:inset 0 1.5px 0 rgba(255,255,255,.78),inset 1.5px 0 rgba(255,255,255,.32),
+ inset 0 -1.5px rgba(226,226,255,.31),inset -1.5px 0 rgba(255,255,255,.40),
+ 0 3px 12px rgba(0,0,0,.10)!important;
+ transition:background-color .38s ease,border-color .38s ease,box-shadow .38s ease,transform .35s var(--ease)!important;
+}
+/* Narrow high-chroma highlight tracks the perimeter using a masked border. */
+.brand.glass-logo::before,.header-cluster .menu-toggle::before{
+ content:"";display:block;position:absolute;pointer-events:none;z-index:1;
+ inset:1.4px;border-radius:inherit;padding:1.8px;
+ background:conic-gradient(from 198deg at 50% 50%,rgba(255,255,255,.06) 0deg,
+ rgba(252,252,255,.9) 39deg,rgba(251,251,255,.13) 87deg,
+ rgba(255,255,255,.04) 142deg,rgba(255,255,255,.80) 235deg,
+ rgba(247,226,230,.18) 285deg,rgba(255,255,255,.10) 360deg);
+ -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+ -webkit-mask-composite:xor;mask-composite:exclude;
+ opacity:.82;filter:drop-shadow(0 0 3px rgba(255,255,255,.23));
+}
+.brand.glass-logo::after{inset:3px!important;border-top:1px solid rgba(255,255,255,.66)!important;opacity:.9;z-index:1}
+.brand.glass-logo>* , .header-cluster .menu-toggle>*{position:relative;z-index:2}
+/* Keep the burger > cross choreography exactly as before. */
+.header-cluster .menu-toggle[aria-expanded="true"]{
+ background:rgba(161,19,32,.20)!important;border-color:rgba(255,255,255,.55)!important;
+ box-shadow:inset 0 1.5px rgba(255,255,255,.78),inset 0 -1px rgba(255,255,255,.28),0 3px 12px rgba(0,0,0,.12)!important;
+}
+@media(hover:hover){
+ .brand.glass-logo:hover,.header-cluster .menu-toggle:hover{
+  background-color:rgba(255,255,255,.14)!important;
+  border-color:rgba(255,255,255,.68)!important;
+ }
+}
+@media(max-width:900px){
+ .hero::before{background-size:175% auto!important;background-position:59% 23%!important;opacity:.82!important}
+}
+@media(max-width:520px){
+ .hero::before{background-size:235% auto!important;background-position:59% 24%!important;opacity:.87!important}
+}
+@supports not ((backdrop-filter:blur(8px)) or (-webkit-backdrop-filter:blur(8px))){
+ .brand.glass-logo,.header-cluster .menu-toggle{background:rgba(33,33,40,.58)!important}
+}
+@media(prefers-reduced-motion:reduce){.brand.glass-logo,.header-cluster .menu-toggle{transition:none!important}}
