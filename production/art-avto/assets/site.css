@@ -533,3 +533,164 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
  radial-gradient(ellipse 40% 22% at 51% 0%,rgba(218,169,249,.20),transparent 94%)}
 .section-cases>.wrap,.section-how>.wrap,.section-services>.wrap,.section-contact>.wrap,.section-gallery>.wrap{position:relative;z-index:1}
 .menu-panel{background:linear-gradient(145deg,rgba(248,246,255,.55),rgba(226,219,250,.38) 52%,rgba(204,236,252,.45))!important}
+/* ===============================================================
+   ART-AVTO v9 / ORIGINAL ESPRESSO RED — 17.11.2026
+   Colorway experiment on FROZEN OPAL PRISM v8 composition.
+   Original v1 colors: graphite #080a0d, signal red #f0444f,
+   white steel #f6f7fa. v8 glass, layout and motion are unchanged.
+   =============================================================== */
+:root{
+ color-scheme:dark;
+ --paper:#080a0d;--white:#f6f7fa;--ink:#f4f5f8;
+ --muted:#a5aab3;--blue:#f0444f;--blue2:#d12e43;
+ --powder:#11151d;--line:rgba(238,241,248,.17);--black:#07080b;
+ --coral:#ff6b70;--glass-bg:rgba(34,38,47,.38);
+ --glass-edge:rgba(245,248,255,.27);
+ --glass-shadow:0 5px 17px rgba(0,0,0,.08)
+}
+html{background:#080a0d!important;scrollbar-color:#6e303d #080a0d}
+body,body.legal-page,body.service-page{color:#eef0f5!important;background:#080a0d!important}
+body::before{background:
+ radial-gradient(ellipse 55% 50% at 0% 22%,rgba(187,37,55,.20),transparent 87%),
+ radial-gradient(ellipse 43% 55% at 102% 56%,rgba(109,122,147,.15),transparent 91%),
+ radial-gradient(ellipse 55% 46% at 53% 104%,rgba(124,27,45,.14),transparent 91%)!important}
+::selection{background:#f0444f!important;color:#fff!important}
+:is(button,a,input,select,textarea,summary):focus-visible{outline-color:#ff7783!important}
+/* Frosted navigation: original red / graphite, with clear transparency. */
+.brand.glass-logo,
+.header-cluster .head-phone,.header-cluster .head-action,.header-cluster .menu-toggle{
+ background:linear-gradient(124deg,rgba(46,48,57,.63),rgba(22,24,33,.43) 58%,rgba(98,40,51,.25))!important;
+ color:#f7f7fa!important;
+ border-color:rgba(244,246,250,.28)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.22),0 3px 14px rgba(0,0,0,.07)!important;
+ -webkit-backdrop-filter:blur(26px) saturate(1.55)!important;
+ backdrop-filter:blur(26px) saturate(1.55)!important}
+.brand.glass-logo::after{border-top-color:rgba(255,255,255,.34)}
+.brand-icon{background:linear-gradient(145deg,rgba(240,68,79,.88),rgba(116,20,43,.73))!important;
+ color:#fff!important;border-color:rgba(255,198,204,.55)!important}
+.brand-icon span,.brand-text>span{color:#ff6776!important}
+.brand-text{color:#f6f7fa!important}.brand-text small{color:#bac0ca!important}
+.head-phone>span:first-child,.head-action span{color:#ff7680!important}
+.header-cluster .head-phone:hover,.header-cluster .head-action:hover,.header-cluster .menu-toggle:hover{background:rgba(95,37,51,.60)!important;border-color:rgba(255,139,151,.55)!important}
+.header-cluster .menu-toggle{color:#f8f8fb!important}
+.menu-bars{background:rgba(241,68,83,.17)!important;border-color:rgba(255,136,146,.38)!important}
+.menu-bars i{background:#ff7b87!important}
+.header-cluster .menu-toggle[aria-expanded=true]{background:rgba(81,32,43,.78)!important;color:#fff!important;border-color:rgba(255,143,158,.51)!important}
+/* Full-screen liquid curtain; translucent black, red refracted light. */
+.menu-panel{color:#f8f9fb!important;
+ background:linear-gradient(145deg,rgba(16,18,25,.80),rgba(34,28,37,.74) 56%,rgba(57,24,35,.76))!important;
+ border:0!important;box-shadow:none!important;
+ -webkit-backdrop-filter:blur(48px) saturate(1.45)!important;
+ backdrop-filter:blur(48px) saturate(1.45)!important}
+.menu-panel::before{background:
+ radial-gradient(ellipse 47% 51% at 6% 85%,rgba(221,43,67,.20),transparent 96%),
+ radial-gradient(ellipse 44% 50% at 99% 0%,rgba(211,136,156,.10),transparent 91%)!important}
+.menu-refraction{opacity:.38!important}
+.menu-aside{background:linear-gradient(132deg,rgba(112,117,130,.18),rgba(85,24,38,.13))!important;
+ border-color:rgba(238,240,248,.21)!important;box-shadow:inset 0 1px rgba(255,255,255,.20)!important}
+.menu-aside .menu-meta,.menu-panel-top{color:#d8b5bd!important}
+.menu-aside strong{color:#f7f5f9!important}
+.menu-aside p{color:#c4c5cf!important}
+.menu-aside a{color:#ff8692!important;border-bottom-color:rgba(246,149,161,.29)!important}
+.menu-directory .menu-panel-top{border-bottom-color:rgba(255,255,255,.21)!important}
+.menu-directory>a{color:#f7f7fa!important;border-bottom-color:rgba(255,255,255,.19)!important}
+.menu-directory>a b{color:#fa9eaa!important}
+.menu-directory>a i{color:#ff7c88!important}
+.menu-directory>a:hover,.menu-directory>a:focus-visible{color:#ff8e98!important}
+.menu-directory .menu-panel-bottom>span{color:#c2a8b1!important}
+.menu-directory .menu-panel-bottom a{background:rgba(240,68,79,.20)!important;
+ border-color:rgba(255,185,196,.39)!important;color:#fff!important}
+.backstudio{background:rgba(25,27,36,.56)!important;color:#f7f8fb!important;
+ border-color:rgba(248,249,255,.28)!important;box-shadow:none!important}
+/* Original automotive high-contrast red/graphite hero. */
+.loader{background:#080a0d!important;color:#f0444f!important}
+.loader-brand span{color:#fff!important}.loader-bar{background:#ffffff25!important}
+.loader-bar i{background:linear-gradient(90deg,#f0444f,#ff9ca4)!important}
+.hero{background:radial-gradient(ellipse 68% 78% at 95% 7%,rgba(142,39,54,.27),transparent 88%),
+ radial-gradient(ellipse 80% 90% at -17% 92%,rgba(95,108,132,.14),transparent 85%),#080a0d!important;
+ color:#f5f6f9!important}
+.hero::before{opacity:.20!important;background-image:linear-gradient(to right,rgba(213,213,225,.14) 1px,transparent 1px)!important}
+.hero-meta{color:#bbc0cc!important;border-color:rgba(230,233,239,.23)!important}
+.hero-meta i{background:#f0444f!important;box-shadow:0 0 0 5px rgba(240,68,79,.17)!important}
+.hero-overline{color:#ff7b86!important}
+.hero-title{color:#f5f5f8!important}
+.hero-title em{color:#f0444f!important}
+.hero-copy-bottom p{color:#c4c7d0!important}
+.hero-frame{border-color:rgba(248,248,255,.27)!important;box-shadow:none!important}
+.hero-frame::before{background:linear-gradient(141deg,rgba(255,255,255,.11),transparent 44%,rgba(240,68,79,.09) 92%)!important}
+.hero-photo img{filter:saturate(.77) contrast(1.06) brightness(.85)!important}
+.hero-photo:after{background:linear-gradient(0deg,rgba(12,8,13,.52),transparent 46%)!important}
+.hero-seal{background:rgba(33,35,44,.37)!important;border-color:rgba(255,255,255,.35)!important;color:#fff!important}
+.hero-overlay-text b{color:#ff98a1!important}
+.hero-bottom{color:#b9bdc7!important}.hero-bottom a{color:#ff808b!important}
+.cta-circle{background:linear-gradient(138deg,rgba(246,74,88,.78),rgba(137,31,52,.71))!important;
+ color:#fff!important;border-color:rgba(255,175,182,.45)!important;box-shadow:none!important}
+.ticker{background:rgba(27,30,38,.38)!important;color:#e3e4e9!important;border-color:rgba(246,246,250,.21)!important}
+.ticker i{color:#fa6371!important}
+/* Sections: keep all original grids and spacing, recolor background gradients only. */
+.section-cases,.section-gallery,.section-faq{background:
+ radial-gradient(ellipse 49% 63% at 100% 0%,rgba(144,34,53,.20),transparent 91%),
+ radial-gradient(ellipse 39% 50% at 0 93%,rgba(112,116,140,.14),transparent 91%),#0d1016!important;color:#f4f6fa!important}
+.section-how{background:radial-gradient(ellipse 64% 69% at 8% 0%,rgba(199,66,90,.16),transparent 85%),
+ radial-gradient(ellipse 55% 68% at 93% 100%,rgba(85,90,104,.18),transparent 85%),#141720!important;color:#f4f6fa!important}
+.section-services{background:radial-gradient(ellipse 75% 100% at 100% 9%,rgba(150,38,60,.22),transparent 84%),#0b0d13!important;color:#f4f6fa!important}
+.section-contact{background:radial-gradient(ellipse 77% 72% at 8% 10%,rgba(187,59,77,.21),transparent 92%),#15131b!important;color:#f4f6fa!important}
+.section-cases::before,.section-how::before,.section-services::before,.section-contact::before,.section-gallery::before{
+ background:radial-gradient(ellipse 30% 45% at 7% 44%,rgba(212,52,76,.25),transparent 94%),
+ radial-gradient(ellipse 34% 43% at 95% 68%,rgba(144,104,120,.15),transparent 94%)!important}
+.section-counter,.section-services .section-counter,.contact-head .section-counter{color:#ff7785!important}
+.section-intro h2,.contact-head h2,.faq-layout h2{color:#f5f6fa!important}
+.section-intro h2 em,.section-services .section-intro h2 em,.contact-head h2 em{color:#fa5969!important}
+.section-intro>p,.section-services .section-intro>p,.step-item p,.case-cell p,.faq-list p{color:#afb3be!important}
+/* Fully translucent graphite liquid glass. No chunky shadows. */
+.case-cell,.case-cell-action,.step-item,.service-row,.form-panel,.how-foot,.legal-body,
+.gallery-card span,.gallery-legal,.faq-list details,.faq-list summary,.cookie,
+.hero-seal,.service-page .page-hero .btn,.legal-page .nav-holder .btn,.service-page .nav-holder .btn{
+ background:linear-gradient(127deg,rgba(108,111,126,.29),rgba(29,31,40,.35) 62%,rgba(111,47,60,.18))!important;
+ border-color:rgba(233,237,248,.27)!important;
+ -webkit-backdrop-filter:blur(26px) saturate(1.5);backdrop-filter:blur(26px) saturate(1.5);
+ box-shadow:inset 0 1px rgba(255,255,255,.19),0 3px 12px rgba(0,0,0,.05)!important;
+ color:#f7f7fa!important}
+.case-cell:hover,.service-row:hover{background:linear-gradient(119deg,rgba(159,45,60,.42),rgba(65,39,48,.36))!important;color:#fff!important}
+.case-cell:hover h3,.service-row:hover h3{color:#ffb9c0!important}
+.case-cell h3,.step-item h3,.service-row h3{color:#f5f6f9!important}
+.case-cell p,.step-item p,.service-row p{color:#b9bec9!important}
+.step-n,.case-serial,.service-index{color:#ff6c7b!important}
+.how-foot{color:#e1d9df!important}.how-foot span{color:#c1b6c0!important}
+.gallery-card{border-color:rgba(255,255,255,.25)!important}
+.gallery-card span{background:rgba(27,30,39,.46)!important;color:#fff!important}
+.gallery-card span i,.gallery-card span b{color:#ff929d!important}
+.gallery-legal{color:#bbc0ca!important}
+.service-row b{color:#ff7784!important}
+.form-panel{background:rgba(33,32,42,.48)!important;color:#f5f5f8!important}
+.form-panel h3,.contact-head .contact-phone{color:#fff!important}.contact-head p{color:#c0c1ce!important}
+.field input,.field textarea,.field select{background:rgba(21,22,30,.58)!important;
+ border-color:rgba(234,236,247,.31)!important;color:#f6f7fa!important}
+.field input::placeholder,.field textarea::placeholder{color:#a9adb9!important}
+.field select option{background:#20222c!important;color:#fff!important}
+.form-submit{background:rgba(240,68,79,.93)!important;color:#fff!important}
+.form-label,.form-explain,.form-status,.agree{color:#bec0cd!important}.agree a{color:#ff96a1!important}
+.section-closer{color:#aeb2be!important}.section-closer a{color:#ff808e!important}
+.faq-list details,.faq-list summary{background:rgba(42,43,53,.39)!important;color:#f5f5f8!important}
+.faq-list p{color:#bbc0ca!important}
+.footer{background:#080a0e!important;color:#e5e7ed!important;border-color:rgba(255,255,255,.17)!important}
+.footer a{color:#c1c4ce!important}.footer-brand{color:#f7f7fa!important}.footer-brand span{color:#f0444f!important}
+.mobile-cta{background:rgba(17,18,26,.63)!important;border-top-color:rgba(255,255,255,.24)!important}
+.mobile-cta a{background:rgba(58,60,73,.46)!important;color:#f7f7fa!important;border-color:rgba(255,255,255,.29)!important}
+.mobile-cta a+a{background:rgba(240,68,79,.94)!important;color:#fff!important}
+.totop{color:#fff!important;background:rgba(80,33,43,.57)!important;border-color:rgba(255,183,191,.40)!important}
+.cookie{background:rgba(27,28,39,.76)!important;color:#edeef4!important}
+.cookie a{color:#ffb4bb!important}.cookie button{background:#f0444f!important;color:#fff!important}
+.lightbox{background:rgba(11,12,18,.83)!important}
+.lightbox button{background:rgba(58,46,53,.48)!important}
+/* legal and SEO pages share the same liquid red-black system */
+.legal-page .page-hero h1,.service-page .page-hero h1,.legal-body h2{color:#f6f6fa!important}
+.legal-page .page-hero p,.service-page .page-hero p,.legal-body p,.legal-body li{color:#bac0cb!important}
+.legal-body a:not(.btn){color:#ff8c99!important}
+.legal-page .site-header .brand-text,.service-page .site-header .brand-text{color:#f6f6fa!important}
+/* Motion/layout/menu controls from v8 are intentionally left intact. */
+@supports not (backdrop-filter:blur(8px)){
+ .brand.glass-logo,.header-cluster .menu-toggle{background:#25252e!important}
+ .menu-panel{background:#15141d!important}
+ .case-cell,.step-item,.form-panel,.service-row,.legal-body{background:#20212b!important}
+}
