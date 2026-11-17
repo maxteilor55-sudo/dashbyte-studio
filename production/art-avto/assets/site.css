@@ -961,3 +961,20 @@ html.motion-enhanced .kinetic-title .kinetic-word{transition-delay:calc(var(--wo
  .brand.glass-logo,.header-cluster .menu-toggle{background:rgba(33,33,40,.58)!important}
 }
 @media(prefers-reduced-motion:reduce){.brand.glass-logo,.header-cluster .menu-toggle{transition:none!important}}
+
+/* ART-AVTO / MOTION POSTER v13 — responsive art direction, user-supplied brand car */
+.hero::before{display:none!important}
+.hero-frame{width:100%!important;height:auto!important;max-height:none!important;
+ aspect-ratio:2200/1240!important;background:#060609!important;overflow:hidden!important}
+.hero-frame .hero-photo{width:100%!important;height:100%!important;position:absolute!important;inset:0!important}
+.hero-frame .hero-cover{display:block!important;width:100%!important;height:100%!important}
+.hero-frame .hero-cover img{display:block!important;width:100%!important;height:100%!important;
+ object-fit:contain!important;object-position:center center!important;
+ filter:none!important;transform:none!important;transition:none!important}
+.hero-frame:hover .hero-cover img{transform:none!important}
+.hero-frame .hero-photo::after{display:none!important}
+.hero-frame::before{display:none!important}
+@media(max-width:767px){
+ .hero-frame{aspect-ratio:1125/2000!important}
+}
+@media(prefers-reduced-motion:reduce){.hero-cover img{transition:none!important}}
