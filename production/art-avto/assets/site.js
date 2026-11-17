@@ -14,7 +14,7 @@
  }
  /* Entry choreography — one observer, once per element. No layout shifts, disables under reduced motion. */
  if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window){
-  const selectors=['.hero-tag','.hero-title','.hero-lead','.hero-actions','.chapter','.headline','.intro-main > p','.buy-card','.buyout-cta','.timeline-step','.timeline-end','.gallery-card','.extra-row','.contact-copy','.form-card','.faq-list details'];
+  const selectors=['.hero-kicker','.hero-title','.hero-sub','.hero-buttons','.section-label','.section-header h2','.section-description','.case','.cases-footnote','.deal-step','.deal-end','.garage-photo','.more-item','.reach-head','.estimate-panel','.faq-items details'];
   const targets=[...document.querySelectorAll(selectors.join(','))];
   document.documentElement.classList.add('motion-armed');
   const observer=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('is-visible');observer.unobserve(entry.target)}})},{threshold:.09,rootMargin:'0px 0px -24px 0px'});
