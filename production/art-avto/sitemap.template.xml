@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Заменить YOUR-DOMAIN.RU на подтверждённый домен перед размещением как sitemap.xml -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://YOUR-DOMAIN.RU/</loc><priority>1.0</priority></url>
+  <url><loc>https://YOUR-DOMAIN.RU/services/after-accident.html</loc><priority>0.8</priority></url>
+  <url><loc>https://YOUR-DOMAIN.RU/services/non-running.html</loc><priority>0.8</priority></url>
+  <url><loc>https://YOUR-DOMAIN.RU/services/problem-cars.html</loc><priority>0.8</priority></url>
+  <url><loc>https://YOUR-DOMAIN.RU/privacy.html</loc><priority>0.3</priority></url>
+</urlset>

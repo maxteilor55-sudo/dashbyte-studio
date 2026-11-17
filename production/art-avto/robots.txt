@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+# После подтверждения домена добавить ссылку на sitemap.xml:
+# Sitemap: https://DOMAIN.TLD/sitemap.xml
