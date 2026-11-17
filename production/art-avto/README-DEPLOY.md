@@ -34,3 +34,6 @@
 - Старые фотографии, цвета, меню, анимации, SEO и юридические страницы сохранены.
 
 - Оригинальная визитка использована как исходный художественный материал; на новые баннеры не перенесены неподтвержденные адрес и часы работы.
+
+## v14 / Hero background corrected
+The black sports car derived from the owner-supplied business card is a decorative, responsive background of the first screen (separate desktop and mobile WebP). The main photo card has been restored to the original Toyota Land Cruiser photo `assets/auto-11.webp`. No other content, layout or form flow changed.

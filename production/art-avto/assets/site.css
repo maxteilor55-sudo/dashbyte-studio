@@ -978,3 +978,33 @@ html.motion-enhanced .kinetic-title .kinetic-word{transition-delay:calc(var(--wo
  .hero-frame{aspect-ratio:1125/2000!important}
 }
 @media(prefers-reduced-motion:reduce){.hero-cover img{transition:none!important}}
+
+
+/* ART-AVTO / v14. Hero sports car is the BACKGROUND of the first screen;
+   the photo card once again shows the client's original Land Cruiser. */
+.hero{position:relative!important;isolation:isolate!important;background:#050506!important}
+.hero::before{content:""!important;display:block!important;position:absolute!important;pointer-events:none!important;
+ z-index:0!important;top:0!important;left:0!important;right:0!important;bottom:auto!important;
+ height:1050px!important;max-height:calc(100% - 150px)!important;opacity:1!important;
+ background-image:url('hero-sportcar-desktop.webp')!important;
+ background-repeat:no-repeat!important;background-size:cover!important;background-position:top center!important;
+ mask-image:linear-gradient(#000 0%,#000 56%,transparent 100%)!important;
+ -webkit-mask-image:linear-gradient(#000 0%,#000 56%,transparent 100%)!important;
+ filter:none!important;transform:none!important}
+.hero>.hero-meta,.hero>.hero-copy,.hero>.hero-frame,.hero>.hero-bottom{position:relative;z-index:1}
+.hero-frame{width:100%!important;height:clamp(320px,45vw,600px)!important;max-height:600px!important;
+ aspect-ratio:auto!important;background:#17191d!important;overflow:hidden!important}
+.hero-frame .hero-photo{position:relative!important;width:100%!important;height:100%!important;inset:auto!important}
+.hero-frame .hero-photo img{width:100%!important;height:100%!important;object-fit:cover!important;
+ object-position:center 48%!important;filter:saturate(.78) contrast(1.06) brightness(.88)!important;
+ transform:scale(1.03)!important;transition:transform 1.3s cubic-bezier(.2,.8,.2,1)!important}
+.hero-frame:hover .hero-photo img{transform:scale(1)!important}
+.hero-frame .hero-photo::after{display:block!important;background:linear-gradient(0deg,rgba(0,0,0,.62),transparent 47%)!important}
+.hero-frame::before{display:block!important;background:none!important}
+@media(max-width:767px){
+ .hero::before{height:1070px!important;max-height:calc(100% - 120px)!important;
+  background-image:url('hero-sportcar-mobile.webp')!important;background-position:top center!important;
+  background-size:100% auto!important;opacity:1!important}
+ .hero-frame{height:clamp(300px,89vw,400px)!important;max-height:400px!important;aspect-ratio:auto!important}
+}
+@media(prefers-reduced-motion:reduce){.hero-frame .hero-photo img{transition:none!important}}
