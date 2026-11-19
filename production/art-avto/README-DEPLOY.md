@@ -71,3 +71,12 @@ The black sports car derived from the owner-supplied business card is a decorati
 - Исправлено масштабирование и плотная компоновка логотипа в единой Liquid Glass шапке Telegram и desktop.
 - Пять страниц подключают один новый фирменный файл; параметры меню, отступ от интерфейса Telegram, кнопки и функциональность не изменены.
 - Кэш CSS обновлён до v19. Архив для REG.RU пересобирается GitHub Actions автоматически.
+
+## v20 — Restore unmodified complete logo in header (19 November 2026)
+Client rejected the horizontally rearranged v19 header logo. All five pages now display the
+complete, approved ART AVTO shield as one SVG: car, complete uncompressed text inside shield,
+silver border and red chevron. The SVG viewport and intrinsic aspect ratio are synchronized,
+and CSS sets only its height and auto width (no distortions). The taller unified Liquid Glass
+header, menu stage and DashByte-return button receive coordinated responsive offsets
+in Telegram. The incorrect `art-avto-header.svg` is no longer referenced by HTML.
+CSS cache key v20. Existing site functionality and other clients unchanged.
