@@ -1490,3 +1490,35 @@ body .mobile-cta a{pointer-events:auto!important}
  .official-footer-brand{min-height:240px}.official-footer-brand img{width:min(300px,66vw)}
 }
 @media(max-width:360px){.header-shell .brand.glass-logo .official-brand-mark{width:43px;height:45px}.header-shell .brand.glass-logo .official-brand-wordmark{font-size:15px!important}}
+
+
+/* ART AVTO v19 — approved emblem and wordmark in one optical lockup.
+   Tight viewBox removes the oversized blank space around the previous mark. */
+.header-shell > a.brand.glass-logo{
+  display:flex!important;align-items:center!important;justify-content:flex-start!important;
+  gap:0!important;min-width:0!important;overflow:visible!important;
+}
+.header-shell .official-header-lockup{
+  display:block!important;position:relative;z-index:2;
+  flex:0 1 auto!important;width:min(100%,360px)!important;
+  height:auto!important;max-height:74px!important;
+  object-fit:contain!important;object-position:left center!important;
+  border:0!important;background:none!important;box-shadow:none!important;
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.20));
+}
+@media(max-width:1050px){
+  .header-shell .official-header-lockup{max-height:66px!important}
+}
+@media(max-width:740px){
+  .header-shell > a.brand.glass-logo{
+    padding-left:7px!important;padding-right:4px!important;
+    flex:1 1 auto!important;min-width:0!important;
+  }
+  .header-shell .official-header-lockup{
+    width:100%!important;max-width:100%!important;max-height:63px!important;
+  }
+}
+@media(max-width:360px){
+  .header-shell > a.brand.glass-logo{padding-left:3px!important;padding-right:0!important}
+  .header-shell .official-header-lockup{max-height:56px!important}
+}
