@@ -1471,3 +1471,22 @@ body .mobile-cta a{pointer-events:auto!important}
   body .form-submit::before{animation:none!important;opacity:.16;transform:scaleX(1)}
   .faq-list.blade-sequence details::before{animation:none!important;opacity:0!important}
 }
+
+/* ART AVTO v18: approved brand SVG; CSS scoped to the client site. */
+.header-shell .brand.glass-logo .official-brand-mark{display:block;flex:0 0 auto;width:80px;height:70px;max-width:27%;object-fit:contain;background:none!important;border:0!important;filter:drop-shadow(0 2px 3px rgba(0,0,0,.25))}
+.header-shell .brand.glass-logo .official-brand-wordmark{font-style:italic;font-weight:1000;letter-spacing:-.055em!important;color:#f9f9fc!important;white-space:nowrap}
+.header-shell .brand.glass-logo .official-brand-wordmark>span{color:#e31a2b!important}
+.header-shell .brand.glass-logo .official-brand-wordmark small{font-style:normal;font-weight:850;letter-spacing:.09em!important;color:#c3c6cd!important;white-space:nowrap}
+.official-loader-logo{display:block;width:clamp(155px,26vw,250px);height:auto;max-height:37vh;object-fit:contain;filter:drop-shadow(0 6px 25px rgba(0,0,0,.23))}
+.official-footer-brand{display:flex;justify-content:center;align-items:center;min-height:345px;padding:35px 0;border-bottom:1px solid rgba(255,255,255,.28)}
+.official-footer-brand img{display:block;width:min(390px,66vw);height:auto;object-fit:contain}
+.official-footer-mini{display:inline-block;vertical-align:middle;width:58px;height:48px;object-fit:contain;margin-right:10px}
+.official-legal-footer{display:inline-flex;align-items:center;gap:10px}
+.official-legal-footer img{width:36px;height:30px;object-fit:contain}
+@media(max-width:740px){
+ .header-shell .brand.glass-logo .official-brand-mark{width:clamp(47px,12vw,62px);height:clamp(47px,12vw,62px);max-width:27%}
+ .header-shell .brand.glass-logo .official-brand-wordmark{font-size:clamp(15px,5vw,24px)!important;letter-spacing:-.075em!important}
+ .header-shell .brand.glass-logo .official-brand-wordmark small{font-size:clamp(6px,1.7vw,8px)!important;letter-spacing:.04em!important;margin-top:5px}
+ .official-footer-brand{min-height:240px}.official-footer-brand img{width:min(300px,66vw)}
+}
+@media(max-width:360px){.header-shell .brand.glass-logo .official-brand-mark{width:43px;height:45px}.header-shell .brand.glass-logo .official-brand-wordmark{font-size:15px!important}}
