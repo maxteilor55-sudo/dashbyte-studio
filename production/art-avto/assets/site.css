@@ -1673,3 +1673,66 @@ body .mobile-cta a{pointer-events:auto!important}
   .header-shell .header-brand-caption small{font-size:8px!important}
   .header-shell .header-cluster .menu-toggle{width:48px!important;height:48px!important;min-width:48px!important;flex-basis:48px!important}
 }
+
+
+/* ART AVTO v22 — authentic Perm Krai geometry, delicate red map and animated Perm beacon.
+   Source: antibioticbook/russian-geo-data (CC0), topo-0.2.json, projected at latitude 59°.
+   Keep the approved ART AVTO shield intact. Footer-only; header intentionally untouched. */
+.footer .art-footer-geo-identity{
+  box-sizing:border-box!important;display:flex!important;flex-direction:row!important;
+  align-items:center!important;justify-content:flex-start!important;flex-wrap:nowrap!important;
+  gap:clamp(10px,2.4vw,34px)!important;min-height:0!important;height:auto!important;
+  padding:clamp(18px,3.5vw,38px) 0 clamp(28px,4vw,45px)!important;
+  overflow:visible!important;isolation:isolate;
+}
+.footer .art-footer-geo-identity .art-footer-map{
+  flex:0 0 clamp(130px,24vw,250px)!important;width:clamp(130px,24vw,250px)!important;
+  min-width:0!important;align-self:center!important;line-height:0!important;
+  position:relative!important;z-index:1;
+}
+.footer .art-footer-geo-identity .art-perm-map-svg{
+  display:block;width:100%;height:auto;overflow:visible;
+  pointer-events:none;
+}
+.art-perm-border-glow{fill:none;stroke:#d41630;stroke-width:7;stroke-linejoin:round;stroke-linecap:round;opacity:.30;filter:blur(6px)}
+.art-perm-border{fill:rgba(141,4,24,.075);stroke:url(#art-perm-line);stroke-width:2.6;stroke-linejoin:round;stroke-linecap:round}
+.art-perm-beacon-halo{fill:#e4102a;opacity:.24;filter:blur(4px)}
+.art-perm-beacon{fill:#fff;stroke:#fa1836;stroke-width:3;filter:drop-shadow(0 0 5px rgba(255,28,57,.9))}
+.art-perm-ripple{fill:none;stroke:#ff2847;stroke-width:2.4;opacity:0;transform-box:fill-box;transform-origin:center center;animation:artPermBeacon 2.8s cubic-bezier(.15,.56,.26,1) infinite}
+.art-perm-ripple-two{animation-delay:1.4s}
+.art-perm-pointer{fill:none;stroke:#ff3a51;stroke-width:1.7;stroke-linejoin:round;opacity:.9}
+.art-perm-city-name{font-family:Arial,Helvetica,sans-serif;font-size:17px;font-weight:900;letter-spacing:1.4px;fill:#f5f5f7;paint-order:stroke;stroke:#08090d;stroke-width:3px}
+@keyframes artPermBeacon{
+  0%{transform:scale(.55);opacity:.85}
+  55%{opacity:.40}
+  100%{transform:scale(3.5);opacity:0}
+}
+.footer .art-footer-geo-identity .art-footer-logo{
+  display:block!important;flex:0 1 auto!important;
+  width:clamp(150px,27vw,285px)!important;height:auto!important;
+  max-width:100%!important;max-height:none!important;
+  aspect-ratio:1220 / 1110!important;
+  object-fit:contain!important;object-position:left center!important;
+  transform:none!important;align-self:center!important;
+  filter:drop-shadow(0 6px 16px rgba(0,0,0,.22));
+}
+@media(max-width:520px){
+  .footer .art-footer-geo-identity{
+    gap:4px!important;padding:18px 0 26px!important;
+    min-height:0!important;align-items:center!important;
+  }
+  .footer .art-footer-geo-identity .art-footer-map{
+    flex:0 0 42%!important;width:42%!important;
+  }
+  .footer .art-footer-geo-identity .art-footer-logo{
+    flex:0 1 53%!important;width:53%!important;min-width:0!important;
+    max-width:53%!important;
+  }
+}
+@media(max-width:340px){
+  .footer .art-footer-geo-identity .art-footer-map{flex-basis:40%!important;width:40%!important}
+  .footer .art-footer-geo-identity .art-footer-logo{flex-basis:54%!important;width:54%!important;max-width:54%!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .art-perm-ripple{animation:none!important;opacity:.24!important;transform:scale(1.6)!important}
+}

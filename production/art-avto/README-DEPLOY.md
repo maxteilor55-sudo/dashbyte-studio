@@ -87,3 +87,10 @@ CSS cache key v20. Existing site functionality and other clients unchanged.
 - Unified Liquid Glass shell reduced from 124px to 82px mobile / 88px desktop; hamburger now 52px mobile, retaining cross animation and existing toggle controls.
 - Matched Telegram fixed header clearance, DashByte back button, panel opening and hero padding to the new height.
 - Updated in all five ART AVTO pages, CSS cache v21; no other client project changed.
+
+## v22 — Perm Krai footer identity (19 November 2026)
+- Home page footer: approved whole ART AVTO logo reduced and left-aligned in an editorial group.
+- Accurate red outline of Perm Krai is generated from CC0 geometry: antibioticbook/russian-geo-data, topo-0.2.json. Simplified source polygon includes 247 points.
+- City Perm marked at lat 58.0105 / lon 56.2294, with two soft expanding red pulse rings and the label "ПЕРМЬ".
+- Accessible SVG, preference for reduced motion, responsive mobile layout; no external assets or script dependencies.
+- No changes to navbar, SEO/service pages, application forms or other customers. Site CSS v22. GitHub Actions automatically refreshes art-avto-upload.zip.
