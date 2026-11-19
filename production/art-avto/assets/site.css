@@ -1565,3 +1565,111 @@ body .mobile-cta a{pointer-events:auto!important}
   .header-shell > a.brand.glass-logo{max-width:calc(100% - 73px)!important}
   .header-shell .official-full-brand-logo{height:106px!important}
 }
+
+
+/* ART AVTO v21 — compact Telegram-safe header with intact approved logo and adjacent caption.
+   Keep the full shield SVG aspect ratio; the text below is NOT a substitution for its wordmark. */
+.header-shell{
+  height:88px!important;min-height:88px!important;
+  padding:5px 9px!important;gap:8px!important;
+}
+.header-shell > a.brand.glass-logo{
+  flex:1 1 auto!important;min-width:0!important;max-width:calc(100% - 78px)!important;
+  justify-content:flex-start!important;align-items:center!important;
+  gap:12px!important;height:100%!important;
+  padding:3px 0 3px 5px!important;
+  overflow:visible!important;
+}
+.header-shell .official-full-brand-logo{
+  display:block!important;flex:0 0 auto!important;
+  height:72px!important;width:auto!important;max-height:100%!important;
+  max-width:none!important;aspect-ratio:1220 / 1110!important;
+  object-fit:contain!important;object-position:center!important;
+  transform:none!important;
+}
+.header-shell .header-brand-caption{
+  display:flex!important;flex-direction:column!important;align-items:flex-start!important;
+  justify-content:center!important;gap:6px!important;
+  min-width:0!important;flex:1 1 auto!important;
+  padding-left:12px!important;border-left:1px solid rgba(255,255,255,.25);
+  font-family:Arial,Helvetica,system-ui,sans-serif!important;
+  font-style:normal!important;letter-spacing:0!important;
+  color:#f7f7fa!important;line-height:1.17!important;
+}
+.header-shell .header-brand-caption strong{
+  font-size:clamp(12px,1.12vw,15px)!important;line-height:1.15!important;
+  font-weight:850!important;letter-spacing:.035em!important;
+  white-space:normal!important;
+}
+.header-shell .header-brand-caption small{
+  font-size:clamp(9px,.81vw,11px)!important;line-height:1.25!important;
+  font-weight:750!important;letter-spacing:.055em!important;
+  color:#d64b56!important;white-space:nowrap!important;
+}
+.header-shell .header-cluster{flex:0 0 auto!important;min-width:0!important;margin-left:auto!important}
+.header-shell .header-cluster .menu-toggle{
+  height:64px!important;min-height:0!important;width:64px!important;min-width:64px!important;
+  flex:0 0 64px!important;padding:0!important;
+  display:grid!important;place-items:center!important;
+}
+.header-shell .header-cluster .menu-label{display:none!important}
+.header-shell .header-cluster .menu-bars{display:block!important;position:relative!important;width:34px!important;height:34px!important;flex:0 0 34px!important}
+.header-shell .header-cluster .menu-bars i{
+  left:5px!important;top:11px!important;width:24px!important;height:2px!important
+}
+.header-shell .header-cluster .menu-bars i:nth-child(2){top:22px!important}
+.header-shell .header-cluster .menu-toggle[aria-expanded=true] .menu-bars i:first-child,
+.header-shell .header-cluster .menu-toggle[aria-expanded=true] .menu-bars i:nth-child(2){top:17px!important}
+@media(max-width:1050px){
+  .header-shell > a.brand.glass-logo{max-width:calc(100% - 75px)!important}
+}
+@media(max-width:740px){
+  .header-shell{
+    height:82px!important;min-height:82px!important;
+    padding:4px 7px!important;gap:4px!important;
+  }
+  .header-shell > a.brand.glass-logo{
+    flex:1 1 auto!important;min-width:0!important;
+    max-width:calc(100% - 59px)!important;
+    height:100%!important;justify-content:flex-start!important;
+    gap:9px!important;padding:2px 0 2px 2px!important;
+  }
+  .header-shell .official-full-brand-logo{
+    height:66px!important;max-height:100%!important;width:auto!important;max-width:none!important;
+  }
+  .header-shell .header-brand-caption{
+    gap:4px!important;padding-left:10px!important;
+  }
+  .header-shell .header-brand-caption strong{
+    font-size:clamp(10px,2.9vw,12px)!important;line-height:1.12!important;
+    letter-spacing:.015em!important;
+  }
+  .header-shell .header-brand-caption small{
+    font-size:clamp(8px,2.15vw,9px)!important;
+    letter-spacing:.02em!important;
+  }
+  .header-shell .header-cluster .menu-toggle{
+    width:52px!important;height:52px!important;min-width:52px!important;
+    min-height:0!important;flex:0 0 52px!important;
+  }
+  .header-shell .header-cluster .menu-bars{width:30px!important;height:30px!important;flex-basis:30px!important}
+  .header-shell .header-cluster .menu-bars i{left:5px!important;top:10px!important;width:20px!important}
+  .header-shell .header-cluster .menu-bars i:nth-child(2){top:20px!important}
+  .header-shell .header-cluster .menu-toggle[aria-expanded=true] .menu-bars i:first-child,
+  .header-shell .header-cluster .menu-toggle[aria-expanded=true] .menu-bars i:nth-child(2){top:15px!important}
+  body.on-showroom .backstudio{
+    top:calc(max(env(safe-area-inset-top,0px),var(--tg-content-safe-area-inset-top,0px)) + 122px + 82px + 11px)!important;
+  }
+  body.on-showroom .menu-stage{
+    padding-top:calc(max(env(safe-area-inset-top,0px),var(--tg-content-safe-area-inset-top,0px)) + 122px + 82px + 25px)!important;
+  }
+  body.on-showroom .hero{padding-top:calc(185px + 112px)!important}
+}
+@media(max-width:360px){
+  .header-shell > a.brand.glass-logo{max-width:calc(100% - 55px)!important;gap:6px!important;padding-left:0!important}
+  .header-shell .official-full-brand-logo{height:60px!important}
+  .header-shell .header-brand-caption{padding-left:7px!important;gap:3px!important}
+  .header-shell .header-brand-caption strong{font-size:10px!important}
+  .header-shell .header-brand-caption small{font-size:8px!important}
+  .header-shell .header-cluster .menu-toggle{width:48px!important;height:48px!important;min-width:48px!important;flex-basis:48px!important}
+}

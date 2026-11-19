@@ -80,3 +80,10 @@ and CSS sets only its height and auto width (no distortions). The taller unified
 header, menu stage and DashByte-return button receive coordinated responsive offsets
 in Telegram. The incorrect `art-avto-header.svg` is no longer referenced by HTML.
 CSS cache key v20. Existing site functionality and other clients unchanged.
+
+## v21 — Compact brand bar (19 November 2026)
+- Approved shield SVG kept unchanged and with natural proportions; reduced to 66px high on mobile and moved flush toward left edge.
+- Adjacent two-line caption: «ВЫКУП АВТОМОБИЛЕЙ» and «ПЕРМЬ И КРАЙ».
+- Unified Liquid Glass shell reduced from 124px to 82px mobile / 88px desktop; hamburger now 52px mobile, retaining cross animation and existing toggle controls.
+- Matched Telegram fixed header clearance, DashByte back button, panel opening and hero padding to the new height.
+- Updated in all five ART AVTO pages, CSS cache v21; no other client project changed.
