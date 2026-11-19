@@ -1736,3 +1736,18 @@ body .mobile-cta a{pointer-events:auto!important}
 @media(prefers-reduced-motion:reduce){
   .art-perm-ripple{animation:none!important;opacity:.24!important;transform:scale(1.6)!important}
 }
+
+
+/* ART AVTO v23: raise the Telegram floating glass navigation by precisely 40px.
+   Preserve native safe areas and keep the DashByte return button and open menu aligned. */
+@media(max-width:740px){
+  body.on-showroom .header-shell{
+    top:calc(max(env(safe-area-inset-top,0px),var(--tg-content-safe-area-inset-top,0px)) + 82px)!important;
+  }
+  body.on-showroom .backstudio{
+    top:calc(max(env(safe-area-inset-top,0px),var(--tg-content-safe-area-inset-top,0px)) + 82px + 82px + 11px)!important;
+  }
+  body.on-showroom .menu-stage{
+    padding-top:calc(max(env(safe-area-inset-top,0px),var(--tg-content-safe-area-inset-top,0px)) + 82px + 82px + 25px)!important;
+  }
+}

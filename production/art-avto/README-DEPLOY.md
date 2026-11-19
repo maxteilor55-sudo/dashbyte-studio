@@ -94,3 +94,9 @@ CSS cache key v20. Existing site functionality and other clients unchanged.
 - City Perm marked at lat 58.0105 / lon 56.2294, with two soft expanding red pulse rings and the label "ПЕРМЬ".
 - Accessible SVG, preference for reduced motion, responsive mobile layout; no external assets or script dependencies.
 - No changes to navbar, SEO/service pages, application forms or other customers. Site CSS v22. GitHub Actions automatically refreshes art-avto-upload.zip.
+
+## v23 — Move Telegram glass header 40px up
+- Telegram showroom only: reduce top offset from +122px to +82px on mobile; maintain Telegram safe-area.
+- Keep DashByte return button and menu-stage positions 40px higher in step with the glass header.
+- The approved logo, glass styling, dimensions and the REG.RU standalone header are unchanged.
+- Bump stylesheet query to v23 on all pages to force refreshed styles in Telegram.
