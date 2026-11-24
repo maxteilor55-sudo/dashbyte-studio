@@ -225,7 +225,7 @@ function modalKnowledgeHtml(c){const k=ARCANA_KNOWLEDGE[c.id];return `<div class
 function haptic(type='light'){try{window.Telegram?.WebApp?.HapticFeedback?.impactOccurred(type)}catch(e){}}
 function toast(msg){let t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>t.classList.remove('show'),3000)}
 function buildStars(){let el=$('#stars');for(let i=0;i<110;i++){let s=document.createElement('i');s.className='star'+(i%9===0?' big':'');s.style.cssText=`left:${(i*73.13)%100}%;top:${(i*47.67)%100}%;--t:${2+i%7}s;animation-delay:-${i%8}s`;el.appendChild(s)}}
-function cardArt(c,lazy=true){const approved=c.arcana==='Старший аркан'||(c.id.startsWith('wa') && c.id <= 'wa13');
+function cardArt(c,lazy=true){const approved=c.arcana==='Старший аркан'||c.suit==='Жезлов'||(c.suit==='Кубков' && c.number<=9);
 const src=(approved?'cards/':imgRoot)+c.id+'.jpg';
 return `<div class="card-art${approved?' approved':''}"><div class="card-fallback"><span class="card-idx">${c.arcana==='Старший аркан'?['0','I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX','XXI'][c.number]:String(c.number).padStart(2,'0')}</span><span class="circles"></span><span class="card-glyph">${c.sigil}</span><span class="card-name">${safe(c.name)}</span></div><img class="card-image" ${lazy?'loading="lazy"':''} src="${src}" alt="${safe(c.name)} — ${approved?'NOCTIS':'колода 1909 года'}" onload="this.classList.add('loaded')" onerror="this.remove()"></div>`}
 function cardBack(){return `<div class="card-back"><span class="back-corner tl">✧</span><div class="back-sigil"></div><span class="back-corner br">✧</span></div>`}
