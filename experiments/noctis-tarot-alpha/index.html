@@ -119,6 +119,29 @@ body{
  #view-deal .stage-controls,#view-reveal .stage-controls{bottom:calc(68px + var(--bottom-ui))}
 }
 #screenToggle[hidden]{display:none}
+
+/* Size the fan against its own column, including the rotated outer corners. */
+.hero-art .mock-card {
+  width: min(30%, 195px);
+  transform-origin: center;
+}
+.hero-art .mock-card.a { transform: translate(-74%, 5%) rotate(-18deg); }
+.hero-art .mock-card.b { transform: translateY(-5%); }
+.hero-art .mock-card.c { transform: translate(74%, 5%) rotate(18deg); }
+.hero-art:hover .mock-card.a { transform: translate(-74%, 5%) rotate(-18deg); }
+.hero-art:hover .mock-card.b { transform: translateY(-5%); }
+.hero-art:hover .mock-card.c { transform: translate(74%, 5%) rotate(18deg); }
+@media (hover: hover) and (pointer: fine) {
+  .hero-art:hover .mock-card.a { transform: translate(-79%, 4%) rotate(-22deg); }
+  .hero-art:hover .mock-card.b { transform: translateY(-8%); }
+  .hero-art:hover .mock-card.c { transform: translate(79%, 4%) rotate(22deg); }
+}
+@media (max-width: 720px) {
+  .hero-art .mock-card { width: min(30%, 15svh, 132px); }
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  .hero-art .mock-card { max-width: 105px; }
+}
 </style>
 </head>
 <body>
