@@ -74,17 +74,61 @@
  .mobile-nav button{color:#cbbfca}.mobile-nav button.active{color:#f6d8a4}
  #view-reveal .stage-controls .btn{min-width:min(100%,148px);white-space:normal}
 }
+
+/* Keep the shell anchored while cards and stars move independently. */
+html{scroll-behavior:auto}body{isolation:isolate;min-height:100svh;min-height:100dvh;display:flex;flex-direction:column;padding-inline:env(safe-area-inset-left) env(safe-area-inset-right);padding-top:env(safe-area-inset-top)}
+body>main{width:100%;flex:1}.top.container,footer{width:100%}.view,.view.active{transform:none;animation:none}.view.active{opacity:1}
+.hero,.hero-copy,.hero-art,.page-wrap,.modal-box{min-width:0}.hero-art{overflow:clip}
+.hero-art .celestial,.hero-art .orb{max-width:100%}.read-q,.archive-item b,.page-top .sub{overflow-wrap:anywhere}
+#stars{contain:strict}.meteor{position:absolute;width:clamp(42px,9vw,110px);height:1px;opacity:0;background:linear-gradient(90deg,transparent,#e5c79c);animation:noctis-meteor 13s linear infinite}
+@keyframes noctis-meteor{0%,78%,100%{opacity:0;transform:translate(0,0) rotate(32deg)}80%{opacity:.85}91%{opacity:0;transform:translate(24vw,15vw) rotate(32deg)}}
+.deck-wrap{container-type:inline-size}.floating-card{--lift:0px;transform:translate(calc(var(--pos) * min(52px, (100cqw - 145px) / var(--slots))),calc(var(--drop) + var(--lift))) rotate(var(--tilt))}
+.floating-card:active{transform:translate(calc(var(--pos) * min(52px, (100cqw - 145px) / var(--slots))),calc(var(--drop) - 5px)) rotate(var(--tilt))!important}
+.turn-card{position:relative;width:100%;height:100%;perspective:800px;touch-action:pan-y pinch-zoom;cursor:grab}
+.turn-inner{position:absolute;inset:0;transform-style:preserve-3d;transform:rotateY(var(--angle,0deg));transition:transform .54s cubic-bezier(.22,.7,.25,1)}
+.turn-card.turned{--angle:180deg}.turn-front,.turn-back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}.turn-back{transform:rotateY(180deg)}
+.turn-card img,#revealGrid .flip img{pointer-events:none;user-select:none}
+#revealGrid .flip{touch-action:pan-y pinch-zoom;transform:rotateY(var(--angle,0deg))}#revealGrid .flip.open{--angle:180deg}
+.turn-card.dragging .turn-inner,#revealGrid .flip.dragging{transition:none}
+@media(prefers-reduced-motion:no-preference){
+ .floating-card .card-back,#revealGrid .reveal-item,#resultsGrid .reveal-item{animation:deal-in .48s cubic-bezier(.18,.78,.25,1) backwards;animation-delay:calc(var(--order,0)*55ms)}
+ @keyframes deal-in{from{opacity:0;translate:0 22px;scale:.92}to{opacity:1;translate:0 0;scale:1}}
+}
+@media(max-width:720px){
+ body{padding-bottom:calc(68px + env(safe-area-inset-bottom))}
+ .hero{padding-top:clamp(16px,4svh,36px)}.hero-art{height:clamp(220px,38svh,345px);margin:0}
+ .hero-art .mock-card{width:min(31vw,18svh,132px)}.hero-copy{padding-bottom:0}
+ .question-panel textarea,.catalog-tools input{font-size:16px}
+ .modal-box{max-height:calc(100dvh - 36px - env(safe-area-inset-top) - env(safe-area-inset-bottom))}
+}
+@media(max-height:520px) and (orientation:landscape){.top{height:54px}.hero{min-height:0}.hero-art{height:260px}.hero-art .mock-card{width:110px}.page-wrap{padding-top:18px}}
+@media(prefers-reduced-motion:reduce){.meteor{display:none}.star{animation:none}}
+
+.result-art{width:100%;max-width:185px;aspect-ratio:9/16;margin-inline:auto}
+body{
+ --safe-top:max(env(safe-area-inset-top,0px),var(--tg-safe-area-inset-top,0px));
+ --safe-bottom:max(env(safe-area-inset-bottom,0px),var(--tg-safe-area-inset-bottom,0px));
+ --bottom-ui:calc(var(--safe-bottom) + var(--tg-content-safe-area-inset-bottom,0px));
+ padding-top:calc(var(--safe-top) + var(--tg-content-safe-area-inset-top,0px));
+ padding-left:calc(max(env(safe-area-inset-left),var(--tg-safe-area-inset-left,0px)) + var(--tg-content-safe-area-inset-left,0px));
+ padding-right:calc(max(env(safe-area-inset-right),var(--tg-safe-area-inset-right,0px)) + var(--tg-content-safe-area-inset-right,0px));
+}
+@media(max-width:720px){
+ body{padding-bottom:calc(68px + var(--bottom-ui))}
+ .mobile-nav{height:calc(68px + var(--bottom-ui));padding-bottom:calc(7px + var(--bottom-ui))}
+ #view-deal .stage-controls,#view-reveal .stage-controls{bottom:calc(68px + var(--bottom-ui))}
+}
+#screenToggle[hidden]{display:none}
 </style>
 </head>
 <body>
 <div id="bg"></div><div id="stars" aria-hidden="true"></div><div class="grain"></div>
-<div class="intro" id="intro"><div class="intro-icon">✧</div><div class="intro-name">NOCTIS</div><div class="intro-sub">СЛУШАЙ СИМВОЛЫ</div><div class="loading-track"><div class="loading-fill" id="loadingFill"></div></div><div class="loading-num" id="loadingNum">0%</div></div>
-<header class="top container"><button class="logo" onclick="go('home')" aria-label="На главную"><span class="logo-mark"></span><span class="logo-text">NOCTIS<small>THE ART OF TAROT</small></span></button><nav class="nav" aria-label="Навигация"><button class="navlink active" data-view="home" onclick="go('home')">Главная</button><button class="navlink" data-view="question" onclick="go('question')">Расклад</button><button class="navlink" data-view="catalog" onclick="go('catalog')">Колода</button><button class="navlink" data-view="history" onclick="go('history')">История</button></nav><div class="top-right"><span class="tiny-pill"><span class="dot"></span> ALPHA 0.2</span><button class="iconbtn" aria-label="Информация" title="О проекте" onclick="go('about')">ⓘ</button></div></header>
+<header class="top container"><button class="logo" onclick="go('home')" aria-label="На главную"><span class="logo-mark"></span><span class="logo-text">NOCTIS<small>THE ART OF TAROT</small></span></button><nav class="nav" aria-label="Навигация"><button class="navlink active" data-view="home" onclick="go('home')">Главная</button><button class="navlink" data-view="question" onclick="go('question')">Расклад</button><button class="navlink" data-view="catalog" onclick="go('catalog')">Колода</button><button class="navlink" data-view="history" onclick="go('history')">История</button></nav><div class="top-right"><button class="iconbtn" id="screenToggle" type="button" aria-label="На весь экран" title="На весь экран" hidden>⛶</button><span class="tiny-pill"><span class="dot"></span> ALPHA 0.2</span><button class="iconbtn" aria-label="Информация" title="О проекте" onclick="go('about')">ⓘ</button></div></header>
 <main>
 <section id="view-home" class="view active"><div class="container"><div class="hero"><div class="hero-copy"><div class="eyebrow">Тайны начинаются с вопроса</div><h1>Всё случайно.<br><i>Или нет?</i></h1><p class="hero-description">78 символов. Тысячи значений. Один вопрос, который не даёт тебе покоя. Позволь картам стать зеркалом твоих мыслей.</p><div class="actions"><button class="btn gold" onclick="go('question')">Начать расклад <span>✧</span></button><button class="btn ghost" onclick="showDaily()">Карта дня <span>↗</span></button></div></div><div class="hero-art"><div class="orb"></div><svg class="celestial" viewBox="0 0 500 500" aria-hidden="true"><circle cx="250" cy="250" r="226"/><circle cx="250" cy="250" r="215"/><circle cx="250" cy="250" r="189"/><circle cx="250" cy="250" r="159"/><circle cx="250" cy="250" r="143"/><circle class="primary" cx="250" cy="250" r="120"/><path d="M250 15V485M15 250H485M83 83L417 417M417 83L83 417"/><polygon points="250,70 430,250 250,430 70,250"/><polygon points="250,120 380,250 250,380 120,250"/><path d="M250 24L258 42L250 58L242 42Z M250 442L258 459L250 476L242 459Z M24 250L42 242L58 250L42 258Z M442 250L458 242L476 250L458 258Z"/><text x="250" y="53" text-anchor="middle">✦</text><text x="250" y="460" text-anchor="middle">✦</text><text x="46" y="252" text-anchor="middle">☼</text><text x="454" y="252" text-anchor="middle">☾</text></svg><div class="mock-card a" id="heroCard1"></div><div class="mock-card b" id="heroCard2"></div><div class="mock-card c" id="heroCard3"></div><div class="hero-caption">✧ &nbsp; НЕ ИЩИ ОТВЕТ · ПОЗВОЛЬ ЕМУ ОТКРЫТЬСЯ &nbsp; ✧</div></div></div><div class="section-head"><div><div class="eyebrow">Твой собственный ритуал</div><h2>Следуй за знаком</h2></div><p>Не предсказание, а путешествие внутрь вопроса. Каждая карта предлагает новый взгляд.</p></div><div class="feature-row"><button class="feature" onclick="go('question')"><span class="f-icon feature-art"><img class="card-back" src="card-back.jpg" alt=""></span><h3>Личный расклад</h3><p>Задай вопрос. Выбери карты. Узнай их историю.</p></button><button class="feature" onclick="showDaily()"><span class="f-icon feature-art" id="dailyPreview"></span><h3>Карта дня</h3><p>Один символ, чтобы задать настроение дню.</p></button><button class="feature" onclick="go('catalog')"><span class="f-icon">✦</span><h3>Библиотека арканов</h3><p>Все 78 карт классической колоды и их значения.</p></button></div><div class="stats-strip"><span><strong>78</strong> карт</span><span><strong>22</strong> старших аркана</span><span><strong>∞</strong> трактовок</span></div></div></section>
 <section id="view-question" class="view"><div class="page-wrap"><div class="page-top"><div class="eyebrow">I. Намерение</div><h1>Твой <i style="color:#cfb187">вопрос</i></h1><p class="sub">Не нужно искать идеальную формулировку. Спроси о том, что действительно занимает твои мысли.</p></div><div class="line-orn">✦ · ☾ · ✦</div><div class="question-panel glass"><span class="label">Тема вопроса</span><div class="topics" id="topics"><button class="topic active" data-topic="Путь" onclick="chooseTopic('Путь')">✧ Мой путь</button><button class="topic" data-topic="Отношения" onclick="chooseTopic('Отношения')">♡ Отношения</button><button class="topic" data-topic="Работа" onclick="chooseTopic('Работа')">✦ Работа и деньги</button><button class="topic" data-topic="Выбор" onclick="chooseTopic('Выбор')">☯ Сложный выбор</button></div><label class="label question-label" for="questionText">Вопрос <small>по желанию</small></label><textarea id="questionText" maxlength="500" placeholder="Например: Что мне стоит понять о ситуации, в которой я сейчас нахожусь?"></textarea><div class="micro">Если оставить поле пустым, возьмём вопрос по выбранной теме.</div><div style="height:26px"></div><span class="label">Сколько карт открыть?</span><div class="spread-options" id="spreadOpts"><button class="spread-opt" data-count="1" onclick="chooseSpread(1)"><b>1 карта</b><small>Один символ</small><em>БЫСТРЫЙ ОТВЕТ</em></button><button class="spread-opt active" data-count="3" onclick="chooseSpread(3)"><b>3 карты</b><small>Три ключа</small><em>КОРЕНЬ · МОМЕНТ · ПУТЬ</em></button><button class="spread-opt" data-count="5" onclick="chooseSpread(5)"><b>5 карт</b><small>Пять граней</small><em>ГЛУБОКИЙ РАЗБОР</em></button></div><div class="panel-foot"><span class="micro">✦ Все расклады бесплатны в демоверсии</span><button class="btn gold" onclick="startRitual()">Перемешать колоду <span>→</span></button></div></div></div></section>
 <section id="view-deal" class="view"><div class="page-wrap"><div class="page-top"><div class="eyebrow">II. Выбор</div><h1>Доверься <i style="color:#d2b285">интуиции</i></h1><p class="sub" id="dealQuestion"></p></div><div class="ritual-progress"><div class="step on"></div><div class="step on"></div><div class="step"></div></div><div class="stage-notice" id="pickNote" role="status">Проведи рукой по колоде. Выбери карту, которая притягивает.</div><div class="deck-wrap" id="deckWrap"></div><div class="picked-tray" id="pickedTray"></div><p class="selection-lore">Карты выбираются случайным образом из полной колоды без повторений. Все карты открываются в прямом положении.</p><div class="stage-controls"><button class="btn ghost small" onclick="startRitual(true)">↻ Перемешать снова</button><button class="btn gold small" id="toReveal" onclick="goReveal()" disabled>Открыть карты →</button></div></div></section>
-<section id="view-reveal" class="view"><div class="page-wrap"><div class="page-top"><div class="eyebrow">III. Откровение</div><h1>Карты <i style="color:#d2b285">говорят</i></h1><p class="sub">В каждом символе может скрываться другой ракурс на твой вопрос. Нажми на рубашку, чтобы открыть карту.</p></div><div class="ritual-progress"><div class="step on"></div><div class="step on"></div><div class="step on"></div></div><div class="stage-notice" id="revealCount" role="status"></div><div class="reveal-grid" id="revealGrid"></div><div class="stage-controls"><button class="btn ghost" id="openRemaining" onclick="picked.forEach((_,i)=>revealCard(i))">Открыть оставшиеся</button><button class="btn gold" id="readButton" onclick="showReading()">Прочитать трактовку →</button></div></div></section>
+<section id="view-reveal" class="view"><div class="page-wrap"><div class="page-top"><div class="eyebrow">III. Откровение</div><h1>Карты <i style="color:#d2b285">говорят</i></h1><p class="sub">В каждом символе может скрываться другой ракурс на твой вопрос. Нажми на карту или смахни в сторону, чтобы повернуть её.</p></div><div class="ritual-progress"><div class="step on"></div><div class="step on"></div><div class="step on"></div></div><div class="stage-notice" id="revealCount" role="status"></div><div class="reveal-grid" id="revealGrid"></div><div class="stage-controls"><button class="btn ghost" id="openRemaining" onclick="picked.forEach((_,i)=>revealCard(i))">Открыть оставшиеся</button><button class="btn gold" id="readButton" onclick="showReading()">Прочитать трактовку →</button></div></div></section>
 <section id="view-reading" class="view"><div class="page-wrap"><div class="page-top"><div class="eyebrow">IV. Толкование</div><h1>Твоё <i style="color:#d2b285">послание</i></h1><p class="sub">Каждая карта раскрывает часть истории. Вместе они образуют направление для размышления.</p></div><div class="read-intro"><div class="upper-note">Твой вопрос</div><div class="read-q" id="readQuestion"></div><div class="upper-note" id="readDate"></div></div><div class="reveal-grid" id="resultsGrid"></div><div class="reading-sheet glass" id="readingSheet"></div><div class="read-actions"><button class="btn ghost" onclick="go('question')">✧ Новый расклад</button><button class="btn gold" onclick="shareReading()">Поделиться ↗</button></div></div></section>
 <section id="view-catalog" class="view"><div class="page-wrap" style="max-width:1070px"><div class="page-top"><div class="eyebrow">Liber Arcana</div><h1>Сокровищница <i style="color:#d2b285">знаков</i></h1><p class="sub">22 Старших аркана и 56 Младших. Все 78 карт представлены в оформлении NOCTIS.</p></div><div class="catalog-tools"><input id="cardSearch" class="search" placeholder="Найти карту по названию…" oninput="renderCatalog()" aria-label="Поиск карт"><button class="filter active" data-filter="Все" onclick="setFilter('Все')">Все 78</button><button class="filter" data-filter="Старший аркан" onclick="setFilter('Старший аркан')">Старшие</button><button class="filter" data-filter="Жезлов" onclick="setFilter('Жезлов')">Жезлы</button><button class="filter" data-filter="Кубков" onclick="setFilter('Кубков')">Кубки</button><button class="filter" data-filter="Мечей" onclick="setFilter('Мечей')">Мечи</button><button class="filter" data-filter="Пентаклей" onclick="setFilter('Пентаклей')">Пентакли</button></div><div class="catalog-grid" id="catalogGrid"></div><p style="text-align:center;font-size:10px;color:#9f9090;margin:25px 0">Иллюстрации колоды NOCTIS.</p></div></section>
 <section id="view-history" class="view"><div class="page-wrap"><div class="page-top"><div class="eyebrow">Записано в звёздах</div><h1>Следы <i style="color:#d2b285">выбора</i></h1><p class="sub">Все твои расклады хранятся только в браузере на этом устройстве. Можно открыть их снова.</p></div><div class="archive-list" id="archiveList"></div><div style="text-align:center"><button class="btn ghost small" onclick="clearHistory()">Очистить историю</button></div></div></section>
@@ -252,9 +296,12 @@ function modalKnowledgeHtml(c){const k=ARCANA_KNOWLEDGE[c.id];return `<div class
 
 function haptic(type='light'){try{window.Telegram?.WebApp?.HapticFeedback?.impactOccurred(type)}catch(e){}}
 function toast(msg){let t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>t.classList.remove('show'),3000)}
-function buildStars(){let el=$('#stars');for(let i=0;i<110;i++){let s=document.createElement('i');s.className='star'+(i%9===0?' big':'');s.style.cssText=`left:${(i*73.13)%100}%;top:${(i*47.67)%100}%;--t:${2+i%7}s;animation-delay:-${i%8}s`;el.appendChild(s)}}
-function cardArt(c,lazy=true){const src='cards/'+c.id+'.jpg';
-return `<div class="card-art approved${c.reversed?' reversed':''}"><div class="card-fallback"><span class="card-idx">${c.arcana==='Старший аркан'?['0','I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX','XXI'][c.number]:String(c.number).padStart(2,'0')}</span><span class="circles"></span><span class="card-glyph">${c.sigil}</span><span class="card-name">${safe(c.name)}</span></div><img class="card-image" ${lazy?'loading="lazy"':''} src="${src}" alt="${safe(c.name)} — NOCTIS" onload="this.classList.add('loaded')" onerror="this.remove()"></div>`}
+function buildStars(){let el=$('#stars');for(let i=0;i<110;i++){let s=document.createElement('i');s.className='star'+(i%9===0?' big':'');s.style.cssText=`left:${(i*73.13)%100}%;top:${(i*47.67)%100}%;--t:${2+i%7}s;animation-delay:-${i%8}s`;el.appendChild(s)}for(let i=0;i<3;i++){let meteor=document.createElement('i');meteor.className='meteor';meteor.style.cssText='left:'+([13,54,74][i])+'%;top:'+([6,28,61][i])+'%;animation-delay:-'+([1,6,10][i])+'s';el.appendChild(meteor)}}
+function cardArt(c,lazy=true,turnable=true){const src='cards/'+c.id+'.jpg';
+const front=`<div class="card-art approved${c.reversed?' reversed':''}"><div class="card-fallback"><span class="card-idx">${c.arcana==='Старший аркан'?['0','I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX','XXI'][c.number]:String(c.number).padStart(2,'0')}</span><span class="circles"></span><span class="card-glyph">${c.sigil}</span><span class="card-name">${safe(c.name)}</span></div><img class="card-image" ${lazy?'loading="lazy"':''} src="${src}" alt="${safe(c.name)} — NOCTIS" onload="this.classList.add('loaded')" onerror="this.remove()"></div>`;
+ if(!turnable)return front;
+ return `<div class="turn-card" data-name="${safe(c.name)}"><div class="turn-inner"><div class="turn-front">${front}</div><div class="turn-back">${cardBack()}</div></div></div>`;
+}
 function cardBack(){return '<img class="card-back" src="card-back.jpg" alt="Рубашка NOCTIS" draggable="false">'}
 function go(view){if(!$('#view-'+view))return;currentView=view;$$('.view').forEach(el=>el.classList.toggle('active',el.id==='view-'+view));const section=['deal','reveal','reading'].includes(view)?'question':view;$$('.navlink,.mnavlink').forEach(b=>{const active=b.dataset.view===section;b.classList.toggle('active',active);if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});window.scrollTo({top:0,behavior:'instant'});haptic();if(view==='catalog')renderCatalog();if(view==='history')renderHistory();}
 function chooseTopic(v){topic=v;$$('.topic').forEach(b=>b.classList.toggle('active',b.dataset.topic===v));haptic()}
@@ -262,13 +309,18 @@ function chooseSpread(n){spread=n;$$('.spread-opt').forEach(b=>b.classList.toggl
 function entropy(){try{let a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]/4294967296}catch(e){return Math.random()}}
 function shuffle(items){let a=[...items];for(let i=a.length-1;i>0;i--){let j=Math.floor(entropy()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function startRitual(reset=false){if(!reset){currentQuestion=$('#questionText').value.trim()||({Путь:'Что мне стоит понять о своём пути прямо сейчас?',Отношения:'Что важно осознать в моих отношениях?',Работа:'На чём стоит сосредоточиться в работе и деньгах?',Выбор:'Что поможет мне принять осознанное решение?'}[topic])}picked=[];pool=shuffle(CARDS).map(c=>({...c,reversed:false}));$('#dealQuestion').textContent=currentQuestion;go('deal');renderDeck();haptic('medium')}
-function renderDeck(){let wrap=$('#deckWrap');let count=window.innerWidth<720?7:9;wrap.innerHTML='';for(let i=0;i<count;i++){let btn=document.createElement('button');btn.className='floating-card';btn.type='button';btn.setAttribute('aria-label','Выбрать карту '+(i+1));btn.innerHTML=cardBack();let pos=(i-(count-1)/2);let x=pos*(window.innerWidth<720?38:55),rot=pos*7;btn.style.cssText=`transform:translate(${x}px,${Math.abs(pos)*7}px) rotate(${rot}deg);z-index:${count-Math.abs(pos)}`;btn.onclick=()=>pickCard(btn,i);wrap.appendChild(btn)}renderTray();$('#pickNote').textContent='Выбери '+ (spread===1?'одну карту':spread===3?'три карты':'пять карт')+' — нажимай на карты в колоде.';$('#toReveal').disabled=true}
-function pickCard(btn,i){if(picked.length>=spread || btn.classList.contains('chosen'))return;btn.classList.add('chosen');let card=pool.shift();picked.push(card);btn.style.opacity='0';btn.style.pointerEvents='none';btn.style.transform+=' translateY(-100px) scale(.72)';setTimeout(()=>btn.remove(),380);renderTray();haptic('medium');let left=spread-picked.length;$('#pickNote').textContent=left?`Выбрано ${picked.length} из ${spread}. Ещё ${left} ${left===1?'карта':left<5?'карты':'карт'}…`:'Все карты выбраны. Теперь открой послание.';if(!left){$('#toReveal').disabled=false;$$('.floating-card').forEach(b=>b.style.pointerEvents='none');}} 
+function renderDeck(){let wrap=$('#deckWrap');let count=window.innerWidth<720?7:9;wrap.innerHTML='';for(let i=0;i<count;i++){let btn=document.createElement('button');btn.className='floating-card';btn.type='button';btn.setAttribute('aria-label','Выбрать карту '+(i+1));btn.innerHTML=cardBack();let pos=(i-(count-1)/2);btn.style.cssText=`--pos:${pos};--slots:${count-1};--drop:${Math.abs(pos)*5}px;--tilt:${pos*5}deg;--order:${i};z-index:${count-Math.abs(pos)}`;btn.onclick=()=>pickCard(btn,i);wrap.appendChild(btn)}renderTray();$('#pickNote').textContent='Выбери '+ (spread===1?'одну карту':spread===3?'три карты':'пять карт')+' — нажимай на карты в колоде.';$('#toReveal').disabled=true}
+function pickCard(btn,i){if(picked.length>=spread || btn.classList.contains('chosen'))return;btn.classList.add('chosen');let card=pool.shift();picked.push(card);btn.style.opacity='0';btn.style.pointerEvents='none';btn.style.setProperty('--lift','-70px');setTimeout(()=>btn.remove(),380);renderTray();haptic('medium');let left=spread-picked.length;$('#pickNote').textContent=left?`Выбрано ${picked.length} из ${spread}. Ещё ${left} ${left===1?'карта':left<5?'карты':'карт'}…`:'Все карты выбраны. Теперь открой послание.';if(!left){$('#toReveal').disabled=false;$$('.floating-card').forEach(b=>b.style.pointerEvents='none');}} 
 function renderTray(){let html='';for(let i=0;i<spread;i++)html+=`<div class="picked-placeholder ${i<picked.length?'fill':''}">${i<picked.length?cardBack():'+'}</div>`;$('#pickedTray').innerHTML=html}
-function goReveal(){if(picked.length!==spread)return;go('reveal');let grid=$('#revealGrid');grid.className='reveal-grid'+(spread===5?' five':spread===1?' single':'');grid.innerHTML=picked.map((c,i)=>`<div class="reveal-item"><div class="role">${safe(ROLES[spread][i])}</div><div class="flip" id="flip${i}" role="button" tabindex="0" aria-label="Открыть карту ${i+1}" onclick="revealCard(${i})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();revealCard(${i})}"><div class="face back">${cardBack()}</div><div class="face front">${cardArt(c,false)}</div></div><div class="short">${i+1}. Скрытая карта</div></div>`).join('');updateRevealControls()}
-function revealCard(i){let el=$('#flip'+i);if(!el||el.classList.contains('open'))return;el.classList.add('open');let c=picked[i];el.parentElement.querySelector('.short').textContent=c.name;haptic('medium');el.setAttribute('aria-label',c.name);el.setAttribute('aria-disabled','true');updateRevealControls()}
+function goReveal(){if(picked.length!==spread)return;go('reveal');let grid=$('#revealGrid');grid.className='reveal-grid'+(spread===5?' five':spread===1?' single':'');grid.innerHTML=picked.map((c,i)=>`<div class="reveal-item" style="--order:${i}"><div class="role">${safe(ROLES[spread][i])}</div><div class="flip" id="flip${i}" role="button" tabindex="0" aria-label="Открыть карту ${i+1}" onclick="turnReveal(${i})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();turnReveal(${i})}"><div class="face back">${cardBack()}</div><div class="face front">${cardArt(c,false,false)}</div></div><div class="short">${i+1}. Скрытая карта</div></div>`).join('');updateRevealControls()}
+function revealCard(i){let el=$('#flip'+i);if(!el)return;if(el.dataset.seen){el.classList.add('open');el.setAttribute('aria-pressed','true');return};el.classList.add('open');let c=picked[i];el.parentElement.querySelector('.short').textContent=c.name;haptic('medium');el.setAttribute('aria-label',c.name);el.dataset.seen='true';el.setAttribute('aria-pressed','true');updateRevealControls()}
+function turnReveal(i){
+ const el=$('#flip'+i);
+ if(el.dataset.seen && el.classList.contains('open')){el.classList.remove('open');el.setAttribute('aria-pressed','false')}
+ else revealCard(i);
+}
 function updateRevealControls(){
- const opened=$$('#revealGrid .flip.open').length;
+ const opened=$$('#revealGrid [data-seen]').length;
  $('#revealCount').textContent='Открыто карт: '+opened+' из '+spread;
  $('#openRemaining').hidden=opened===spread;
 }
@@ -284,7 +336,7 @@ function renderReading(r){
  $('#readQuestion').textContent='«'+r.question+'»';
  $('#readDate').textContent=r.date+' · '+r.count+' '+(r.count===1?'карта':r.count===3?'карты':'карт');
  const grid=$('#resultsGrid');grid.className='reveal-grid'+(r.count===5?' five':r.count===1?' single':'');
- grid.innerHTML=cs.map((c,i)=>`<button class="reveal-item" style="border:0;background:none;color:inherit;cursor:pointer" onclick="openCard('${c.id}')"><div class="role">${safe(roles[i]||'Позиция '+(i+1))}</div><div class="flip open" style="pointer-events:none"><div class="face back">${cardBack()}</div><div class="face front">${cardArt(c,false)}</div></div><div class="short">${safe(c.name)}</div></button>`).join('');
+ grid.innerHTML=cs.map((c,i)=>`<button class="reveal-item" style="border:0;background:none;color:inherit;cursor:pointer" onclick="openCard('${c.id}')"><div class="role">${safe(roles[i]||'Позиция '+(i+1))}</div><div class="result-art">${cardArt(c,false)}</div><div class="short">${safe(c.name)}</div></button>`).join('');
  $('#readingSheet').innerHTML=readingHtml(r);
 }
 function archiveArt(r){const first=r.cards?.[0];const card=CARDS.find(c=>c.id===first?.id);return card?cardArt({...card,reversed:first.reversed}):cardBack()}
@@ -299,10 +351,77 @@ function closeModal(){if(!$('#cardModal').classList.contains('show'))return;$('#
 function dailyCard(){let date=new Date(),k=`${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`;let hash=0;for(let i=0;i<k.length;i++){hash=((hash<<5)-hash)+k.charCodeAt(i);hash|=0}return CARDS[Math.abs(hash)%78]}
 function showDaily(){let c=dailyCard();openCard(c.id);toast('Это карта сегодняшнего дня — '+c.name)}
 async function shareReading(){if(!currentReading)return;let names=currentReading.cards.map(x=>CARDS.find(c=>c.id===x.id)?.name).join(' · ');let text=`NOCTIS ✧ Мой расклад Таро\n${currentReading.question}\n${names}\nОткрой свой вопрос — и выбери карты.`;try{if(navigator.share){await navigator.share({title:'NOCTIS · Расклад Таро',text});return}await navigator.clipboard.writeText(text);toast('Расклад скопирован')}catch(e){try{await navigator.clipboard.writeText(text);toast('Текст скопирован')}catch(e){toast('Поделиться не удалось')}}}
-window.addEventListener('keydown',e=>{if(!$('#cardModal').classList.contains('show'))return;if(e.key==='Escape')closeModal();if(e.key==='Tab'){const nodes=$$('#cardModal button,#cardModal summary,#cardModal a[href]').filter(el=>el.getClientRects().length);const edge=e.shiftKey?nodes[0]:nodes[nodes.length-1];if(document.activeElement===edge){e.preventDefault();nodes[e.shiftKey?nodes.length-1:0]?.focus()}}});
-window.addEventListener('resize',()=>{if(currentView==='deal'&&picked.length===0)renderDeck()});
-function startApp(){try{window.Telegram?.WebApp?.ready();window.Telegram?.WebApp?.expand()}catch(e){}buildStars();$('#dailyPreview').innerHTML=cardArt(dailyCard(),false);$('#heroCard1').innerHTML=cardArt(CARDS[17],false);$('#heroCard2').innerHTML=cardArt(CARDS[18],false);$('#heroCard3').innerHTML=cardArt(CARDS[19],false);let n=0;let i=setInterval(()=>{n=Math.min(100,n+10);$('#loadingNum').textContent=n+'%';$('#loadingFill').style.width=n+'%';if(n===100){clearInterval(i);setTimeout(()=>$('#intro').classList.add('hide'),220)}},44);}
+window.addEventListener('keydown',e=>{if(!$('#cardModal').classList.contains('show'))return;if(e.key==='Escape')closeModal();if(e.key==='Tab'){const nodes=$$('#cardModal button,#cardModal summary,#cardModal a[href],#cardModal [tabindex="0"]').filter(el=>el.getClientRects().length);const edge=e.shiftKey?nodes[0]:nodes[nodes.length-1];if(document.activeElement===edge){e.preventDefault();nodes[e.shiftKey?nodes.length-1:0]?.focus()}}});
+
+// Horizontal drags rotate a card. Vertical drags retain the browser's scrolling.
+let drag=null, skipClick=null;
+const turnTarget=e=>e.target.closest('#revealGrid .flip,.turn-card');
+function turnTo(el,back){
+ el.classList.toggle('turned',back);
+ el.style.removeProperty('--angle');
+ if(el.hasAttribute('aria-pressed'))el.setAttribute('aria-pressed',String(back));
+}
+document.addEventListener('pointerdown',e=>{
+ const el=turnTarget(e);if(!el||!e.isPrimary||e.button!==0)return;
+ skipClick=null;drag={el,id:e.pointerId,x:e.clientX,y:e.clientY,back:el.classList.contains('turned'),active:false};
+});
+document.addEventListener('pointermove',e=>{
+ if(!drag||e.pointerId!==drag.id)return;
+ const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+ if(!drag.active){
+  if(Math.abs(dy)>8 && Math.abs(dy)>Math.abs(dx)){drag=null;return}
+  if(Math.abs(dx)<10)return;
+  drag.active=true;drag.el.setPointerCapture(e.pointerId);drag.el.classList.add('dragging');
+ }
+ const initial=drag.el.matches('.flip')?(drag.el.classList.contains('open')?180:0):(drag.back?180:0);
+ drag.el.style.setProperty('--angle',(initial+Math.max(-180,Math.min(180,dx/Math.max(70,drag.el.clientWidth*.7)*180)))+'deg');
+});
+function endTurn(e){
+ if(!drag||e.pointerId!==drag.id)return;
+ const {el,x,back,active}=drag;drag=null;if(!active)return;
+ el.classList.remove('dragging');el.style.removeProperty('--angle');
+ if(e.type==='pointercancel')return;
+ skipClick=el;
+ if(Math.abs(e.clientX-x)<25)return;
+ if(el.matches('.flip'))turnReveal(Number(el.id.slice(4)));else turnTo(el,!back);
+}
+document.addEventListener('pointerup',endTurn);document.addEventListener('pointercancel',endTurn);
+document.addEventListener('click',e=>{
+ if(skipClick && (skipClick.contains(e.target)||e.target.contains(skipClick))){skipClick=null;e.preventDefault();e.stopImmediatePropagation();return}
+ const el=e.target.closest('.turn-card');if(el && !el.closest('button'))turnTo(el,!el.classList.contains('turned'));
+},true);
+document.addEventListener('keydown',e=>{
+ if(!e.target.matches('.turn-card[role="button"]')||![' ','Enter'].includes(e.key))return;
+ e.preventDefault();turnTo(e.target,!e.target.classList.contains('turned'));
+});
+function enableCardKeys(root){root.querySelectorAll('.turn-card').forEach(el=>{
+ if(el.closest('button')||el.hasAttribute('tabindex'))return;
+ el.tabIndex=0;el.setAttribute('role','button');el.setAttribute('aria-label','Повернуть карту: '+el.dataset.name);el.setAttribute('aria-pressed','false');
+})}
+function initTelegramViewport(){
+ function expand(){
+  const app=window.Telegram?.WebApp;if(!app)return;
+  app.ready();app.expand();
+  if(app.isVersionAtLeast?.('8.0') && !app.isFullscreen)app.requestFullscreen();
+ }
+ if(window.Telegram?.WebApp){expand();return}
+ if(!/(?:^|[?#&])tgWebApp(?:Data|Platform|Version)=/.test(location.hash+location.search))return;
+ const script=document.createElement('script');script.src='https://telegram.org/js/telegram-web-app.js';script.onload=expand;document.head.appendChild(script);
+}
+function startApp(){
+ if('scrollRestoration' in history)history.scrollRestoration='manual';
+ window.scrollTo({top:0,behavior:'instant'});
+ initTelegramViewport();
+ const screenButton=$('#screenToggle');
+ if(document.fullscreenEnabled && !window.Telegram?.WebApp && !location.hash.includes('tgWebApp')){
+  screenButton.hidden=false;
+  screenButton.onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen()}catch{toast('Браузер не разрешил полноэкранный режим')}};
+  document.addEventListener('fullscreenchange',()=>{const label=document.fullscreenElement?'Свернуть экран':'На весь экран';screenButton.title=label;screenButton.setAttribute('aria-label',label)});
+ }
+ buildStars();$('#dailyPreview').innerHTML=cardArt(dailyCard(),false);$('#heroCard1').innerHTML=cardArt(CARDS[17],false);$('#heroCard2').innerHTML=cardArt(CARDS[18],false);$('#heroCard3').innerHTML=cardArt(CARDS[19],false);}
 startApp();
+enableCardKeys(document);
+new MutationObserver(records=>{for(const r of records)for(const node of r.addedNodes)if(node.nodeType===1 && (node.matches('.turn-card')||node.querySelector('.turn-card')))enableCardKeys(node.parentElement||node)}).observe(document.body,{childList:true,subtree:true});
 </script>
 </body>
 </html>
